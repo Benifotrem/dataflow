@@ -1,2 +1,11 @@
+# Contaplus - Robots.txt
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api
+Disallow: /login
+Disallow: /register
+
+# Sitemap
+Sitemap: https://contaplus.com/sitemap.xml
