@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Eliminar extractos bancarios expirados (diariamente a las 2 AM)
+Schedule::command('contaplus:delete-expired-statements')->dailyAt('02:00');
+
+// Procesar documentos pendientes (cada hora)
+Schedule::command('contaplus:process-documents')->hourly();
+
+// Verificar límites de documentos (diariamente a las 9 AM)
+Schedule::command('contaplus:check-limits')->dailyAt('09:00');
