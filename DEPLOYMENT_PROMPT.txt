@@ -1,0 +1,54 @@
+PROMPT PARA CLAUDE - DEPLOYMENT EN HOSTINGER
+==============================================
+
+Copia y pega esto cuando necesites desplegar un nuevo proyecto:
+
+---
+
+# DEPLOYMENT EN HOSTINGER - SUBDOMINIO DE GUARANIAPPSTORE.COM
+
+Necesito desplegar un proyecto Laravel en Hostinger bajo la estructura de subdominios de guaraniappstore.com.
+
+## Información del Proyecto
+- **Subdominio:** [NOMBRE].guaraniappstore.com
+- **Repositorio Git:** [URL_DEL_REPO]
+- **Branch:** [NOMBRE_DEL_BRANCH]
+
+## Credenciales de Base de Datos
+- **DB_DATABASE:** [nombre_bd]
+- **DB_USERNAME:** [usuario_bd]
+- **DB_PASSWORD:** [password_bd]
+
+## Configuración del Servidor
+- **Usuario SSH:** u489458217
+- **Host:** guaraniappstore.com
+- **PHP Version:** 8.3 (ya configurado en hPanel)
+- **Panel:** hPanel (Hostinger)
+
+## Estructura CRÍTICA que DEBES seguir:
+```
+/home/u489458217/domains/[SUBDOMINIO].guaraniappstore.com/
+├── (archivos de Laravel en la raíz)
+└── public_html/  ← Aquí van los archivos de public/
+```
+
+## Protocolo de Deployment
+Tengo un archivo HOSTINGER_DEPLOYMENT_PROTOCOL.md en el repositorio que contiene todos los pasos exactos.
+
+**IMPORTANTE:**
+1. NO uses `/home/u489458217/public_html/` - usa `/home/u489458217/domains/[SUBDOMINIO].guaraniappstore.com/`
+2. Los archivos de `public/` deben copiarse a `public_html/`
+3. Si hay error de composer.lock, elimínalo y regenera
+4. Si las vistas Blade se corrompen, usa `rsync` en lugar de `cp`
+
+¿Puedes seguir el protocolo de deployment paso a paso?
+
+---
+
+VARIABLES A REEMPLAZAR:
+- [NOMBRE] → nombre del subdominio (ej: contaplus)
+- [URL_DEL_REPO] → URL del repositorio Git
+- [NOMBRE_DEL_BRANCH] → branch a desplegar
+- [nombre_bd] → nombre de la base de datos MySQL
+- [usuario_bd] → usuario de MySQL
+- [password_bd] → contraseña de MySQL
