@@ -18,6 +18,7 @@ class LandingController extends Controller
             'image' => asset('images/og-image.jpg'),
         ];
 
+        // Usar la landing completa
         return view('landing.index', compact('seo'));
     }
 
