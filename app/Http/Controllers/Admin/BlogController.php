@@ -15,16 +15,18 @@ class BlogController extends Controller
 
     public function __construct(BlogGeneratorService $blogGenerator, TrendingTopicsService $trendsService)
     {
-        $this->middleware(['auth', 'tenant.active']);
-        $this->middleware(function ($request, $next) {
-            if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
-                abort(403, 'No tienes permiso para acceder a esta sección');
-            }
-            return $next($request);
-        });
-
         $this->blogGenerator = $blogGenerator;
         $this->trendsService = $trendsService;
+    }
+
+    /**
+     * Verificar permisos de admin
+     */
+    protected function checkAdminPermission()
+    {
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+            abort(403, 'No tienes permiso para acceder a esta sección');
+        }
     }
 
     /**
@@ -32,6 +34,8 @@ class BlogController extends Controller
      */
     public function index(Request $request)
     {
+        $this->checkAdminPermission();
+
         $query = Post::query()->with('creator');
 
         // Filtros
@@ -61,6 +65,8 @@ class BlogController extends Controller
      */
     public function create()
     {
+        $this->checkAdminPermission();
+
         $countries = $this->trendsService->getAvailableCountries();
         $countryNames = $this->getCountryNames();
 
@@ -72,6 +78,8 @@ class BlogController extends Controller
      */
     public function generate(Request $request)
     {
+        $this->checkAdminPermission();
+
         $request->validate([
             'country' => 'nullable|string|size:2',
             'topic' => 'nullable|string|max:255',

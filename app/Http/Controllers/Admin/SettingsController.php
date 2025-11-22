@@ -8,22 +8,16 @@ use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'tenant.active']);
-        $this->middleware(function ($request, $next) {
-            if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
-                abort(403, 'No tienes permiso para acceder a esta sección');
-            }
-            return $next($request);
-        });
-    }
-
     /**
      * Mostrar configuración del blog
      */
     public function blog()
     {
+        // Verificar permisos
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+            abort(403, 'No tienes permiso para acceder a esta sección');
+        }
+
         $settings = Setting::where('group', 'blog')->get()->keyBy('key');
 
         return view('admin.settings.blog', compact('settings'));
@@ -34,6 +28,11 @@ class SettingsController extends Controller
      */
     public function updateBlog(Request $request)
     {
+        // Verificar permisos
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+            abort(403, 'No tienes permiso para acceder a esta sección');
+        }
+
         $validated = $request->validate([
             'openrouter_api_key' => 'nullable|string',
             'pexels_api_key' => 'nullable|string',
