@@ -22,8 +22,8 @@ class DashboardController extends Controller
         // Estadísticas generales
         $stats = [
             'documents_total' => Document::where('tenant_id', $tenant->id)->count(),
-            'documents_pending' => Document::where('tenant_id', $tenant->id)->where('status', 'pending')->count(),
-            'documents_processing' => Document::where('tenant_id', $tenant->id)->where('status', 'processing')->count(),
+            'documents_pending' => 0, // TODO: Agregar columna status a documents
+            'documents_processing' => 0, // TODO: Agregar columna status a documents
             'transactions_total' => Transaction::where('tenant_id', $tenant->id)->count(),
             'transactions_this_month' => Transaction::where('tenant_id', $tenant->id)
                 ->whereMonth('date', now()->month)
