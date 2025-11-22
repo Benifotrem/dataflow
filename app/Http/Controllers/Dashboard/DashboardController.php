@@ -25,10 +25,7 @@ class DashboardController extends Controller
             'documents_pending' => 0, // TODO: Agregar columna status a documents
             'documents_processing' => 0, // TODO: Agregar columna status a documents
             'transactions_total' => Transaction::where('tenant_id', $tenant->id)->count(),
-            'transactions_this_month' => Transaction::where('tenant_id', $tenant->id)
-                ->whereMonth('date', now()->month)
-                ->whereYear('date', now()->year)
-                ->count(),
+            'transactions_this_month' => 0, // TODO: Verificar nombre de columna de fecha
             'entities_total' => Entity::where('tenant_id', $tenant->id)->count(),
         ];
 
@@ -51,7 +48,7 @@ class DashboardController extends Controller
 
         // Transacciones recientes
         $recentTransactions = Transaction::where('tenant_id', $tenant->id)
-            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
