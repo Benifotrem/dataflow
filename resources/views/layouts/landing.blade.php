@@ -99,9 +99,7 @@
             <div class="flex items-center justify-between">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z"/>
-                    </svg>
+                    <img src="{{ asset('logo.png') }}" alt="Contaplus Logo" class="h-10 w-auto">
                     <span class="text-2xl font-bold text-gray-900">Contaplus</span>
                 </a>
 
