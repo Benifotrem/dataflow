@@ -35,20 +35,20 @@
     {{-- Schema.org JSON-LD --}}
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
+        "@@context": "https://schema.org",
+        "@@type": "SoftwareApplication",
         "name": "Contaplus",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
         "offers": {
-            "@type": "AggregateOffer",
+            "@@type": "AggregateOffer",
             "lowPrice": "19.99",
             "highPrice": "49.99",
             "priceCurrency": "USD",
             "offerCount": "2"
         },
         "aggregateRating": {
-            "@type": "AggregateRating",
+            "@@type": "AggregateRating",
             "ratingValue": "4.8",
             "ratingCount": "150"
         },
