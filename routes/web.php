@@ -11,6 +11,7 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::get('/faq', [LandingController::class, 'faq'])->name('faq');
 Route::get('/blog', [LandingController::class, 'blog'])->name('blog');
+Route::get('/blog/{slug}', [LandingController::class, 'blogShow'])->name('blog.show');
 Route::get('/terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('/privacy', [LandingController::class, 'privacy'])->name('privacy');
 Route::get('/sitemap.xml', [LandingController::class, 'sitemap'])->name('sitemap');
@@ -76,4 +77,20 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('settings.update');
+
+    // Blog Management
+    Route::prefix('blog')->name('blog.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BlogController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\BlogController::class, 'create'])->name('create');
+        Route::post('/generate', [\App\Http\Controllers\Admin\BlogController::class, 'generate'])->name('generate');
+        Route::get('/{post}/edit', [\App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('edit');
+        Route::put('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'update'])->name('update');
+        Route::post('/{post}/publish', [\App\Http\Controllers\Admin\BlogController::class, 'publish'])->name('publish');
+        Route::post('/{post}/archive', [\App\Http\Controllers\Admin\BlogController::class, 'archive'])->name('archive');
+        Route::delete('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'destroy'])->name('destroy');
+    });
+
+    // Settings - Blog Configuration
+    Route::get('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'blog'])->name('settings.blog');
+    Route::put('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'updateBlog'])->name('settings.blog.update');
 });

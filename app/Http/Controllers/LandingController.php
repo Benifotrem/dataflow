@@ -51,17 +51,51 @@ class LandingController extends Controller
     }
 
     /**
-     * Blog
+     * Blog - Lista de artículos
      */
     public function blog()
     {
+        $posts = \App\Models\Post::published()
+            ->orderBy('published_at', 'desc')
+            ->paginate(12);
+
         $seo = [
             'title' => 'Blog - Contaplus',
             'description' => 'Artículos, guías y novedades sobre contabilidad, fiscalidad y automatización con IA.',
             'keywords' => 'blog contabilidad, guías fiscales, automatización contable, noticias fiscales',
         ];
 
-        return view('landing.blog', compact('seo'));
+        return view('landing.blog', compact('seo', 'posts'));
+    }
+
+    /**
+     * Mostrar artículo individual
+     */
+    public function blogShow(string $slug)
+    {
+        $post = \App\Models\Post::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        // Incrementar vistas
+        $post->incrementViews();
+
+        // Posts relacionados (mismo país)
+        $relatedPosts = \App\Models\Post::published()
+            ->where('id', '!=', $post->id)
+            ->where('country', $post->country)
+            ->orderBy('published_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        $seo = [
+            'title' => $post->title . ' - Contaplus Blog',
+            'description' => $post->excerpt,
+            'keywords' => implode(', ', $post->keywords ?? []),
+            'image' => $post->featured_image ? asset('storage/' . $post->featured_image) : asset('images/og-image.jpg'),
+        ];
+
+        return view('landing.blog-show', compact('post', 'relatedPosts', 'seo'));
     }
 
     /**
