@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::get('/faq', [LandingController::class, 'faq'])->name('faq');
+Route::get('/blog', [LandingController::class, 'blog'])->name('blog');
 Route::get('/terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('/privacy', [LandingController::class, 'privacy'])->name('privacy');
 Route::get('/sitemap.xml', [LandingController::class, 'sitemap'])->name('sitemap');

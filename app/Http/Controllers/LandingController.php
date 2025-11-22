@@ -29,7 +29,7 @@ class LandingController extends Controller
     {
         $seo = [
             'title' => 'Precios - Contaplus',
-            'description' => 'Planes flexibles para PyMEs y despachos contables. Básico desde $19.99/mes, Avanzado desde $49.99/mes. Prueba gratis 14 días.',
+            'description' => 'Planes flexibles para PyMEs y despachos contables. Básico desde $9.99/mes, Avanzado desde $29.99/mes. Prueba gratis 14 días.',
             'keywords' => 'precios contabilidad, software contable precio, plan contable',
         ];
 
@@ -48,6 +48,20 @@ class LandingController extends Controller
         ];
 
         return view('landing.faq', compact('seo'));
+    }
+
+    /**
+     * Blog
+     */
+    public function blog()
+    {
+        $seo = [
+            'title' => 'Blog - Contaplus',
+            'description' => 'Artículos, guías y novedades sobre contabilidad, fiscalidad y automatización con IA.',
+            'keywords' => 'blog contabilidad, guías fiscales, automatización contable, noticias fiscales',
+        ];
+
+        return view('landing.blog', compact('seo'));
     }
 
     /**

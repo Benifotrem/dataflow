@@ -25,7 +25,7 @@
                     <h3 class="text-2xl font-bold mb-2">Plan Básico</h3>
                     <p class="text-blue-100 mb-6">Perfecto para PyMEs y personas físicas</p>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-5xl font-bold">$19.99</span>
+                        <span class="text-5xl font-bold">$9.99</span>
                         <span class="text-blue-100">/mes</span>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
                             </svg>
                             <div>
-                                <p class="font-semibold text-gray-900">500 Documentos IA/mes</p>
+                                <p class="font-semibold text-gray-900">300 Documentos IA/mes</p>
                                 <p class="text-sm text-gray-600">Procesamiento automático con OCR inteligente</p>
                             </div>
                         </li>
@@ -93,7 +93,7 @@
                         </li>
                     </ul>
 
-                    <a href="#" class="block w-full bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    <a href="{{ route('register') }}" class="block w-full bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                         Comenzar Prueba Gratis
                     </a>
                     <p class="text-center text-sm text-gray-500 mt-3">14 días gratis, sin tarjeta</p>
@@ -110,7 +110,7 @@
                     <h3 class="text-2xl font-bold mb-2">Plan Avanzado</h3>
                     <p class="text-purple-100 mb-6">Para contadores y despachos profesionales</p>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-5xl font-bold">$49.99</span>
+                        <span class="text-5xl font-bold">$29.99</span>
                         <span class="text-purple-100">/mes</span>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
                             </svg>
                             <div>
-                                <p class="font-semibold text-gray-900">500 Documentos IA/mes</p>
+                                <p class="font-semibold text-gray-900">1000 Documentos IA/mes</p>
                                 <p class="text-sm text-gray-600">Compartidos entre todos tus clientes</p>
                             </div>
                         </li>
@@ -180,7 +180,7 @@
                         </li>
                     </ul>
 
-                    <a href="#" class="block w-full gradient-bg text-white text-center px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                    <a href="{{ route('register') }}" class="block w-full gradient-bg text-white text-center px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
                         Comenzar Prueba Gratis
                     </a>
                     <p class="text-center text-sm text-gray-500 mt-3">14 días gratis, sin tarjeta</p>
@@ -193,45 +193,78 @@
 
 {{-- Addons Section --}}
 <section class="py-16 bg-white">
-    <div class="container mx-auto px-6 max-w-4xl">
+    <div class="container mx-auto px-6 max-w-5xl">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Complementos Disponibles</h2>
             <p class="text-xl text-gray-600">Aumenta tu capacidad según crezcas</p>
         </div>
 
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border-2 border-gray-200">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex-1">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Paquete de 500 Documentos Adicionales</h3>
-                    <p class="text-gray-600 mb-4">
-                        ¿Necesitas procesar más de 500 documentos al mes? Agrega paquetes adicionales en cualquier momento.
-                    </p>
-                    <ul class="space-y-2 text-gray-700">
-                        <li class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-                            </svg>
-                            <span>Se activa solo cuando lo necesites</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-                            </svg>
-                            <span>Sin compromiso a largo plazo</span>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-                            </svg>
-                            <span>Compatible con ambos planes</span>
-                        </li>
-                    </ul>
+        <div class="grid md:grid-cols-2 gap-6">
+            {{-- Addon Pequeño --}}
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border-2 border-blue-200">
+                <div class="text-center mb-6">
+                    <div class="inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4">ADDON PEQUEÑO</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">+250 Documentos</h3>
+                    <div class="text-4xl font-bold text-blue-600 mb-1">$4.99</div>
+                    <div class="text-gray-600 text-sm">por mes</div>
                 </div>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>250 documentos adicionales/mes</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>Compatible con ambos planes</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>Sin compromiso a largo plazo</span>
+                    </li>
+                </ul>
+            </div>
 
-                <div class="flex-shrink-0 text-center bg-white rounded-xl p-6 shadow-lg">
-                    <div class="text-4xl font-bold text-purple-600 mb-2">$9.99</div>
-                    <div class="text-gray-600 text-sm">por paquete/mes</div>
+            {{-- Addon Grande --}}
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border-2 border-purple-300 relative">
+                <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-lg text-xs font-bold">MEJOR VALOR</div>
+                <div class="text-center mb-6">
+                    <div class="inline-block bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4">ADDON GRANDE</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">+1000 Documentos</h3>
+                    <div class="text-4xl font-bold text-purple-600 mb-1">$9.99</div>
+                    <div class="text-gray-600 text-sm">por mes</div>
                 </div>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>1000 documentos adicionales/mes</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>Compatible con ambos planes</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>Sin compromiso a largo plazo</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                        <span>Ahorra $10+ vs addon pequeño</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -262,8 +295,8 @@
                     </tr>
                     <tr>
                         <td class="px-6 py-4 text-gray-700">Documentos IA/mes</td>
-                        <td class="px-6 py-4 text-center">500</td>
-                        <td class="px-6 py-4 text-center bg-purple-50">500</td>
+                        <td class="px-6 py-4 text-center">300</td>
+                        <td class="px-6 py-4 text-center bg-purple-50">1000</td>
                     </tr>
                     <tr>
                         <td class="px-6 py-4 text-gray-700">Procesamiento OCR automático</td>
@@ -330,8 +363,8 @@
             </div>
 
             <div class="bg-gray-50 rounded-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">¿Qué pasa si supero el límite de 500 documentos?</h3>
-                <p class="text-gray-600">Te notificaremos cuando estés cerca del límite. Puedes comprar paquetes adicionales de 500 documentos por $9.99/mes en cualquier momento.</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">¿Qué pasa si supero el límite de documentos de mi plan?</h3>
+                <p class="text-gray-600">Te notificaremos cuando estés cerca del límite. Puedes agregar paquetes adicionales en cualquier momento: +250 documentos por $4.99/mes o +1000 documentos por $9.99/mes.</p>
             </div>
 
             <div class="bg-gray-50 rounded-lg p-6">

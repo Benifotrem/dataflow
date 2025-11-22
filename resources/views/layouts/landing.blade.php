@@ -110,13 +110,13 @@
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-purple-600 font-medium">Inicio</a>
                     <a href="{{ route('pricing') }}" class="text-gray-700 hover:text-purple-600 font-medium">Precios</a>
                     <a href="{{ route('faq') }}" class="text-gray-700 hover:text-purple-600 font-medium">FAQ</a>
-                    <a href="#" class="text-gray-700 hover:text-purple-600 font-medium">Blog</a>
+                    <a href="{{ route('blog') }}" class="text-gray-700 hover:text-purple-600 font-medium">Blog</a>
                 </div>
 
                 {{-- CTA Buttons --}}
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="#" class="text-purple-600 hover:text-purple-700 font-medium">Iniciar Sesión</a>
-                    <a href="#" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                    <a href="{{ route('login') }}" class="text-purple-600 hover:text-purple-700 font-medium">Iniciar Sesión</a>
+                    <a href="{{ route('register') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition">
                         Probar Gratis
                     </a>
                 </div>
@@ -135,10 +135,10 @@
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-purple-600 font-medium">Inicio</a>
                     <a href="{{ route('pricing') }}" class="text-gray-700 hover:text-purple-600 font-medium">Precios</a>
                     <a href="{{ route('faq') }}" class="text-gray-700 hover:text-purple-600 font-medium">FAQ</a>
-                    <a href="#" class="text-gray-700 hover:text-purple-600 font-medium">Blog</a>
+                    <a href="{{ route('blog') }}" class="text-gray-700 hover:text-purple-600 font-medium">Blog</a>
                     <div class="pt-4 border-t">
-                        <a href="#" class="block text-purple-600 hover:text-purple-700 font-medium mb-3">Iniciar Sesión</a>
-                        <a href="#" class="block bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium text-center transition">
+                        <a href="{{ route('login') }}" class="block text-purple-600 hover:text-purple-700 font-medium mb-3">Iniciar Sesión</a>
+                        <a href="{{ route('register') }}" class="block bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium text-center transition">
                             Probar Gratis
                         </a>
                     </div>
