@@ -23,13 +23,18 @@ class Setting extends Model
      */
     public static function get(string $key, $default = null)
     {
-        $setting = static::where('key', $key)->first();
+        try {
+            $setting = static::where('key', $key)->first();
 
-        if (!$setting) {
+            if (!$setting) {
+                return $default;
+            }
+
+            return static::castValue($setting->value, $setting->type);
+        } catch (\Exception $e) {
+            // Si la tabla no existe aún (durante migraciones), devolver el valor por defecto
             return $default;
         }
-
-        return static::castValue($setting->value, $setting->type);
     }
 
     /**
