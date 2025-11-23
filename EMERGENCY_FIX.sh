@@ -2,7 +2,7 @@
 # EMERGENCY FIX - Restaurar Contaplus a estado funcional
 
 echo "🚨 EMERGENCY FIX - Restaurando estado funcional"
-cd /home/u489458217/domains/contaplus.guaraniappstore.com/
+cd /home/u489458217/domains/dataflow.guaraniappstore.com/
 
 # Crear vista simple que funciona
 echo "📝 Creando vista simple funcional..."
@@ -106,7 +106,7 @@ chmod -R 775 storage bootstrap/cache
 
 echo ""
 echo "✅ FIX APLICADO"
-echo "🔗 Verifica: https://contaplus.guaraniappstore.com/"
+echo "🔗 Verifica: https://dataflow.guaraniappstore.com/"
 echo ""
 echo "Estado: Vista simple funcional restaurada"
 echo "Siguiente paso: Reconstruir landing completa con método heredoc"

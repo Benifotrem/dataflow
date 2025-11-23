@@ -2,7 +2,7 @@
 
 echo "================================================"
 echo "   DEPLOYMENT SCRIPT - CONTAPLUS"
-echo "   contaplus.guaraniappstore.com"
+echo "   dataflow.guaraniappstore.com"
 echo "================================================"
 echo ""
 
@@ -82,5 +82,5 @@ echo "3. Configurar Brevo (contaplus@guaraniappstore.com)"
 echo "4. Agregar API Key de OpenAI en .env"
 echo ""
 echo "Tu aplicación estará en:"
-echo "https://contaplus.guaraniappstore.com"
+echo "https://dataflow.guaraniappstore.com"
 echo ""

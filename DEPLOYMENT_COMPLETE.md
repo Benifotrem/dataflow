@@ -12,8 +12,8 @@ Esta guía te llevará paso a paso para implementar la versión completa de Cont
 - **Usuario SSH:** u489458217
 - **IP/Host:** 185.201.11.61
 - **Puerto SSH:** 65002
-- **Dominio:** contaplus.guaraniappstore.com
-- **Ruta del proyecto:** `/home/u489458217/domains/contaplus.guaraniappstore.com/`
+- **Dominio:** dataflow.guaraniappstore.com
+- **Ruta del proyecto:** `/home/u489458217/domains/dataflow.guaraniappstore.com/`
 
 ---
 
@@ -31,7 +31,7 @@ ssh u489458217@185.201.11.61 -p 65002
 
 ```bash
 # Ir al directorio del proyecto
-cd /home/u489458217/domains/contaplus.guaraniappstore.com
+cd /home/u489458217/domains/dataflow.guaraniappstore.com
 
 # Modo mantenimiento (opcional, si ya hay usuarios)
 php artisan down --message="Actualizando a nueva versión" --retry=60
@@ -129,7 +129,7 @@ nano .env
 APP_NAME=Contaplus
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://contaplus.guaraniappstore.com
+APP_URL=https://dataflow.guaraniappstore.com
 
 # Base de datos
 DB_CONNECTION=mysql
@@ -219,7 +219,7 @@ ls -la storage/
 
 **Comando:**
 ```bash
-cd /home/u489458217/domains/contaplus.guaraniappstore.com && php artisan schedule:run >> /dev/null 2>&1
+cd /home/u489458217/domains/dataflow.guaraniappstore.com && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 **Frecuencia:** `* * * * *` (cada minuto)
@@ -263,7 +263,7 @@ exit;
 php artisan up
 
 # Verificar que el sitio está funcionando
-curl -I https://contaplus.guaraniappstore.com
+curl -I https://dataflow.guaraniappstore.com
 
 # Ver logs en tiempo real (Ctrl+C para salir)
 tail -f storage/logs/laravel.log
@@ -276,15 +276,15 @@ tail -f storage/logs/laravel.log
 Abre tu navegador y verifica estas URLs:
 
 ### Landing Pages:
-- ✅ https://contaplus.guaraniappstore.com (Homepage)
-- ✅ https://contaplus.guaraniappstore.com/pricing (Página de precios)
-- ✅ https://contaplus.guaraniappstore.com/faq (FAQ)
-- ✅ https://contaplus.guaraniappstore.com/terms (Términos)
-- ✅ https://contaplus.guaraniappstore.com/privacy (Privacidad)
+- ✅ https://dataflow.guaraniappstore.com (Homepage)
+- ✅ https://dataflow.guaraniappstore.com/pricing (Página de precios)
+- ✅ https://dataflow.guaraniappstore.com/faq (FAQ)
+- ✅ https://dataflow.guaraniappstore.com/terms (Términos)
+- ✅ https://dataflow.guaraniappstore.com/privacy (Privacidad)
 
 ### Autenticación:
-- ✅ https://contaplus.guaraniappstore.com/login (Login)
-- ✅ https://contaplus.guaraniappstore.com/register (Registro)
+- ✅ https://dataflow.guaraniappstore.com/login (Login)
+- ✅ https://dataflow.guaraniappstore.com/register (Registro)
 
 ### Dashboard (después de login):
 - ✅ /dashboard (Dashboard principal)
@@ -454,7 +454,7 @@ tail -f storage/logs/laravel.log
 ## 🚀 PRÓXIMOS PASOS
 
 ### 1. Crear tu primera cuenta
-1. Ve a https://contaplus.guaraniappstore.com/register
+1. Ve a https://dataflow.guaraniappstore.com/register
 2. Crea tu cuenta como Plan Básico o Avanzado
 3. Completa el registro
 
@@ -519,7 +519,7 @@ php artisan config:cache
 
 Tu plataforma Contaplus está **100% funcional** en:
 
-**🌐 https://contaplus.guaraniappstore.com**
+**🌐 https://dataflow.guaraniappstore.com**
 
 ### Funcionalidades disponibles:
 - ✅ Landing page profesional

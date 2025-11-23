@@ -142,7 +142,7 @@
             echo "</table>";
 
             echo "<p class='info'>💡 Si hay problemas de rutas, ejecuta estos comandos vía SSH:</p>";
-            echo "<pre>cd domains/contaplus.guaraniappstore.com/public_html\nphp artisan route:clear\nphp artisan config:clear\nphp artisan view:clear\nphp artisan cache:clear</pre>";
+            echo "<pre>cd domains/dataflow.guaraniappstore.com/public_html\nphp artisan route:clear\nphp artisan config:clear\nphp artisan view:clear\nphp artisan cache:clear</pre>";
             ?>
         </div>
 
@@ -150,7 +150,7 @@
             <h2>6. Test de Rutas</h2>
             <?php
             echo "<p>Prueba estos enlaces:</p>";
-            $baseUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'contaplus.guaraniappstore.com');
+            $baseUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'dataflow.guaraniappstore.com');
             $routes = [
                 '/' => 'Home',
                 '/login' => 'Login',

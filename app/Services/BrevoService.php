@@ -268,7 +268,7 @@ class BrevoService
                 </div>
                 <p style="font-size: 16px; color: #555;">Para continuar procesando documentos sin interrupciones, te recomendamos actualizar tu plan.</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://contaplus.guaraniappstore.com/pricing" style="display: inline-block; background: {$color}; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ver Planes Disponibles</a>
+                    <a href="https://dataflow.guaraniappstore.com/pricing" style="display: inline-block; background: {$color}; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ver Planes Disponibles</a>
                 </div>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">¿Tienes preguntas? Contáctanos en soporte@contaplus.com</p>
@@ -309,7 +309,7 @@ class BrevoService
                     </ul>
                 </div>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://contaplus.guaraniappstore.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ir a Mi Dashboard</a>
+                    <a href="https://dataflow.guaraniappstore.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ir a Mi Dashboard</a>
                 </div>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si tienes alguna pregunta, no dudes en contactarnos. Estamos aquí para ayudarte.</p>

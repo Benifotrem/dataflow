@@ -8,4 +8,4 @@ Disallow: /login
 Disallow: /register
 
 # Sitemap
-Sitemap: https://contaplus.guaraniappstore.com/sitemap.xml
+Sitemap: https://dataflow.guaraniappstore.com/sitemap.xml

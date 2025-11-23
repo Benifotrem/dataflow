@@ -207,7 +207,7 @@ php artisan config:clear
 ---
 
 **Última actualización:** 2025-11-20
-**Proyecto de referencia:** contaplus.guaraniappstore.com
+**Proyecto de referencia:** dataflow.guaraniappstore.com
 **Estado:** ✅ Deployments exitosos con este protocolo
 ```
 

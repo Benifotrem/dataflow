@@ -13,7 +13,7 @@ Este script usa el método `cat > file << 'EOFBLADE'` para crear archivos Blade 
 ssh u489458217@185.201.11.61 -p 65002
 
 # 2. Ir al directorio del proyecto
-cd /home/u489458217/domains/contaplus.guaraniappstore.com
+cd /home/u489458217/domains/dataflow.guaraniappstore.com
 
 # 3. Descargar el script desde el repositorio
 curl -O https://raw.githubusercontent.com/Benifotrem/contaplus/claude/contaplus-saas-platform-01Gogn2DJtLmkTPq15MUxMWf/update-landing-views.sh
@@ -37,7 +37,7 @@ Si no puedes descargar el script directamente:
 ssh u489458217@185.201.11.61 -p 65002
 
 # 2. Ir al directorio del proyecto
-cd /home/u489458217/domains/contaplus.guaraniappstore.com
+cd /home/u489458217/domains/dataflow.guaraniappstore.com
 
 # 3. Crear el script
 nano update-landing-views.sh
@@ -59,7 +59,7 @@ Después de ejecutar el script, verifica que:
 
 1. **El sitio carga correctamente:**
    ```
-   https://contaplus.guaraniappstore.com/
+   https://dataflow.guaraniappstore.com/
    ```
 
 2. **Las vistas fueron creadas:**
@@ -103,7 +103,7 @@ chmod +x update-landing-views.sh
 Verifica que estás en el directorio correcto:
 ```bash
 pwd
-# Debería mostrar: /home/u489458217/domains/contaplus.guaraniappstore.com
+# Debería mostrar: /home/u489458217/domains/dataflow.guaraniappstore.com
 ```
 
 ### La página muestra error 500
@@ -135,4 +135,4 @@ php artisan cache:clear
 
 **Última actualización:** 2025-11-21
 **Proyecto:** Contaplus SaaS Platform
-**Servidor:** contaplus.guaraniappstore.com
+**Servidor:** dataflow.guaraniappstore.com

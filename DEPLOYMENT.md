@@ -1,6 +1,6 @@
 # 🚀 GUÍA DE DEPLOYMENT - CONTAPLUS
 
-## Configuración para: contaplus.guaraniappstore.com
+## Configuración para: dataflow.guaraniappstore.com
 
 ---
 
@@ -10,7 +10,7 @@
 - ✅ MySQL 8.0+
 - ✅ Acceso SSH o cPanel
 - ✅ Dominio: guaraniappstore.com (ya configurado)
-- ✅ Subdominio: contaplus.guaraniappstore.com
+- ✅ Subdominio: dataflow.guaraniappstore.com
 - ✅ Certificado SSL activo
 
 ---
@@ -84,7 +84,7 @@ APP_NAME=Contaplus
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
-APP_URL=https://contaplus.guaraniappstore.com
+APP_URL=https://dataflow.guaraniappstore.com
 
 APP_LOCALE=es
 APP_FALLBACK_LOCALE=es
@@ -189,7 +189,7 @@ Agregar línea:
 
 ### En cPanel → Domains → Manage:
 
-1. Seleccionar `contaplus.guaraniappstore.com`
+1. Seleccionar `dataflow.guaraniappstore.com`
 2. Document Root: `/home/tu_usuario/public_html/contaplus/public`
 3. Guardar cambios
 
@@ -259,9 +259,9 @@ php artisan list | grep contaplus
 ```
 
 ### Acceder a la aplicación:
-- https://contaplus.guaraniappstore.com
-- https://contaplus.guaraniappstore.com/pricing
-- https://contaplus.guaraniappstore.com/faq
+- https://dataflow.guaraniappstore.com
+- https://dataflow.guaraniappstore.com/pricing
+- https://dataflow.guaraniappstore.com/faq
 
 ---
 
@@ -370,7 +370,7 @@ php artisan up
 ## 🎉 ¡DEPLOYMENT COMPLETADO!
 
 Tu aplicación estará disponible en:
-**https://contaplus.guaraniappstore.com**
+**https://dataflow.guaraniappstore.com**
 
 Para soporte: Revisar `storage/logs/laravel.log`
 

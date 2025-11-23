@@ -2,7 +2,7 @@
 # Script para actualizar el servidor de producción
 
 echo "=== ACTUALIZANDO CONTAPLUS EN PRODUCCIÓN ==="
-cd /home/u489458217/domains/contaplus.guaraniappstore.com/
+cd /home/u489458217/domains/dataflow.guaraniappstore.com/
 
 echo "1. Haciendo pull de los últimos cambios..."
 git fetch origin
@@ -19,4 +19,4 @@ echo "4. Verificando permisos..."
 chmod -R 775 storage bootstrap/cache
 
 echo "=== ACTUALIZACIÓN COMPLETADA ==="
-echo "Verifica: https://contaplus.guaraniappstore.com/"
+echo "Verifica: https://dataflow.guaraniappstore.com/"
