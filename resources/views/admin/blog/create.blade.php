@@ -29,7 +29,7 @@
         @endif
 
         {{-- Generation Form --}}
-        <form action="{{ route('admin.blog.generate') }}" method="POST" class="bg-white rounded-lg shadow-lg p-6">
+        <form action="{{ route('admin.blog.generate') }}" method="POST" class="bg-white rounded-lg shadow-lg p-6" id="generateForm">
             @csrf
 
             {{-- Country Selection --}}
@@ -106,6 +106,7 @@
                 </a>
                 <button
                     type="submit"
+                    id="generateBtn"
                     class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition flex items-center"
                     {{ (!App\Models\Setting::get('openrouter_api_key') || !App\Models\Setting::get('pexels_api_key')) ? 'disabled' : '' }}
                 >
@@ -115,7 +116,103 @@
                     Generar Artículo con IA
                 </button>
             </div>
+
+            {{-- Progress Bar --}}
+            <div id="progressContainer" class="hidden mt-6">
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-purple-900">Generando artículo...</span>
+                        <span class="text-sm text-purple-700" id="progressText">0%</span>
+                    </div>
+                    <div class="w-full bg-purple-200 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="mt-3 space-y-1">
+                        <div class="flex items-center text-sm">
+                            <svg id="step1Icon" class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span id="step1Text" class="text-gray-600">Seleccionando tema fiscal trending...</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <svg id="step2Icon" class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span id="step2Text" class="text-gray-600">Generando contenido con IA...</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <svg id="step3Icon" class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span id="step3Text" class="text-gray-600">Buscando imagen en Pexels...</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <svg id="step4Icon" class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span id="step4Text" class="text-gray-600">Guardando artículo...</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-purple-600 mt-3">⏱ Este proceso puede tomar entre 30-90 segundos</p>
+                </div>
+            </div>
         </form>
+
+        <script>
+            document.getElementById('generateForm').addEventListener('submit', function(e) {
+                const btn = document.getElementById('generateBtn');
+                const progressContainer = document.getElementById('progressContainer');
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+
+                // Deshabilitar botón y mostrar progreso
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                progressContainer.classList.remove('hidden');
+
+                // Simular progreso (ya que no tenemos feedback real del servidor)
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 95) progress = 95; // No llegar a 100% hasta que termine
+
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+
+                    // Actualizar estados de los pasos
+                    if (progress > 10) {
+                        document.getElementById('step1Icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+                        document.getElementById('step1Icon').classList.remove('text-gray-400');
+                        document.getElementById('step1Icon').classList.add('text-green-500');
+                        document.getElementById('step1Text').classList.remove('text-gray-600');
+                        document.getElementById('step1Text').classList.add('text-green-700', 'font-medium');
+                    }
+                    if (progress > 30) {
+                        document.getElementById('step2Icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+                        document.getElementById('step2Icon').classList.remove('text-gray-400');
+                        document.getElementById('step2Icon').classList.add('text-green-500');
+                        document.getElementById('step2Text').classList.remove('text-gray-600');
+                        document.getElementById('step2Text').classList.add('text-green-700', 'font-medium');
+                    }
+                    if (progress > 60) {
+                        document.getElementById('step3Icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+                        document.getElementById('step3Icon').classList.remove('text-gray-400');
+                        document.getElementById('step3Icon').classList.add('text-green-500');
+                        document.getElementById('step3Text').classList.remove('text-gray-600');
+                        document.getElementById('step3Text').classList.add('text-green-700', 'font-medium');
+                    }
+                    if (progress > 85) {
+                        document.getElementById('step4Icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+                        document.getElementById('step4Icon').classList.remove('text-gray-400');
+                        document.getElementById('step4Icon').classList.add('text-green-500');
+                        document.getElementById('step4Text').classList.remove('text-gray-600');
+                        document.getElementById('step4Text').classList.add('text-green-700', 'font-medium');
+                    }
+                }, 1000);
+
+                // El formulario se enviará normalmente
+            });
+        </script>
 
         {{-- Quick Stats --}}
         <div class="mt-8 grid md:grid-cols-3 gap-4">

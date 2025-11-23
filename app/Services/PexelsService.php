@@ -93,16 +93,23 @@ class PexelsService
     public function fetchImageForArticle(string $topic, array $keywords = []): ?array
     {
         try {
-            // Construir query de búsqueda
-            $searchQuery = $topic;
+            // Construir query de búsqueda optimizada para contexto fiscal/contable
+            $searchQuery = $this->buildAccountingSearchQuery($topic, $keywords);
 
-            // Si hay keywords, usar algunas para mejorar la búsqueda
-            if (!empty($keywords)) {
-                $searchQuery .= ' ' . implode(' ', array_slice($keywords, 0, 2));
-            }
-
-            // Buscar imagen
+            // Intentar búsqueda principal
             $image = $this->getRandomImage($searchQuery);
+
+            // Si no hay resultados, probar con términos alternativos
+            if (!$image) {
+                $fallbackQueries = $this->getFallbackSearchQueries($topic);
+
+                foreach ($fallbackQueries as $fallbackQuery) {
+                    $image = $this->getRandomImage($fallbackQuery);
+                    if ($image) {
+                        break;
+                    }
+                }
+            }
 
             if (!$image) {
                 return null;
@@ -124,5 +131,82 @@ class PexelsService
             \Log::error('Error al obtener imagen de Pexels: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Construir query de búsqueda optimizada para temas fiscales/contables
+     */
+    protected function buildAccountingSearchQuery(string $topic, array $keywords = []): string
+    {
+        // Mapeo de términos fiscales españoles a términos de búsqueda en inglés
+        $fiscalTerms = [
+            'impuesto' => 'tax',
+            'impuestos' => 'taxes',
+            'iva' => 'vat tax',
+            'irpf' => 'income tax',
+            'declaración' => 'tax return',
+            'renta' => 'income tax',
+            'autónomo' => 'self employed',
+            'autónomos' => 'freelancer',
+            'factura' => 'invoice',
+            'facturas' => 'invoices',
+            'contabilidad' => 'accounting',
+            'fiscal' => 'tax',
+            'tributario' => 'tax',
+            'deducciones' => 'deductions',
+            'retención' => 'withholding',
+            'nómina' => 'payroll',
+            'empresas' => 'business',
+            'empresa' => 'business',
+            'pyme' => 'small business',
+            'sociedades' => 'corporate',
+            'beneficios' => 'profit',
+            'pérdidas' => 'loss',
+            'balance' => 'balance sheet',
+            'cierre' => 'year end',
+        ];
+
+        $topicLower = mb_strtolower($topic);
+        $searchTerms = [];
+
+        // Extraer términos fiscales del tema
+        foreach ($fiscalTerms as $spanish => $english) {
+            if (str_contains($topicLower, $spanish)) {
+                $searchTerms[] = $english;
+            }
+        }
+
+        // Si no se encontraron términos específicos, usar términos genéricos de negocios
+        if (empty($searchTerms)) {
+            $searchTerms = ['accounting', 'business'];
+        }
+
+        // Agregar contexto de oficina/negocios
+        $contextTerms = ['office', 'professional', 'business'];
+        $searchTerms[] = $contextTerms[array_rand($contextTerms)];
+
+        // Limitar a 3 términos para mejor precisión
+        $searchTerms = array_slice(array_unique($searchTerms), 0, 3);
+
+        return implode(' ', $searchTerms);
+    }
+
+    /**
+     * Obtener queries de búsqueda alternativas si falla la principal
+     */
+    protected function getFallbackSearchQueries(string $topic): array
+    {
+        return [
+            'accounting office professional',
+            'tax documents business',
+            'financial planning office',
+            'business meeting finance',
+            'accountant calculator office',
+            'tax form paperwork',
+            'financial advisor business',
+            'business finance professional',
+            'accounting calculator laptop',
+            'tax planning office',
+        ];
     }
 }
