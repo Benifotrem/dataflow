@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,13 +39,20 @@ class RegisterController extends Controller
         try {
             DB::beginTransaction();
 
+            // Obtener moneda basada en el país
+            $countryCode = strtoupper($validated['country']);
+            $currency = CurrencyService::getCurrencyByCountry($countryCode);
+            $currencyCode = $currency['code'] ?? 'USD';
+
             // Crear el tenant
             $tenant = Tenant::create([
                 'name' => $validated['company_name'],
+                'email' => $validated['email'], // Email del tenant
                 'type' => $validated['tenant_type'],
-                'country' => strtoupper($validated['country']),
-                'currency' => $this->getCurrencyByCountry($validated['country']),
+                'country_code' => $countryCode,
+                'currency_code' => $currencyCode,
                 'status' => 'active',
+                'trial_ends_at' => now()->addDays(30), // 30 días de prueba
             ]);
 
             // Crear el usuario
@@ -67,35 +75,5 @@ class RegisterController extends Controller
             DB::rollBack();
             return back()->withErrors(['error' => 'Ocurrió un error al crear tu cuenta. Por favor intenta nuevamente.'])->withInput();
         }
-    }
-
-    /**
-     * Obtener moneda por país
-     */
-    private function getCurrencyByCountry(string $country): string
-    {
-        $currencies = [
-            'es' => 'EUR', // España
-            'mx' => 'MXN', // México
-            'ar' => 'ARS', // Argentina
-            'co' => 'COP', // Colombia
-            'cl' => 'CLP', // Chile
-            'pe' => 'PEN', // Perú
-            'ec' => 'USD', // Ecuador
-            've' => 'VES', // Venezuela
-            'uy' => 'UYU', // Uruguay
-            'py' => 'PYG', // Paraguay
-            'bo' => 'BOB', // Bolivia
-            'cr' => 'CRC', // Costa Rica
-            'pa' => 'PAB', // Panamá
-            'gt' => 'GTQ', // Guatemala
-            'hn' => 'HNL', // Honduras
-            'sv' => 'USD', // El Salvador
-            'ni' => 'NIO', // Nicaragua
-            'do' => 'DOP', // República Dominicana
-            'cu' => 'CUP', // Cuba
-        ];
-
-        return $currencies[strtolower($country)] ?? 'USD';
     }
 }

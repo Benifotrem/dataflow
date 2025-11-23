@@ -98,6 +98,10 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
     Route::get('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'index'])->name('settings.company');
     Route::put('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'update'])->name('settings.company.update');
 
+    // Settings - Tenant Profile Configuration
+    Route::get('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'index'])->name('settings.tenant-profile');
+    Route::put('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'update'])->name('settings.tenant-profile.update');
+
     // Tenants Management
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\TenantsController::class, 'index'])->name('index');
