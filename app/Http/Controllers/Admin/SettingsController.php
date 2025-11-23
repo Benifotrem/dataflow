@@ -51,6 +51,8 @@ class SettingsController extends Controller
             'blog_min_words' => 'required|integer|min:500|max:5000',
             'blog_max_words' => 'required|integer|min:500|max:5000',
             'blog_author_name' => 'nullable|string|max:255',
+            'blog_auto_generation_enabled' => 'nullable|boolean',
+            'blog_auto_publish' => 'nullable|boolean',
         ]);
 
         try {
@@ -68,6 +70,10 @@ class SettingsController extends Controller
             Setting::set('blog_min_words', (int)$request->blog_min_words, 'integer', 'blog');
             Setting::set('blog_max_words', (int)$request->blog_max_words, 'integer', 'blog');
             Setting::set('blog_author_name', $request->blog_author_name ?: 'César Ruzafa', 'string', 'blog');
+
+            // Configuración de generación automática
+            Setting::set('blog_auto_generation_enabled', $request->has('blog_auto_generation_enabled'), 'boolean', 'blog');
+            Setting::set('blog_auto_publish', $request->has('blog_auto_publish'), 'boolean', 'blog');
 
             return back()->with('success', 'Configuración actualizada exitosamente');
         } catch (\Exception $e) {

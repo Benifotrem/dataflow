@@ -199,6 +199,60 @@
                 </div>
             </div>
 
+            {{-- Automatic Generation --}}
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Generación Automática</h2>
+
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="blog_auto_generation_enabled"
+                            id="blog_auto_generation_enabled"
+                            class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            {{ ($settings['blog_auto_generation_enabled'] ?? false) ? 'checked' : '' }}
+                        >
+                        <label for="blog_auto_generation_enabled" class="ml-2 block text-sm font-medium text-gray-700">
+                            Activar generación automática de artículos
+                        </label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="blog_auto_publish"
+                            id="blog_auto_publish"
+                            class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            {{ ($settings['blog_auto_publish'] ?? false) ? 'checked' : '' }}
+                        >
+                        <label for="blog_auto_publish" class="ml-2 block text-sm font-medium text-gray-700">
+                            Publicar artículos automáticamente (sin revisión)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="text-sm text-blue-700">
+                            <p class="font-medium mb-2">¿Cómo funciona la generación automática?</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Genera 1 artículo por país en orden alfabético</li>
+                                <li>Recorre los 21 países de habla hispana + Brasil</li>
+                                <li>Al llegar al final, vuelve a empezar desde Argentina</li>
+                                <li>Si no marcas "Publicar automáticamente", los artículos quedan como borradores para revisión</li>
+                            </ul>
+                            <p class="mt-3 font-medium">Comando cron sugerido (diario a las 9am):</p>
+                            <code class="block mt-1 bg-blue-100 p-2 rounded text-xs">
+                                0 9 * * * cd /ruta/proyecto && php artisan blog:generate --sequence
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Submit Button --}}
             <div class="flex items-center justify-between">
                 <a href="{{ route('admin.blog.create') }}" class="text-gray-600 hover:text-gray-800">
