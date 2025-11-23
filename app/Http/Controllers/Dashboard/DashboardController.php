@@ -29,15 +29,30 @@ class DashboardController extends Controller
             'entities_total' => Entity::where('tenant_id', $tenant->id)->count(),
         ];
 
-        // Uso de IA del mes actual
-        $aiUsage = AiUsage::where('tenant_id', $tenant->id)
-            ->where('month', now()->format('Y-m'))
-            ->first();
+        // Uso de documentos del mes actual
+        $documentsUsed = $tenant->getCurrentMonthDocumentCount();
 
-        $aiStats = [
-            'used' => $aiUsage ? $aiUsage->documents_processed : 0,
-            'limit' => 500, // Por ahora hardcodeado, después se obtiene del plan
-            'percentage' => $aiUsage ? round(($aiUsage->documents_processed / 500) * 100, 1) : 0,
+        // Obtener límite de documentos de la suscripción activa
+        $subscription = $tenant->activeSubscription();
+        $documentLimit = $subscription ? $subscription->document_limit : 100; // Fallback a 100 si no hay suscripción
+
+        // Agregar documentos de addons activos
+        $addonDocuments = $tenant->addons()
+            ->where('year', date('Y'))
+            ->where('month', date('n'))
+            ->where('status', 'active')
+            ->sum('document_quantity');
+
+        $totalLimit = $documentLimit + $addonDocuments;
+        $percentage = $totalLimit > 0 ? round(($documentsUsed / $totalLimit) * 100, 1) : 0;
+
+        $documentStats = [
+            'used' => $documentsUsed,
+            'limit' => $totalLimit,
+            'percentage' => $percentage,
+            'near_limit' => $percentage >= 80, // Alerta en 80%
+            'at_limit' => $documentsUsed >= $totalLimit,
+            'warning_level' => $percentage >= 95 ? 'danger' : ($percentage >= 80 ? 'warning' : 'normal'),
         ];
 
         // Documentos recientes
@@ -52,6 +67,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('dashboard.index', compact('stats', 'aiStats', 'recentDocuments', 'recentTransactions'));
+        return view('dashboard.index', compact('stats', 'documentStats', 'recentDocuments', 'recentTransactions'));
     }
 }
