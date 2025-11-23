@@ -68,9 +68,10 @@ class BlogController extends Controller
         $this->checkAdminPermission();
 
         $countries = $this->trendsService->getAvailableCountries();
-        $countryNames = $this->getCountryNames();
+        $countryNames = $this->trendsService->getCountryNames();
+        $defaultCountry = \App\Services\TrendingTopicsService::DEFAULT_COUNTRY;
 
-        return view('admin.blog.create', compact('countries', 'countryNames'));
+        return view('admin.blog.create', compact('countries', 'countryNames', 'defaultCountry'));
     }
 
     /**
@@ -108,8 +109,10 @@ class BlogController extends Controller
      */
     public function edit(Post $post)
     {
+        $this->checkAdminPermission();
+
         $countries = $this->trendsService->getAvailableCountries();
-        $countryNames = $this->getCountryNames();
+        $countryNames = $this->trendsService->getCountryNames();
 
         return view('admin.blog.edit', compact('post', 'countries', 'countryNames'));
     }
@@ -119,6 +122,8 @@ class BlogController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        $this->checkAdminPermission();
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:posts,slug,' . $post->id,
@@ -151,6 +156,8 @@ class BlogController extends Controller
      */
     public function publish(Post $post)
     {
+        $this->checkAdminPermission();
+
         $this->blogGenerator->publishPost($post);
 
         return back()->with('success', 'Artículo publicado exitosamente');
@@ -161,6 +168,8 @@ class BlogController extends Controller
      */
     public function archive(Post $post)
     {
+        $this->checkAdminPermission();
+
         $this->blogGenerator->archivePost($post);
 
         return back()->with('success', 'Artículo archivado');
@@ -171,26 +180,12 @@ class BlogController extends Controller
      */
     public function destroy(Post $post)
     {
+        $this->checkAdminPermission();
+
         $post->delete();
 
         return redirect()
             ->route('admin.blog.index')
             ->with('success', 'Artículo eliminado');
-    }
-
-    /**
-     * Nombres de países
-     */
-    protected function getCountryNames(): array
-    {
-        return [
-            'es' => 'España',
-            'mx' => 'México',
-            'ar' => 'Argentina',
-            'co' => 'Colombia',
-            'cl' => 'Chile',
-            'pe' => 'Perú',
-            'uy' => 'Uruguay',
-        ];
     }
 }

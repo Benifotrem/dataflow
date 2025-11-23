@@ -38,12 +38,14 @@
                     País Objetivo
                 </label>
                 <select name="country" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <option value="">Aleatorio</option>
                     @foreach($countries as $code)
-                        <option value="{{ $code }}">{{ $countryNames[$code] ?? strtoupper($code) }}</option>
+                        <option value="{{ $code }}" {{ $code === $defaultCountry ? 'selected' : '' }}>
+                            {{ $countryNames[$code] ?? strtoupper($code) }}
+                        </option>
                     @endforeach
+                    <option value="">Aleatorio</option>
                 </select>
-                <p class="text-sm text-gray-500 mt-1">Si no seleccionas ninguno, se elegirá un país aleatorio</p>
+                <p class="text-sm text-gray-500 mt-1">Paraguay está seleccionado por defecto. Puedes cambiar a otro país o dejar en "Aleatorio"</p>
             </div>
 
             {{-- Topic (Optional) --}}

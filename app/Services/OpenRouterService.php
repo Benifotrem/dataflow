@@ -24,28 +24,30 @@ class OpenRouterService
     /**
      * Generar un artículo completo sobre un tema
      */
-    public function generateArticle(string $topic, string $country = 'es', array $keywords = []): array
+    public function generateArticle(string $topic, string $country = 'py', array $keywords = []): array
     {
         if (!$this->apiKey) {
             throw new \Exception('OpenRouter API key no configurada');
         }
 
-        // Obtener nombre del país
+        // Obtener nombre del país y autor
         $countryName = $this->getCountryName($country);
+        $authorName = Setting::get('blog_author_name', 'César Ruzafa');
 
         // Construir el prompt
-        $prompt = $this->buildPrompt($topic, $countryName, $keywords);
+        $prompt = $this->buildPrompt($topic, $countryName, $authorName, $keywords);
 
         // Llamar a la API
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$this->apiKey}",
             'Content-Type' => 'application/json',
-        ])->post("{$this->baseUrl}/chat/completions", [
+        ])->timeout(120) // 2 minutos de timeout
+        ->post("{$this->baseUrl}/chat/completions", [
             'model' => $this->model,
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'Eres un experto contador y asesor fiscal especializado en Latinoamérica y España. Escribes artículos informativos, precisos y útiles sobre temas de contabilidad, fiscalidad y finanzas para PyMEs y profesionales contables.',
+                    'content' => "Eres {$authorName}, un experto contador y asesor fiscal con años de experiencia en Latinoamérica y España. Escribes artículos informativos, precisos y útiles sobre temas de contabilidad, fiscalidad y finanzas para PyMEs y profesionales contables. Escribes desde tu experiencia profesional directa, nunca mencionas que eres una IA o que el contenido es generado automáticamente. Escribes en primera persona cuando es apropiado y compartes tus conocimientos como profesional del sector.",
                 ],
                 [
                     'role' => 'user',
@@ -75,28 +77,31 @@ class OpenRouterService
     /**
      * Construir el prompt para generar el artículo
      */
-    protected function buildPrompt(string $topic, string $country, array $keywords): string
+    protected function buildPrompt(string $topic, string $country, string $authorName, array $keywords): string
     {
         $keywordsStr = !empty($keywords) ? implode(', ', $keywords) : '';
 
         return <<<PROMPT
-Escribe un artículo de blog profesional sobre el siguiente tema fiscal/contable para {$country}:
+Escribe un artículo de blog profesional basado en tu experiencia como experto en contabilidad y fiscalidad sobre el siguiente tema para {$country}:
 
 TEMA: {$topic}
 
-REQUISITOS:
+REQUISITOS OBLIGATORIOS:
 - Extensión: Entre {$this->minWords} y {$this->maxWords} palabras
 - Audiencia: PyMEs, autónomos y profesionales contables de {$country}
-- Tono: Profesional pero accesible, educativo
+- Tono: Profesional pero accesible, educativo, escrito desde tu experiencia directa
+- NO menciones IA, generación automática, ni herramientas de escritura automática
+- Escribe como {$authorName}, compartiendo tu conocimiento y experiencia profesional
 - Estructura requerida:
-  * Título atractivo (máximo 60 caracteres)
-  * Extracto/Resumen (150-160 caracteres)
-  * Introducción enganchadora
-  * 3-5 secciones principales con subtítulos
-  * Conclusión práctica
-  * Llamada a la acción relacionada con Contaplus
+  * Título atractivo y SEO-optimizado (máximo 60 caracteres)
+  * Extracto/Resumen cautivador (150-160 caracteres)
+  * Introducción que enganche al lector
+  * 3-5 secciones principales con subtítulos descriptivos
+  * Ejemplos prácticos basados en casos reales
+  * Conclusión con consejos accionables
+  * Llamada a la acción relacionada con Contaplus (software de contabilidad)
 
-PALABRAS CLAVE A INCLUIR: {$keywordsStr}
+PALABRAS CLAVE A INCLUIR NATURALMENTE: {$keywordsStr}
 
 FORMATO DE RESPUESTA:
 Devuelve el artículo en el siguiente formato exacto:
@@ -110,10 +115,12 @@ CONTENIDO:
 
 IMPORTANTE:
 - Usa información actualizada y precisa sobre la legislación fiscal de {$country}
-- Incluye ejemplos prácticos
-- Menciona cómo Contaplus puede ayudar a automatizar/simplificar los procesos mencionados
+- Incluye ejemplos prácticos y casos de uso reales
+- Menciona naturalmente cómo Contaplus puede ayudar a automatizar/simplificar los procesos mencionados
 - Usa HTML semántico para el contenido
 - NO incluyas el tag <h1> en el contenido (solo h2, h3, h4)
+- Escribe desde tu perspectiva como profesional experimentado
+- NUNCA menciones que este contenido es generado por IA o herramientas automáticas
 PROMPT;
     }
 
@@ -185,25 +192,27 @@ PROMPT;
     protected function getCountryName(string $code): string
     {
         $countries = [
-            'es' => 'España',
-            'mx' => 'México',
             'ar' => 'Argentina',
-            'co' => 'Colombia',
-            'cl' => 'Chile',
-            'pe' => 'Perú',
-            'ec' => 'Ecuador',
-            've' => 'Venezuela',
-            'uy' => 'Uruguay',
-            'py' => 'Paraguay',
             'bo' => 'Bolivia',
+            'br' => 'Brasil',
+            'cl' => 'Chile',
+            'co' => 'Colombia',
             'cr' => 'Costa Rica',
-            'pa' => 'Panamá',
+            'cu' => 'Cuba',
+            'do' => 'República Dominicana',
+            'ec' => 'Ecuador',
+            'es' => 'España',
             'gt' => 'Guatemala',
             'hn' => 'Honduras',
-            'sv' => 'El Salvador',
+            'mx' => 'México',
             'ni' => 'Nicaragua',
-            'do' => 'República Dominicana',
-            'cu' => 'Cuba',
+            'pa' => 'Panamá',
+            'pe' => 'Perú',
+            'pr' => 'Puerto Rico',
+            'py' => 'Paraguay',
+            'sv' => 'El Salvador',
+            'uy' => 'Uruguay',
+            've' => 'Venezuela',
         ];
 
         return $countries[strtolower($code)] ?? 'Latinoamérica';

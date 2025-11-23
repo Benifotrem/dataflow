@@ -28,8 +28,6 @@ class BlogGeneratorService
     public function generateArticle(?string $country = null, ?string $topic = null, ?int $userId = null): Post
     {
         try {
-            DB::beginTransaction();
-
             // 1. Seleccionar país si no se especificó
             if (!$country) {
                 $countries = $this->trendsService->getAvailableCountries();
@@ -46,7 +44,7 @@ class BlogGeneratorService
             // 3. Obtener palabras clave sugeridas
             $keywords = $this->trendsService->getKeywordsForTopic($topic);
 
-            // 4. Generar contenido con IA
+            // 4. Generar contenido con IA (puede tardar mucho, no usar transacción aquí)
             Log::info("Generando contenido con OpenRouter...");
             $article = $this->openRouterService->generateArticle($topic, $country, $keywords);
 
@@ -54,36 +52,45 @@ class BlogGeneratorService
             Log::info("Buscando imagen en Pexels...");
             $image = $this->pexelsService->fetchImageForArticle($topic, $keywords);
 
-            // 6. Crear el post en la base de datos
-            $post = Post::create([
-                'title' => $article['title'],
-                'excerpt' => $article['excerpt'],
-                'content' => $article['content'],
-                'featured_image' => $image ? $image['path'] : null,
-                'image_credits' => $image ? $image['credits'] : null,
-                'keywords' => $keywords,
-                'country' => $country,
-                'status' => 'draft', // Crear como borrador para revisión
-                'created_by' => $userId,
-                'meta_data' => [
-                    'topic_source' => 'trending_topics',
-                    'original_topic' => $topic,
-                    'generation_date' => now()->toISOString(),
-                    'model_used' => $this->openRouterService->model ?? 'deepseek/deepseek-chat',
-                    'image_source' => $image ? 'pexels' : null,
-                    'photographer' => $image['photographer'] ?? null,
-                    'photographer_url' => $image['photographer_url'] ?? null,
-                ],
-            ]);
+            // 6. Reconectar DB por si la conexión se cerró durante las llamadas a APIs
+            DB::reconnect();
 
-            DB::commit();
+            // 7. Crear el post en la base de datos (ahora sí usamos transacción)
+            DB::beginTransaction();
+            try {
+                $post = Post::create([
+                    'title' => $article['title'],
+                    'excerpt' => $article['excerpt'],
+                    'content' => $article['content'],
+                    'featured_image' => $image ? $image['path'] : null,
+                    'image_credits' => $image ? $image['credits'] : null,
+                    'keywords' => $keywords,
+                    'country' => $country,
+                    'status' => 'draft', // Crear como borrador para revisión
+                    'created_by' => $userId,
+                    'meta_data' => [
+                        'topic_source' => 'trending_topics',
+                        'original_topic' => $topic,
+                        'generation_date' => now()->toISOString(),
+                        'model_used' => $this->openRouterService->model ?? 'deepseek/deepseek-chat',
+                        'image_source' => $image ? 'pexels' : null,
+                        'photographer' => $image['photographer'] ?? null,
+                        'photographer_url' => $image['photographer_url'] ?? null,
+                    ],
+                ]);
 
-            Log::info("Artículo generado exitosamente", ['post_id' => $post->id]);
+                DB::commit();
 
-            return $post;
+                Log::info("Artículo generado exitosamente", ['post_id' => $post->id]);
+
+                return $post;
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
 
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error("Error generando artículo: " . $e->getMessage(), [
                 'exception' => $e,
                 'topic' => $topic ?? 'unknown',
