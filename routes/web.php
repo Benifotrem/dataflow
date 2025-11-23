@@ -93,4 +93,17 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
     // Settings - Blog Configuration
     Route::get('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'blog'])->name('settings.blog');
     Route::put('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'updateBlog'])->name('settings.blog.update');
+
+    // Settings - Company Configuration
+    Route::get('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'index'])->name('settings.company');
+    Route::put('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'update'])->name('settings.company.update');
+
+    // Tenants Management
+    Route::prefix('tenants')->name('tenants.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\TenantsController::class, 'index'])->name('index');
+        Route::get('/{tenant}', [\App\Http\Controllers\Admin\TenantsController::class, 'show'])->name('show');
+        Route::post('/{tenant}/extend-trial', [\App\Http\Controllers\Admin\TenantsController::class, 'extendTrial'])->name('extend-trial');
+        Route::post('/{tenant}/suspend', [\App\Http\Controllers\Admin\TenantsController::class, 'suspend'])->name('suspend');
+        Route::post('/{tenant}/reactivate', [\App\Http\Controllers\Admin\TenantsController::class, 'reactivate'])->name('reactivate');
+    });
 });
