@@ -4,7 +4,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
+
+// Cambio de idioma
+Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
 // Landing Page y Páginas Públicas
 Route::get('/', [LandingController::class, 'index'])->name('home');
