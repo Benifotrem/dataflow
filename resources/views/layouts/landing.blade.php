@@ -99,8 +99,12 @@
             <div class="flex items-center justify-between">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                    <img src="{{ asset('logo.png') }}" alt="Contaplus Logo" class="h-10 w-auto">
-                    <span class="text-2xl font-bold text-gray-900">Contaplus</span>
+                    <svg class="h-10 w-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="8" fill="#7C3AED"/>
+                        <path d="M20 10L12 16V28L20 34L28 28V16L20 10Z" fill="white"/>
+                        <path d="M20 18L16 20.5V27L20 29.5L24 27V20.5L20 18Z" fill="#7C3AED"/>
+                    </svg>
+                    <span class="text-2xl font-bold text-gray-900">Dataflow</span>
                 </a>
 
                 {{-- Desktop Menu --}}
@@ -157,10 +161,12 @@
                 {{-- Column 1: About --}}
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
-                        <svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z"/>
+                        <svg class="w-8 h-8 text-purple-400" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="40" height="40" rx="8" fill="#7C3AED"/>
+                            <path d="M20 10L12 16V28L20 34L28 28V16L20 10Z" fill="white"/>
+                            <path d="M20 18L16 20.5V27L20 29.5L24 27V20.5L20 18Z" fill="#7C3AED"/>
                         </svg>
-                        <span class="text-xl font-bold text-white">Contaplus</span>
+                        <span class="text-xl font-bold text-white">Dataflow</span>
                     </div>
                     <p class="text-sm">
                         Automatización contable con inteligencia artificial para España e Hispanoamérica.
@@ -204,7 +210,7 @@
             {{-- Bottom Bar --}}
             <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
                 <p class="text-sm mb-4 md:mb-0">
-                    © {{ date('Y') }} Contaplus. Todos los derechos reservados.
+                    © {{ date('Y') }} Dataflow. Todos los derechos reservados.
                 </p>
                 <div class="flex space-x-6">
                     <a href="#" class="hover:text-white transition">
