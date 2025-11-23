@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\BrevoService;
 use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -68,6 +71,20 @@ class RegisterController extends Controller
 
             // Autenticar al usuario
             Auth::login($user);
+
+            // Enviar email de bienvenida si está habilitado
+            try {
+                $emailWelcomeEnabled = Setting::get('email_welcome_enabled', true);
+                if ($emailWelcomeEnabled) {
+                    $brevoService = new BrevoService();
+                    if ($brevoService->isConfigured()) {
+                        $brevoService->sendWelcomeEmail($user->email, $user->name);
+                    }
+                }
+            } catch (\Exception $e) {
+                // No fallar el registro si el email falla
+                Log::warning('No se pudo enviar email de bienvenida: ' . $e->getMessage());
+            }
 
             return redirect('/dashboard')->with('success', '¡Bienvenido a Contaplus! Tu cuenta ha sido creada exitosamente.');
 

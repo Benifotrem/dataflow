@@ -102,6 +102,10 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
     Route::get('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'index'])->name('settings.tenant-profile');
     Route::put('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'update'])->name('settings.tenant-profile.update');
 
+    // Settings - Email Configuration (Brevo)
+    Route::get('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'email'])->name('settings.email');
+    Route::put('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'updateEmail'])->name('settings.email.update');
+
     // Tenants Management
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\TenantsController::class, 'index'])->name('index');

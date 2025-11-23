@@ -80,4 +80,68 @@ class SettingsController extends Controller
             return back()->withErrors(['error' => 'Error al guardar: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Mostrar configuración de email (Brevo)
+     */
+    public function email()
+    {
+        // Verificar permisos
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+            abort(403, 'No tienes permiso para acceder a esta sección');
+        }
+
+        // Obtener settings como array [key => value]
+        $settings = [];
+        $settingRecords = Setting::where('group', 'email')->get();
+
+        foreach ($settingRecords as $setting) {
+            // Solo verificar existencia para encrypted, no devolver valor
+            if ($setting->type === 'encrypted') {
+                $settings[$setting->key] = $setting->value ? true : false;
+            } else {
+                $settings[$setting->key] = $setting->value;
+            }
+        }
+
+        return view('admin.settings.email', compact('settings'));
+    }
+
+    /**
+     * Actualizar configuración de email (Brevo)
+     */
+    public function updateEmail(Request $request)
+    {
+        // Verificar permisos
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+            abort(403, 'No tienes permiso para acceder a esta sección');
+        }
+
+        $validated = $request->validate([
+            'brevo_api_key' => 'nullable|string',
+            'email_from_name' => 'required|string|max:255',
+            'email_from_address' => 'required|email|max:255',
+            'email_welcome_enabled' => 'nullable|boolean',
+            'email_document_limit_enabled' => 'nullable|boolean',
+            'email_document_limit_threshold' => 'required|integer|min:50|max:100',
+        ]);
+
+        try {
+            // Guardar API key (encriptada)
+            if ($request->filled('brevo_api_key')) {
+                Setting::set('brevo_api_key', $request->brevo_api_key, 'encrypted', 'email');
+            }
+
+            // Guardar configuración general
+            Setting::set('email_from_name', $request->email_from_name, 'string', 'email');
+            Setting::set('email_from_address', $request->email_from_address, 'string', 'email');
+            Setting::set('email_welcome_enabled', $request->has('email_welcome_enabled'), 'boolean', 'email');
+            Setting::set('email_document_limit_enabled', $request->has('email_document_limit_enabled'), 'boolean', 'email');
+            Setting::set('email_document_limit_threshold', (int)$request->email_document_limit_threshold, 'integer', 'email');
+
+            return back()->with('success', 'Configuración de email actualizada exitosamente');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al guardar: ' . $e->getMessage()]);
+        }
+    }
 }
