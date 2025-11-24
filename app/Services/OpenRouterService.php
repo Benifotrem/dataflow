@@ -99,7 +99,7 @@ REQUISITOS OBLIGATORIOS:
   * 3-5 secciones principales con subtítulos descriptivos
   * Ejemplos prácticos basados en casos reales
   * Conclusión con consejos accionables
-  * Llamada a la acción relacionada con Contaplus (software de contabilidad)
+  * Llamada a la acción relacionada con Dataflow (software de contabilidad)
 
 PALABRAS CLAVE A INCLUIR NATURALMENTE: {$keywordsStr}
 
@@ -116,7 +116,7 @@ CONTENIDO:
 IMPORTANTE:
 - Usa información actualizada y precisa sobre la legislación fiscal de {$country}
 - Incluye ejemplos prácticos y casos de uso reales
-- Menciona naturalmente cómo Contaplus puede ayudar a automatizar/simplificar los procesos mencionados
+- Menciona naturalmente cómo Dataflow puede ayudar a automatizar/simplificar los procesos mencionados
 - Usa HTML semántico para el contenido
 - NO incluyas el tag <h1> en el contenido (solo h2, h3, h4)
 - Escribe desde tu perspectiva como profesional experimentado
