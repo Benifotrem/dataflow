@@ -51,8 +51,8 @@ class SettingsController extends Controller
             'blog_min_words' => 'required|integer|min:500|max:5000',
             'blog_max_words' => 'required|integer|min:500|max:5000',
             'blog_author_name' => 'nullable|string|max:255',
-            'blog_auto_generation_enabled' => 'nullable|boolean',
-            'blog_auto_publish' => 'nullable|boolean',
+            'blog_auto_generation_enabled' => 'nullable',
+            'blog_auto_publish' => 'nullable',
         ]);
 
         try {
@@ -121,8 +121,8 @@ class SettingsController extends Controller
             'brevo_api_key' => 'nullable|string',
             'email_from_name' => 'required|string|max:255',
             'email_from_address' => 'required|email|max:255',
-            'email_welcome_enabled' => 'nullable|boolean',
-            'email_document_limit_enabled' => 'nullable|boolean',
+            'email_welcome_enabled' => 'nullable',
+            'email_document_limit_enabled' => 'nullable',
             'email_document_limit_threshold' => 'required|integer|min:50|max:100',
         ]);
 
