@@ -47,11 +47,12 @@ class DocumentController extends Controller
             $document = Document::create([
                 'tenant_id' => auth()->user()->tenant_id,
                 'entity_id' => $request->entity_id,
-                'file_name' => $file->getClientOriginalName(),
+                'user_id' => auth()->id(),
+                'original_filename' => $file->getClientOriginalName(),
                 'file_path' => $path,
-                'file_type' => $file->getClientMimeType(),
+                'mime_type' => $file->getClientMimeType(),
                 'file_size' => $file->getSize(),
-                'status' => 'pending',
+                'ocr_status' => 'pending',
             ]);
 
             // Procesar con OCR en segundo plano (aquí simplificado)
