@@ -82,4 +82,25 @@ class Document extends Model
     {
         return $this->validated === true;
     }
+
+    // Accessors for backward compatibility with views
+    public function getFileNameAttribute()
+    {
+        return $this->original_filename;
+    }
+
+    public function getFileTypeAttribute()
+    {
+        return $this->mime_type;
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->ocr_status;
+    }
+
+    public function getExtractedDataAttribute()
+    {
+        return $this->ocr_data;
+    }
 }
