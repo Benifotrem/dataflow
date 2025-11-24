@@ -63,6 +63,21 @@
                 <p class="text-sm text-gray-500 mt-1">Si lo dejas vacío, se generará un tema trending automáticamente</p>
             </div>
 
+            {{-- Author Name (Optional) --}}
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del Autor (Opcional)
+                </label>
+                <input
+                    type="text"
+                    name="author_name"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Ej: Juan Pérez, Contador Público"
+                    value="{{ old('author_name', auth()->user()->name) }}"
+                >
+                <p class="text-sm text-gray-500 mt-1">Nombre que aparecerá como autor del artículo. Por defecto: {{ auth()->user()->name }}</p>
+            </div>
+
             {{-- Info Box --}}
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
                 <div class="flex">

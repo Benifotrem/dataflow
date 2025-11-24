@@ -22,6 +22,7 @@ class Post extends Model
         'status',
         'published_at',
         'created_by',
+        'author_name',
         'views',
         'meta_data',
     ];

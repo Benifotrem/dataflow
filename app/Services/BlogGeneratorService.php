@@ -25,7 +25,7 @@ class BlogGeneratorService
     /**
      * Generar un artículo completo de blog
      */
-    public function generateArticle(?string $country = null, ?string $topic = null, ?int $userId = null): Post
+    public function generateArticle(?string $country = null, ?string $topic = null, ?int $userId = null, ?string $authorName = null): Post
     {
         try {
             // 1. Seleccionar país si no se especificó
@@ -68,6 +68,7 @@ class BlogGeneratorService
                     'country' => $country,
                     'status' => 'draft', // Crear como borrador para revisión
                     'created_by' => $userId,
+                    'author_name' => $authorName,
                     'meta_data' => [
                         'topic_source' => 'trending_topics',
                         'original_topic' => $topic,

@@ -84,13 +84,15 @@ class BlogController extends Controller
         $request->validate([
             'country' => 'nullable|string|size:2',
             'topic' => 'nullable|string|max:255',
+            'author_name' => 'nullable|string|max:255',
         ]);
 
         try {
             $post = $this->blogGenerator->generateArticle(
                 $request->country,
                 $request->topic,
-                auth()->id()
+                auth()->id(),
+                $request->author_name
             );
 
             return redirect()
