@@ -6,7 +6,7 @@
 <section class="gradient-bg text-white py-16 md:py-24">
     <div class="container mx-auto px-6 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">
-            Blog de <span class="text-yellow-300">Contaplus</span>
+            Blog de <span class="text-yellow-300">Dataflow</span>
         </h1>
         <p class="text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto">
             Artículos, guías y novedades sobre contabilidad, fiscalidad y automatización

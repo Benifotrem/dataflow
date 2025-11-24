@@ -2,7 +2,7 @@
 
 return [
     // General
-    'welcome' => 'Welcome to Contaplus!',
+    'welcome' => 'Welcome to Dataflow!',
     'dashboard' => 'Dashboard',
     'logout' => 'Logout',
     'login' => 'Login',
@@ -102,9 +102,9 @@ return [
 
     // Emails
     'email' => [
-        'welcome_subject' => 'Welcome to Contaplus!',
-        'password_reset_subject' => 'Reset your password - Contaplus',
-        'document_limit_subject' => '⚠️ Approaching document limit - Contaplus',
+        'welcome_subject' => 'Welcome to Dataflow!',
+        'password_reset_subject' => 'Reset your password - Dataflow',
+        'document_limit_subject' => '⚠️ Approaching document limit - Dataflow',
     ],
 
     // Auth

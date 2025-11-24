@@ -8,10 +8,10 @@
             <p class="text-gray-600 mb-6"><strong>Última actualización:</strong> Noviembre 2025</p>
             
             <h2 class="text-2xl font-bold mt-8 mb-4">1. Aceptación de los Términos</h2>
-            <p>Al acceder y utilizar Contaplus, aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo, no utilices la plataforma.</p>
+            <p>Al acceder y utilizar Dataflow, aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo, no utilices la plataforma.</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">2. Descripción del Servicio</h2>
-            <p>Contaplus es una plataforma SaaS de automatización contable que utiliza inteligencia artificial para:</p>
+            <p>Dataflow es una plataforma SaaS de automatización contable que utiliza inteligencia artificial para:</p>
             <ul class="list-disc pl-6 mb-4">
                 <li>Procesar documentos contables (facturas, recibos, extractos) mediante OCR</li>
                 <li>Clasificar automáticamente transacciones</li>
@@ -46,7 +46,7 @@
             <p>Las transacciones extraídas de los extractos se conservan, pero no el documento original.</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">5. Política de API Bancaria</h2>
-            <p>Contaplus NO se conecta directamente con APIs bancarias. Solo permitimos carga manual de extractos en formatos PDF, Excel, CSV o imagen. Esta es una medida de seguridad para proteger tus credenciales bancarias.</p>
+            <p>Dataflow NO se conecta directamente con APIs bancarias. Solo permitimos carga manual de extractos en formatos PDF, Excel, CSV o imagen. Esta es una medida de seguridad para proteger tus credenciales bancarias.</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">6. Responsabilidades del Usuario</h2>
             <ul class="list-disc pl-6 mb-4">
@@ -58,7 +58,7 @@
             </ul>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">7. Limitación de Responsabilidad</h2>
-            <p>Contaplus es una herramienta de automatización y asistencia. No somos un despacho contable ni ofrecemos asesoría fiscal. El usuario es responsable de:</p>
+            <p>Dataflow es una herramienta de automatización y asistencia. No somos un despacho contable ni ofrecemos asesoría fiscal. El usuario es responsable de:</p>
             <ul class="list-disc pl-6 mb-4">
                 <li>Validar la exactitud de los datos procesados</li>
                 <li>Cumplir con las obligaciones fiscales de su jurisdicción</li>

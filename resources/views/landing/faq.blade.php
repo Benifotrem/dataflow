@@ -9,7 +9,7 @@
                 Preguntas Frecuentes
             </h1>
             <p class="text-xl text-gray-600">
-                Encuentra respuestas a las preguntas más comunes sobre Contaplus
+                Encuentra respuestas a las preguntas más comunes sobre Dataflow
             </p>
         </div>
 
@@ -32,7 +32,7 @@
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona la conciliación bancaria?</h3>
                 <p class="text-gray-700">
-                    Importas manualmente tu extracto bancario, y Contaplus compara automáticamente las transacciones del extracto con las facturas y recibos que has subido. Las coincidencias se marcan automáticamente como conciliadas.
+                    Importas manualmente tu extracto bancario, y Dataflow compara automáticamente las transacciones del extracto con las facturas y recibos que has subido. Las coincidencias se marcan automáticamente como conciliadas.
                 </p>
             </div>
 

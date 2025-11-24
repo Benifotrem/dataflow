@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
-    <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Contaplus') }}</title>
+    <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Dataflow') }}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -17,7 +17,7 @@
             {{-- Logo --}}
             <div class="flex items-center justify-between h-16 px-6 bg-purple-900">
                 <a href="{{ route('dashboard.index') }}" class="text-xl font-bold">
-                    Contaplus
+                    Dataflow
                 </a>
                 <button class="lg:hidden" onclick="toggleSidebar()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

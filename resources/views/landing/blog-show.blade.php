@@ -77,7 +77,7 @@
         <div class="bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-8 text-center text-white mb-12">
             <h3 class="text-2xl md:text-3xl font-bold mb-4">¿Listo para automatizar tu contabilidad?</h3>
             <p class="text-purple-100 mb-6 max-w-2xl mx-auto">
-                Contaplus te ayuda a aplicar todo lo que has aprendido. Prueba gratis durante 14 días.
+                Dataflow te ayuda a aplicar todo lo que has aprendido. Prueba gratis durante 14 días.
             </p>
             <a href="{{ route('register') }}" class="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                 Comenzar Prueba Gratis

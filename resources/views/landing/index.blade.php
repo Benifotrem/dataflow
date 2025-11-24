@@ -11,7 +11,7 @@
                     Automatiza tu Contabilidad con <span class="text-yellow-300">Inteligencia Artificial</span>
                 </h1>
                 <p class="text-xl md:text-2xl mb-8 text-purple-100">
-                    Olvídate de las tareas manuales. Contaplus procesa facturas, concilia extractos y gestiona tu fiscalidad automáticamente.
+                    Olvídate de las tareas manuales. Dataflow procesa facturas, concilia extractos y gestiona tu fiscalidad automáticamente.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 mb-8">
                     <a href="#" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition text-center">
@@ -139,7 +139,7 @@
                 La Solución Inteligente que Necesitas
             </h2>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Contaplus automatiza todo el proceso contable con inteligencia artificial
+                Dataflow automatiza todo el proceso contable con inteligencia artificial
             </p>
         </div>
 
@@ -164,7 +164,7 @@
                 </div>
                 <h3 class="text-xl font-bold mb-3">Conciliación Automática</h3>
                 <p class="text-gray-600">
-                    Importa tus extractos bancarios y Contaplus concilia automáticamente con tus transacciones. Sin más reconciliaciones manuales.
+                    Importa tus extractos bancarios y Dataflow concilia automáticamente con tus transacciones. Sin más reconciliaciones manuales.
                 </p>
             </div>
 
@@ -390,7 +390,7 @@
             Comienza a Automatizar Hoy Mismo
         </h2>
         <p class="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Únete a cientos de empresas que ya transformaron su contabilidad con Contaplus
+            Únete a cientos de empresas que ya transformaron su contabilidad con Dataflow
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition">

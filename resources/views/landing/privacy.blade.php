@@ -8,11 +8,11 @@
             <p class="text-gray-600 mb-6"><strong>Última actualización:</strong> Noviembre 2025</p>
             
             <h2 class="text-2xl font-bold mt-8 mb-4">1. Introducción</h2>
-            <p>En Contaplus, nos tomamos muy en serio la protección de tus datos personales. Esta política explica qué información recopilamos, cómo la usamos, cómo la protegemos y cuáles son tus derechos.</p>
+            <p>En Dataflow, nos tomamos muy en serio la protección de tus datos personales. Esta política explica qué información recopilamos, cómo la usamos, cómo la protegemos y cuáles son tus derechos.</p>
             <p>Cumplimos con GDPR (Reglamento General de Protección de Datos) y las normativas de protección de datos de cada jurisdicción en la que operamos.</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">2. Responsable del Tratamiento</h2>
-            <p><strong>Contaplus S.L.</strong><br>
+            <p><strong>Dataflow S.L.</strong><br>
             Email: privacy@contaplus.com<br>
             Dirección: [Dirección]</p>
 

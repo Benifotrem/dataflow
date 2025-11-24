@@ -27,7 +27,7 @@
                         type="text"
                         name="company_name"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        value="{{ old('company_name', $settings['company_name'] ?? 'Contaplus') }}"
+                        value="{{ old('company_name', $settings['company_name'] ?? 'Dataflow') }}"
                         required
                     >
                 </div>

@@ -374,7 +374,7 @@
 
             <div class="bg-gray-50 rounded-lg p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">¿La prueba gratis de 14 días requiere tarjeta de crédito?</h3>
-                <p class="text-gray-600">No, puedes probar Contaplus completamente gratis durante 14 días sin proporcionar información de pago.</p>
+                <p class="text-gray-600">No, puedes probar Dataflow completamente gratis durante 14 días sin proporcionar información de pago.</p>
             </div>
 
             <div class="bg-gray-50 rounded-lg p-6">
@@ -397,7 +397,7 @@
             ¿Listo para Automatizar tu Contabilidad?
         </h2>
         <p class="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Únete a más de 500 empresas que ya confían en Contaplus para su gestión fiscal
+            Únete a más de 500 empresas que ya confían en Dataflow para su gestión fiscal
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition">

@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto space-y-6">
     <div>
         <h2 class="text-2xl font-bold text-gray-900">Configuración del Sistema</h2>
-        <p class="text-gray-600 mt-1">Gestiona las configuraciones globales de Contaplus</p>
+        <p class="text-gray-600 mt-1">Gestiona las configuraciones globales de Dataflow</p>
     </div>
 
     <div class="bg-white rounded-lg shadow p-8">
