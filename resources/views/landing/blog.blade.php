@@ -23,7 +23,7 @@
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
                         @if($post->featured_image)
                             <a href="{{ route('blog.show', $post->slug) }}">
-                                <img src="{{ asset('storage/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
+                                <img src="{{ asset('uploads/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
                             </a>
                         @else
                             <div class="h-48 bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
