@@ -171,6 +171,20 @@
                         </select>
                     </div>
 
+                    {{-- Author Name --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre del Autor
+                        </label>
+                        <input
+                            type="text"
+                            name="author_name"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            value="{{ old('author_name', $post->author_name) }}"
+                            placeholder="Ej: Juan Pérez, Contador Público"
+                        >
+                    </div>
+
                     {{-- Keywords --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">

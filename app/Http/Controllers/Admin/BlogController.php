@@ -133,6 +133,7 @@ class BlogController extends Controller
             'content' => 'required|string',
             'country' => 'nullable|string|size:2',
             'keywords' => 'nullable|string',
+            'author_name' => 'nullable|string|max:255',
             'status' => 'required|in:draft,published,archived',
         ]);
 
