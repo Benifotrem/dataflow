@@ -19,7 +19,9 @@ class EntityController extends Controller
 
     public function create()
     {
-        $countries = config('contaplus.supported_countries');
+        $countries = collect(config('contaplus.supported_countries'))
+            ->mapWithKeys(fn($data, $code) => [$code => $data['name']])
+            ->toArray();
         return view('dashboard.entities.create', compact('countries'));
     }
 
@@ -58,7 +60,9 @@ class EntityController extends Controller
             abort(403);
         }
 
-        $countries = config('contaplus.supported_countries');
+        $countries = collect(config('contaplus.supported_countries'))
+            ->mapWithKeys(fn($data, $code) => [$code => $data['name']])
+            ->toArray();
         return view('dashboard.entities.edit', compact('entity', 'countries'));
     }
 
