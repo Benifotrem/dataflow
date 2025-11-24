@@ -34,9 +34,23 @@ class EntityController extends Controller
             'fiscal_year_end' => 'nullable|string|max:5',
         ]);
 
-        $validated['tenant_id'] = auth()->user()->tenant_id;
+        $countryData = config('contaplus.supported_countries')[$validated['country']] ?? null;
 
-        Entity::create($validated);
+        if (!$countryData) {
+            return back()->withErrors(['country' => 'País no soportado'])->withInput();
+        }
+
+        Entity::create([
+            'tenant_id' => auth()->user()->tenant_id,
+            'name' => $validated['name'],
+            'tax_id' => $validated['tax_id'],
+            'country_code' => $validated['country'],
+            'currency_code' => $countryData['currency'],
+            'fiscal_config' => [
+                'fiscal_year_end' => $validated['fiscal_year_end'] ?? '12-31',
+                'vat_rate' => $countryData['vat_rate'],
+            ],
+        ]);
 
         return redirect()->route('entities.index')
             ->with('success', 'Entidad fiscal creada exitosamente.');
@@ -79,7 +93,23 @@ class EntityController extends Controller
             'fiscal_year_end' => 'nullable|string|max:5',
         ]);
 
-        $entity->update($validated);
+        $countryData = config('contaplus.supported_countries')[$validated['country']] ?? null;
+
+        if (!$countryData) {
+            return back()->withErrors(['country' => 'País no soportado'])->withInput();
+        }
+
+        $fiscalConfig = $entity->fiscal_config ?? [];
+        $fiscalConfig['fiscal_year_end'] = $validated['fiscal_year_end'] ?? '12-31';
+        $fiscalConfig['vat_rate'] = $countryData['vat_rate'];
+
+        $entity->update([
+            'name' => $validated['name'],
+            'tax_id' => $validated['tax_id'],
+            'country_code' => $validated['country'],
+            'currency_code' => $countryData['currency'],
+            'fiscal_config' => $fiscalConfig,
+        ]);
 
         return redirect()->route('entities.index')
             ->with('success', 'Entidad fiscal actualizada exitosamente.');

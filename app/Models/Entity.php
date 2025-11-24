@@ -60,4 +60,21 @@ class Entity extends Model
     {
         return route('icalendar.feed', ['entity' => $this->id, 'token' => md5($this->id . config('app.key'))]);
     }
+
+    // Accessors for backward compatibility with views
+    public function getCountryAttribute()
+    {
+        return $this->country_code;
+    }
+
+    public function getFiscalYearEndAttribute()
+    {
+        return $this->fiscal_config['fiscal_year_end'] ?? null;
+    }
+
+    public function getCountryNameAttribute()
+    {
+        $countries = config('contaplus.supported_countries');
+        return $countries[$this->country_code]['name'] ?? $this->country_code;
+    }
 }
