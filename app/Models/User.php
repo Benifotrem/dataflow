@@ -18,6 +18,10 @@ class User extends Authenticatable
         'password',
         'role',
         'is_admin',
+        'telegram_id',
+        'telegram_username',
+        'telegram_chat_id',
+        'telegram_linked_at',
     ];
 
     protected $hidden = [
@@ -29,6 +33,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'telegram_linked_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
         ];
@@ -69,5 +74,31 @@ class User extends Authenticatable
     public function canManageTenant()
     {
         return $this->isOwner() || $this->isSuperAdmin();
+    }
+
+    // Métodos de Telegram
+    public function hasTelegramLinked()
+    {
+        return !is_null($this->telegram_id);
+    }
+
+    public function linkTelegram($telegramId, $username, $chatId)
+    {
+        $this->update([
+            'telegram_id' => $telegramId,
+            'telegram_username' => $username,
+            'telegram_chat_id' => $chatId,
+            'telegram_linked_at' => now(),
+        ]);
+    }
+
+    public function unlinkTelegram()
+    {
+        $this->update([
+            'telegram_id' => null,
+            'telegram_username' => null,
+            'telegram_chat_id' => null,
+            'telegram_linked_at' => null,
+        ]);
     }
 }
