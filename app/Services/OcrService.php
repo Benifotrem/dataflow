@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Document;
+use Illuminate\Support\Facades\Log;
 use App\Models\AiUsage;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Http;
@@ -31,8 +32,23 @@ class OcrService
 
             // Leer archivo
             $fileContent = Storage::get($document->file_path);
-            $base64 = base64_encode($fileContent);
 
+            // Convertir PDF a imagen si es necesario
+            if ($document->mime_type === 'application/pdf') {
+                try {
+                    $imagick = new \Imagick();
+                    $imagick->readImageBlob($fileContent);
+                    $imagick->setIteratorIndex(0);
+                    $imagick->setImageFormat('jpeg');
+                    $imagick->setImageCompressionQuality(85);
+                    $fileContent = $imagick->getImageBlob();
+                    $document->mime_type = 'image/jpeg';
+                    $imagick->clear();
+                } catch (\Exception $e) {
+                    throw new \Exception('Error al convertir PDF: ' . $e->getMessage());
+                }
+            }
+            $base64 = base64_encode($fileContent);
             // Llamada a OpenAI
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$apiKey}",
@@ -63,8 +79,9 @@ class OcrService
                 'max_tokens' => 1000,
             ]);
 
-            $data = $response->json();
+            Log::info("Respuesta OpenAI", ["status" => $response->status(), "body" => $response->body()]);
             
+            $data = $response->json();
             if (!isset($data['choices'][0]['message']['content'])) {
                 throw new \Exception('Error en respuesta de IA');
             }
