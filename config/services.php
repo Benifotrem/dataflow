@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BOT_USERNAME'),
+        'webhook_url' => env('TELEGRAM_WEBHOOK_URL'),
+    ],
+
+    'pagopar' => [
+        'public_key' => env('PAGOPAR_PUBLIC_KEY'),
+        'private_key' => env('PAGOPAR_PRIVATE_KEY'),
+        'sandbox' => env('PAGOPAR_SANDBOX', true),
+        'webhook_url' => env('PAGOPAR_WEBHOOK_URL'),
+    ],
+
 ];

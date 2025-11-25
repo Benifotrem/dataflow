@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "eluceo/ical": "^2.0",
+        "irazasyed/telegram-bot-sdk": "^3.14",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1"
     },
