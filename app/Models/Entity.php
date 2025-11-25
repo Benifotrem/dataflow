@@ -74,7 +74,7 @@ class Entity extends Model
 
     public function getCountryNameAttribute()
     {
-        $countries = config('contaplus.supported_countries');
+        $countries = config('dataflow.supported_countries');
         return $countries[$this->country_code]['name'] ?? $this->country_code;
     }
 }

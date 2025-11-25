@@ -219,7 +219,7 @@ Para copiar este protocolo a un nuevo proyecto:
 
 ```bash
 # En tu máquina local, dentro del nuevo proyecto Laravel:
-curl -o HOSTINGER_DEPLOYMENT_PROTOCOL.md https://raw.githubusercontent.com/Benifotrem/contaplus/main/HOSTINGER_DEPLOYMENT_PROTOCOL.md
+curl -o HOSTINGER_DEPLOYMENT_PROTOCOL.md https://raw.githubusercontent.com/Benifotrem/dataflow/main/HOSTINGER_DEPLOYMENT_PROTOCOL.md
 
 # O simplemente copia este archivo al nuevo repositorio
 ```

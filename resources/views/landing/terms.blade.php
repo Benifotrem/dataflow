@@ -72,7 +72,7 @@
             <p>Estos términos se rigen por las leyes de España. Para usuarios de Hispanoamérica, se aplicarán también las normativas de protección al consumidor de cada jurisdicción.</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">10. Contacto</h2>
-            <p>Para preguntas sobre estos términos, contacta a: <a href="mailto:legal@contaplus.com" class="text-purple-600">legal@contaplus.com</a></p>
+            <p>Para preguntas sobre estos términos, contacta a: <a href="mailto:legal@dataflow.com" class="text-purple-600">legal@dataflow.com</a></p>
         </div>
     </div>
 </section>

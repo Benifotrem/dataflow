@@ -69,6 +69,6 @@ class BankStatement extends Model
     public function calculateRetentionExpiry()
     {
         $endOfMonth = Carbon::parse($this->statement_date)->endOfMonth();
-        return $endOfMonth->addDays(config('contaplus.data_retention_days', 60));
+        return $endOfMonth->addDays(config('dataflow.data_retention_days', 60));
     }
 }

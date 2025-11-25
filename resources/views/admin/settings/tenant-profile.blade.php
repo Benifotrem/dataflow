@@ -179,7 +179,7 @@
                     <div>
                         <h4 class="text-green-800 font-medium">Soporte de Guaraní Paraguayo (₲)</h4>
                         <p class="text-sm text-green-700 mt-1">
-                            Contaplus tiene soporte completo para el Guaraní paraguayo. Los montos se mostrarán sin decimales según las convenciones locales.
+                            Dataflow tiene soporte completo para el Guaraní paraguayo. Los montos se mostrarán sin decimales según las convenciones locales.
                         </p>
                     </div>
                 </div>

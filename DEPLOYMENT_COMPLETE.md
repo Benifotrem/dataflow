@@ -1,8 +1,8 @@
-# 🚀 GUÍA DE DEPLOYMENT - CONTAPLUS (VERSIÓN COMPLETA)
+# 🚀 GUÍA DE DEPLOYMENT - DATAFLOW (VERSIÓN COMPLETA)
 
 ## Branch a desplegar: `claude/finish-website-017QFURjJdFkpfiAEC9cJAVL`
 
-Esta guía te llevará paso a paso para implementar la versión completa de Contaplus en producción.
+Esta guía te llevará paso a paso para implementar la versión completa de Dataflow en producción.
 
 ---
 
@@ -126,7 +126,7 @@ nano .env
 **Verificar estas variables:**
 
 ```env
-APP_NAME=Contaplus
+APP_NAME=Dataflow
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://dataflow.guaraniappstore.com
@@ -134,8 +134,8 @@ APP_URL=https://dataflow.guaraniappstore.com
 # Base de datos
 DB_CONNECTION=mysql
 DB_HOST=localhost
-DB_DATABASE=u489458217_contaplus
-DB_USERNAME=u489458217_contaplus
+DB_DATABASE=u489458217_dataflow
+DB_USERNAME=u489458217_dataflow
 DB_PASSWORD=tu_password_aqui
 
 # Email (Brevo)
@@ -144,15 +144,15 @@ MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_USERNAME=tu_email@ejemplo.com
 MAIL_PASSWORD=tu_smtp_password
-MAIL_FROM_ADDRESS="contaplus@guaraniappstore.com"
-MAIL_FROM_NAME="Contaplus"
+MAIL_FROM_ADDRESS="dataflow@guaraniappstore.com"
+MAIL_FROM_NAME="Dataflow"
 
 # API de OpenAI (para OCR de documentos)
 OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
 AI_PROVIDER=openai
 AI_MODEL=gpt-4o-mini
 
-# Configuración Contaplus
+# Configuración Dataflow
 DOCUMENT_LIMIT_BASE=500
 DATA_RETENTION_DAYS=60
 ADDON_PRICE_PER_500_DOCS=9.99
@@ -235,7 +235,7 @@ cd /home/u489458217/domains/dataflow.guaraniappstore.com && php artisan schedule
 
 ```bash
 # Conectar a MySQL
-mysql -u u489458217_contaplus -p u489458217_contaplus
+mysql -u u489458217_dataflow -p u489458217_dataflow
 
 # Ejecutar en MySQL:
 ```
@@ -247,7 +247,7 @@ VALUES ('Administración', 'b2b', 'ES', 'EUR', 'active', NOW(), NOW());
 
 -- Crear usuario admin (usa el ID del tenant creado arriba)
 INSERT INTO users (tenant_id, name, email, password, role, created_at, updated_at)
-VALUES (1, 'Admin', 'admin@contaplus.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
+VALUES (1, 'Admin', 'admin@dataflow.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
 
 -- Password por defecto: "password" (cambiar después del login)
 
@@ -317,13 +317,13 @@ php artisan config:show database
 
 ### Ver Comandos Disponibles
 ```bash
-php artisan list | grep contaplus
+php artisan list | grep dataflow
 ```
 
 Deberías ver:
-- `contaplus:check-limits` - Verificar límites de documentos
-- `contaplus:delete-expired-statements` - Eliminar extractos expirados
-- `contaplus:process-documents` - Procesar documentos pendientes
+- `dataflow:check-limits` - Verificar límites de documentos
+- `dataflow:delete-expired-statements` - Eliminar extractos expirados
+- `dataflow:process-documents` - Procesar documentos pendientes
 
 ---
 
@@ -407,12 +407,12 @@ php artisan view:cache
 
 ### Ver usuarios registrados
 ```sql
-mysql -u u489458217_contaplus -p -e "SELECT id, name, email, role FROM users;" u489458217_contaplus
+mysql -u u489458217_dataflow -p -e "SELECT id, name, email, role FROM users;" u489458217_dataflow
 ```
 
 ### Ver documentos subidos
 ```sql
-mysql -u u489458217_contaplus -p -e "SELECT COUNT(*) as total FROM documents;" u489458217_contaplus
+mysql -u u489458217_dataflow -p -e "SELECT COUNT(*) as total FROM documents;" u489458217_dataflow
 ```
 
 ### Ver espacio usado
@@ -481,7 +481,7 @@ Si aún no está configurado:
 
 1. Login en https://app.brevo.com
 2. Settings → Senders & IP → Add Sender
-3. Email: `contaplus@guaraniappstore.com`
+3. Email: `dataflow@guaraniappstore.com`
 4. Se aprueba automáticamente ✅
 5. Settings → SMTP & API → Copiar credenciales
 6. Actualizar .env:
@@ -517,7 +517,7 @@ php artisan config:cache
 
 ## ✅ ¡DEPLOYMENT COMPLETADO!
 
-Tu plataforma Contaplus está **100% funcional** en:
+Tu plataforma Dataflow está **100% funcional** en:
 
 **🌐 https://dataflow.guaraniappstore.com**
 

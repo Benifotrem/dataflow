@@ -45,7 +45,7 @@ return new class extends Migration
 
             // Email (Brevo)
             ['key' => 'brevo_api_key', 'value' => '', 'type' => 'encrypted', 'description' => 'API Key de Brevo', 'group' => 'email', 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'mail_from_address', 'value' => 'noreply@contaplus.com', 'type' => 'string', 'description' => 'Dirección de correo remitente', 'group' => 'email', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'mail_from_address', 'value' => 'noreply@dataflow.com', 'type' => 'string', 'description' => 'Dirección de correo remitente', 'group' => 'email', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

@@ -16,7 +16,7 @@ ssh u489458217@185.201.11.61 -p 65002
 cd /home/u489458217/domains/dataflow.guaraniappstore.com
 
 # 3. Descargar el script desde el repositorio
-curl -O https://raw.githubusercontent.com/Benifotrem/contaplus/claude/contaplus-saas-platform-01Gogn2DJtLmkTPq15MUxMWf/update-landing-views.sh
+curl -O https://raw.githubusercontent.com/Benifotrem/dataflow/claude/dataflow-saas-platform-01Gogn2DJtLmkTPq15MUxMWf/update-landing-views.sh
 
 # 4. Hacer el script ejecutable
 chmod +x update-landing-views.sh
@@ -134,5 +134,5 @@ php artisan cache:clear
 ---
 
 **Última actualización:** 2025-11-21
-**Proyecto:** Contaplus SaaS Platform
+**Proyecto:** Dataflow SaaS Platform
 **Servidor:** dataflow.guaraniappstore.com

@@ -46,7 +46,7 @@ Tengo un archivo HOSTINGER_DEPLOYMENT_PROTOCOL.md en el repositorio que contiene
 ---
 
 VARIABLES A REEMPLAZAR:
-- [NOMBRE] → nombre del subdominio (ej: contaplus)
+- [NOMBRE] → nombre del subdominio (ej: dataflow)
 - [URL_DEL_REPO] → URL del repositorio Git
 - [NOMBRE_DEL_BRANCH] → branch a desplegar
 - [nombre_bd] → nombre de la base de datos MySQL

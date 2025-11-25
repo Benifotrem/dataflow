@@ -144,7 +144,7 @@
         <div class="mt-12 text-center bg-purple-50 rounded-lg p-8">
             <h3 class="text-2xl font-bold mb-4">¿No encuentras tu respuesta?</h3>
             <p class="text-gray-700 mb-6">Nuestro equipo está listo para ayudarte</p>
-            <a href="mailto:soporte@contaplus.com" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-bold transition">
+            <a href="mailto:soporte@dataflow.com" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-bold transition">
                 Contactar Soporte
             </a>
         </div>

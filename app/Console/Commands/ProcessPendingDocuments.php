@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class ProcessPendingDocuments extends Command
 {
-    protected $signature = 'contaplus:process-documents {--limit=10}';
+    protected $signature = 'dataflow:process-documents {--limit=10}';
     protected $description = 'Procesa documentos pendientes con OCR/IA';
 
     public function handle(OcrService $service)

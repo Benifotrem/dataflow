@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Contaplus - Diagnóstico</title>
+    <title>Dataflow - Diagnóstico</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔍 Diagnóstico de Contaplus</h1>
+        <h1>🔍 Diagnóstico de Dataflow</h1>
 
         <div class="section">
             <h2>1. Información del Servidor</h2>

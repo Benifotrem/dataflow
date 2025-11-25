@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class DeleteExpiredBankStatements extends Command
 {
-    protected $signature = 'contaplus:delete-expired-statements';
+    protected $signature = 'dataflow:delete-expired-statements';
     protected $description = 'Elimina extractos bancarios que han excedido el período de retención de 60 días';
 
     public function handle(DataRetentionService $service)

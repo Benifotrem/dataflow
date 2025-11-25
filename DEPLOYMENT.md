@@ -1,4 +1,4 @@
-# 🚀 GUÍA DE DEPLOYMENT - CONTAPLUS
+# 🚀 GUÍA DE DEPLOYMENT - DATAFLOW
 
 ## Configuración para: dataflow.guaraniappstore.com
 
@@ -20,13 +20,13 @@
 ### En cPanel (o equivalente):
 
 1. **Crear subdominio:**
-   - Nombre: `contaplus`
+   - Nombre: `dataflow`
    - Dominio raíz: `guaraniappstore.com`
-   - Document Root: `/public_html/contaplus/public`
+   - Document Root: `/public_html/dataflow/public`
 
 2. **Crear base de datos MySQL:**
-   - Nombre: `guarani_contaplus`
-   - Usuario: `guarani_contaplus`
+   - Nombre: `guarani_dataflow`
+   - Usuario: `guarani_dataflow`
    - Password: [genera uno seguro]
    - Host: `localhost`
 
@@ -48,11 +48,11 @@ ssh tu_usuario@guaraniappstore.com
 cd public_html
 
 # Clonar repositorio
-git clone https://github.com/Benifotrem/contaplus.git
-cd contaplus
+git clone https://github.com/Benifotrem/dataflow.git
+cd dataflow
 
 # Checkout al branch correcto
-git checkout claude/contaplus-saas-platform-01Gogn2DJtLmkTPq15MUxMWf
+git checkout claude/dataflow-saas-platform-01Gogn2DJtLmkTPq15MUxMWf
 
 # Instalar dependencias
 composer install --optimize-autoloader --no-dev
@@ -62,7 +62,7 @@ composer install --optimize-autoloader --no-dev
 
 1. Comprimir el proyecto localmente (excluyendo node_modules y vendor)
 2. Subir archivo .zip al servidor
-3. Descomprimir en `/public_html/contaplus/`
+3. Descomprimir en `/public_html/dataflow/`
 4. Conectar por SSH y ejecutar: `composer install --optimize-autoloader --no-dev`
 
 ---
@@ -80,7 +80,7 @@ nano .env
 ### Configuración .env para producción:
 
 ```env
-APP_NAME=Contaplus
+APP_NAME=Dataflow
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
@@ -94,8 +94,8 @@ APP_FAKER_LOCALE=es_ES
 DB_CONNECTION=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=guarani_contaplus
-DB_USERNAME=guarani_contaplus
+DB_DATABASE=guarani_dataflow
+DB_USERNAME=guarani_dataflow
 DB_PASSWORD=tu_password_mysql_aqui
 
 # Email con Brevo
@@ -105,15 +105,15 @@ MAIL_PORT=587
 MAIL_USERNAME=tu_email_brevo@ejemplo.com
 MAIL_PASSWORD=tu_password_smtp_brevo
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="contaplus@guaraniappstore.com"
-MAIL_FROM_NAME="Contaplus"
+MAIL_FROM_ADDRESS="dataflow@guaraniappstore.com"
+MAIL_FROM_NAME="Dataflow"
 
 # API de OpenAI
 OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
 AI_PROVIDER=openai
 AI_MODEL=gpt-4o-mini
 
-# Configuración Contaplus
+# Configuración Dataflow
 DOCUMENT_LIMIT_BASE=500
 DATA_RETENTION_DAYS=60
 ADDON_PRICE_PER_500_DOCS=9.99
@@ -165,7 +165,7 @@ chown -R www-data:www-data storage bootstrap/cache
 ### En cPanel → Cron Jobs:
 
 **Configuración:**
-- Comando: `/usr/bin/php /home/tu_usuario/public_html/contaplus/artisan schedule:run >> /dev/null 2>&1`
+- Comando: `/usr/bin/php /home/tu_usuario/public_html/dataflow/artisan schedule:run >> /dev/null 2>&1`
 - Frecuencia: `* * * * *` (cada minuto)
 
 O manualmente en crontab:
@@ -175,7 +175,7 @@ crontab -e
 
 Agregar línea:
 ```
-* * * * * cd /home/tu_usuario/public_html/contaplus && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /home/tu_usuario/public_html/dataflow && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 **Tareas que se ejecutarán automáticamente:**
@@ -190,12 +190,12 @@ Agregar línea:
 ### En cPanel → Domains → Manage:
 
 1. Seleccionar `dataflow.guaraniappstore.com`
-2. Document Root: `/home/tu_usuario/public_html/contaplus/public`
+2. Document Root: `/home/tu_usuario/public_html/dataflow/public`
 3. Guardar cambios
 
 ### O crear .htaccess en raíz del subdominio:
 
-Si no puedes cambiar el Document Root, crea `.htaccess` en `/public_html/contaplus/`:
+Si no puedes cambiar el Document Root, crea `.htaccess` en `/public_html/dataflow/`:
 
 ```apache
 <IfModule mod_rewrite.c>
@@ -231,8 +231,8 @@ Si no puedes cambiar el Document Root, crea `.htaccess` en `/public_html/contapl
 1. **Login en Brevo**: https://app.brevo.com
 2. **Settings → Senders & IP**
 3. **Add Sender**:
-   - Email: `contaplus@guaraniappstore.com`
-   - Name: `Contaplus`
+   - Email: `dataflow@guaraniappstore.com`
+   - Name: `Dataflow`
 4. Como `guaraniappstore.com` ya está verificado, se aprueba automáticamente ✅
 5. **Settings → SMTP & API**:
    - Copiar Login (tu email de cuenta Brevo)
@@ -255,7 +255,7 @@ php artisan migrate:status
 
 ### Test de comandos:
 ```bash
-php artisan list | grep contaplus
+php artisan list | grep dataflow
 ```
 
 ### Acceder a la aplicación:
@@ -323,13 +323,13 @@ SELECT COUNT(*) FROM documents;
 Para actualizar la aplicación:
 
 ```bash
-cd /home/tu_usuario/public_html/contaplus
+cd /home/tu_usuario/public_html/dataflow
 
 # Modo mantenimiento
 php artisan down
 
 # Actualizar código
-git pull origin claude/contaplus-saas-platform-01Gogn2DJtLmkTPq15MUxMWf
+git pull origin claude/dataflow-saas-platform-01Gogn2DJtLmkTPq15MUxMWf
 
 # Actualizar dependencias
 composer install --optimize-autoloader --no-dev

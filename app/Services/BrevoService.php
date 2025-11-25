@@ -27,8 +27,8 @@ class BrevoService
                 'Content-Type' => 'application/json',
             ])->post("{$this->baseUrl}/smtp/email", [
                 'sender' => [
-                    'name' => config('app.name', 'Contaplus'),
-                    'email' => config('mail.from.address', 'no-reply@contaplus.com'),
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
                 ],
                 'to' => [
                     [
@@ -36,7 +36,7 @@ class BrevoService
                         'name' => $name,
                     ],
                 ],
-                'subject' => 'Verifica tu cuenta en Contaplus',
+                'subject' => 'Verifica tu cuenta en Dataflow',
                 'htmlContent' => $this->getEmailVerificationTemplate($name, $verificationUrl),
             ]);
 
@@ -65,8 +65,8 @@ class BrevoService
                 'Content-Type' => 'application/json',
             ])->post("{$this->baseUrl}/smtp/email", [
                 'sender' => [
-                    'name' => config('app.name', 'Contaplus'),
-                    'email' => config('mail.from.address', 'no-reply@contaplus.com'),
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
                 ],
                 'to' => [
                     [
@@ -74,7 +74,7 @@ class BrevoService
                         'name' => $name,
                     ],
                 ],
-                'subject' => 'Recupera tu contraseña - Contaplus',
+                'subject' => 'Recupera tu contraseña - Dataflow',
                 'htmlContent' => $this->getPasswordResetTemplate($name, $resetUrl),
             ]);
 
@@ -103,8 +103,8 @@ class BrevoService
                 'Content-Type' => 'application/json',
             ])->post("{$this->baseUrl}/smtp/email", [
                 'sender' => [
-                    'name' => config('app.name', 'Contaplus'),
-                    'email' => config('mail.from.address', 'no-reply@contaplus.com'),
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
                 ],
                 'to' => [
                     [
@@ -112,7 +112,7 @@ class BrevoService
                         'name' => $name,
                     ],
                 ],
-                'subject' => '⚠️ Acercándote al límite de documentos - Contaplus',
+                'subject' => '⚠️ Acercándote al límite de documentos - Dataflow',
                 'htmlContent' => $this->getDocumentLimitTemplate($name, $used, $limit, $percentage),
             ]);
 
@@ -141,8 +141,8 @@ class BrevoService
                 'Content-Type' => 'application/json',
             ])->post("{$this->baseUrl}/smtp/email", [
                 'sender' => [
-                    'name' => config('app.name', 'Contaplus'),
-                    'email' => config('mail.from.address', 'no-reply@contaplus.com'),
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
                 ],
                 'to' => [
                     [
@@ -150,7 +150,7 @@ class BrevoService
                         'name' => $name,
                     ],
                 ],
-                'subject' => '¡Bienvenido a Contaplus!',
+                'subject' => '¡Bienvenido a Dataflow!',
                 'htmlContent' => $this->getWelcomeTemplate($name),
             ]);
 
@@ -183,11 +183,11 @@ class BrevoService
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">Contaplus</h1>
+                <h1 style="color: white; margin: 0; font-size: 28px;">Dataflow</h1>
             </div>
             <div style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h2 style="color: #333; margin-top: 0;">¡Hola {$name}!</h2>
-                <p style="font-size: 16px; color: #555;">Gracias por registrarte en Contaplus. Para completar tu registro y activar tu cuenta, por favor verifica tu dirección de email haciendo clic en el botón de abajo:</p>
+                <p style="font-size: 16px; color: #555;">Gracias por registrarte en Dataflow. Para completar tu registro y activar tu cuenta, por favor verifica tu dirección de email haciendo clic en el botón de abajo:</p>
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="{$verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Verificar Mi Email</a>
                 </div>
@@ -195,7 +195,7 @@ class BrevoService
                 <p style="font-size: 14px; color: #667eea; word-break: break-all;">{$verificationUrl}</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si no creaste esta cuenta, puedes ignorar este email de forma segura.</p>
-                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Contaplus</p>
+                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
             </div>
         </body>
         </html>
@@ -217,11 +217,11 @@ class BrevoService
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">Contaplus</h1>
+                <h1 style="color: white; margin: 0; font-size: 28px;">Dataflow</h1>
             </div>
             <div style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h2 style="color: #333; margin-top: 0;">¡Hola {$name}!</h2>
-                <p style="font-size: 16px; color: #555;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en Contaplus. Haz clic en el botón de abajo para crear una nueva contraseña:</p>
+                <p style="font-size: 16px; color: #555;">Recibimos una solicitud para restablecer la contraseña de tu cuenta en Dataflow. Haz clic en el botón de abajo para crear una nueva contraseña:</p>
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="{$resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Restablecer Contraseña</a>
                 </div>
@@ -230,7 +230,7 @@ class BrevoService
                 <p style="font-size: 14px; color: #667eea; word-break: break-all;">{$resetUrl}</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si no solicitaste restablecer tu contraseña, puedes ignorar este email de forma segura. Tu contraseña no cambiará.</p>
-                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Contaplus</p>
+                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
             </div>
         </body>
         </html>
@@ -271,8 +271,8 @@ class BrevoService
                     <a href="https://dataflow.guaraniappstore.com/pricing" style="display: inline-block; background: {$color}; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ver Planes Disponibles</a>
                 </div>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-                <p style="font-size: 13px; color: #999;">¿Tienes preguntas? Contáctanos en soporte@contaplus.com</p>
-                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Contaplus</p>
+                <p style="font-size: 13px; color: #999;">¿Tienes preguntas? Contáctanos en soporte@dataflow.com</p>
+                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
             </div>
         </body>
         </html>
@@ -290,15 +290,15 @@ class BrevoService
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Bienvenido a Contaplus</title>
+            <title>Bienvenido a Dataflow</title>
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">¡Bienvenido a Contaplus!</h1>
+                <h1 style="color: white; margin: 0; font-size: 28px;">¡Bienvenido a Dataflow!</h1>
             </div>
             <div style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h2 style="color: #333; margin-top: 0;">¡Hola {$name}!</h2>
-                <p style="font-size: 16px; color: #555;">¡Estamos encantados de tenerte con nosotros! Tu cuenta ha sido creada exitosamente y ya puedes comenzar a aprovechar todas las funcionalidades de Contaplus.</p>
+                <p style="font-size: 16px; color: #555;">¡Estamos encantados de tenerte con nosotros! Tu cuenta ha sido creada exitosamente y ya puedes comenzar a aprovechar todas las funcionalidades de Dataflow.</p>
                 <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 4px;">
                     <h3 style="margin-top: 0; color: #0369a1;">🎉 ¿Qué puedes hacer ahora?</h3>
                     <ul style="color: #555; margin: 10px 0; padding-left: 20px;">
@@ -313,7 +313,7 @@ class BrevoService
                 </div>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si tienes alguna pregunta, no dudes en contactarnos. Estamos aquí para ayudarte.</p>
-                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Contaplus</p>
+                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
             </div>
         </body>
         </html>

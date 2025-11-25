@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class CheckDocumentLimits extends Command
 {
-    protected $signature = 'contaplus:check-limits';
+    protected $signature = 'dataflow:check-limits';
     protected $description = 'Verifica límites de documentos y notifica a tenants que han excedido';
 
     public function handle()

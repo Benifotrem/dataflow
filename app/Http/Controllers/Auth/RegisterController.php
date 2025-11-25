@@ -86,7 +86,7 @@ class RegisterController extends Controller
                 Log::warning('No se pudo enviar email de bienvenida: ' . $e->getMessage());
             }
 
-            return redirect('/dashboard')->with('success', '¡Bienvenido a Contaplus! Tu cuenta ha sido creada exitosamente.');
+            return redirect('/dashboard')->with('success', '¡Bienvenido a Dataflow! Tu cuenta ha sido creada exitosamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -13,7 +13,7 @@
 
             <h2 class="text-2xl font-bold mt-8 mb-4">2. Responsable del Tratamiento</h2>
             <p><strong>Dataflow S.L.</strong><br>
-            Email: privacy@contaplus.com<br>
+            Email: privacy@dataflow.com<br>
             Dirección: [Dirección]</p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">3. Datos que Recopilamos</h2>
@@ -91,7 +91,7 @@
                 <li><strong>Oposición:</strong> Oponerte a ciertos procesamientos</li>
                 <li><strong>Limitación:</strong> Limitar el procesamiento en determinadas circunstancias</li>
             </ul>
-            <p>Para ejercer estos derechos, contacta a: <a href="mailto:privacy@contaplus.com" class="text-purple-600">privacy@contaplus.com</a></p>
+            <p>Para ejercer estos derechos, contacta a: <a href="mailto:privacy@dataflow.com" class="text-purple-600">privacy@dataflow.com</a></p>
 
             <h2 class="text-2xl font-bold mt-8 mb-4">10. Transferencias Internacionales</h2>
             <p>Tus datos pueden ser transferidos y procesados en servidores fuera de tu país de residencia. En todos los casos, implementamos salvaguardas adecuadas para proteger tus datos, incluyendo cláusulas contractuales estándar aprobadas por la UE.</p>
@@ -104,7 +104,7 @@
 
             <h2 class="text-2xl font-bold mt-8 mb-4">13. Contacto y Reclamaciones</h2>
             <p>Para preguntas sobre esta política o para ejercer tus derechos:</p>
-            <p><strong>Email:</strong> <a href="mailto:privacy@contaplus.com" class="text-purple-600">privacy@contaplus.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:privacy@dataflow.com" class="text-purple-600">privacy@dataflow.com</a></p>
             <p class="mt-4">También puedes presentar una reclamación ante la autoridad de protección de datos de tu país:</p>
             <ul class="list-disc pl-6 mb-4">
                 <li>España: Agencia Española de Protección de Datos (AEPD)</li>

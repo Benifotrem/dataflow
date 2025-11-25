@@ -6,26 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     {{-- SEO Meta Tags --}}
-    <title>{{ $seo['title'] ?? 'Contaplus - Automatización Contable con IA' }}</title>
+    <title>{{ $seo['title'] ?? 'Dataflow - Automatización Contable con IA' }}</title>
     <meta name="description" content="{{ $seo['description'] ?? 'Plataforma de automatización contable con inteligencia artificial' }}">
     <meta name="keywords" content="{{ $seo['keywords'] ?? 'contabilidad automática, software contable, IA contabilidad' }}">
-    <meta name="author" content="Contaplus">
+    <meta name="author" content="Dataflow">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- Open Graph / Facebook --}}
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $seo['title'] ?? 'Contaplus' }}">
+    <meta property="og:title" content="{{ $seo['title'] ?? 'Dataflow' }}">
     <meta property="og:description" content="{{ $seo['description'] ?? 'Automatización contable con IA' }}">
     <meta property="og:image" content="{{ $seo['image'] ?? asset('images/og-image.jpg') }}">
     <meta property="og:locale" content="es_ES">
-    <meta property="og:site_name" content="Contaplus">
+    <meta property="og:site_name" content="Dataflow">
 
     {{-- Twitter --}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="{{ url()->current() }}">
-    <meta name="twitter:title" content="{{ $seo['title'] ?? 'Contaplus' }}">
+    <meta name="twitter:title" content="{{ $seo['title'] ?? 'Dataflow' }}">
     <meta name="twitter:description" content="{{ $seo['description'] ?? 'Automatización contable con IA' }}">
     <meta name="twitter:image" content="{{ $seo['image'] ?? asset('images/og-image.jpg') }}">
 
@@ -37,7 +37,7 @@
     {
         "@@context": "https://schema.org",
         "@@type": "SoftwareApplication",
-        "name": "Contaplus",
+        "name": "Dataflow",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
         "offers": {

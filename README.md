@@ -1,8 +1,8 @@
-# Contaplus
+# Dataflow
 
 ## Plataforma SaaS de Automatización Contable Multi-Jurisdiccional
 
-Contaplus es una plataforma moderna de automatización contable que utiliza inteligencia artificial para simplificar la gestión fiscal y contable de pequeñas y medianas empresas, así como de despachos contables en España e Hispanoamérica.
+Dataflow es una plataforma moderna de automatización contable que utiliza inteligencia artificial para simplificar la gestión fiscal y contable de pequeñas y medianas empresas, así como de despachos contables en España e Hispanoamérica.
 
 ---
 
@@ -92,8 +92,8 @@ Contaplus es una plataforma moderna de automatización contable que utiliza inte
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/contaplus.git
-cd contaplus
+git clone https://github.com/tu-usuario/dataflow.git
+cd dataflow
 ```
 
 ### 2. Instalar dependencias
@@ -110,13 +110,13 @@ php artisan key:generate
 
 Editar `.env` con tus configuraciones:
 ```env
-APP_NAME=Contaplus
+APP_NAME=Dataflow
 APP_URL=https://tudominio.com
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=contaplus
+DB_DATABASE=dataflow
 DB_USERNAME=root
 DB_PASSWORD=
 
@@ -133,7 +133,7 @@ MAIL_USERNAME=tu_usuario
 MAIL_PASSWORD=tu_password
 BREVO_API_KEY=tu_api_key
 
-# Contaplus Configuration
+# Dataflow Configuration
 DOCUMENT_LIMIT_BASE=500
 DATA_RETENTION_DAYS=60
 ADDON_PRICE_PER_500_DOCS=9.99
@@ -312,18 +312,18 @@ Este es un proyecto privado. Si deseas contribuir, contacta al equipo de desarro
 
 ## Soporte
 
-Para soporte técnico, envía un email a: soporte@contaplus.com
+Para soporte técnico, envía un email a: soporte@dataflow.com
 
 ---
 
 ## Licencia
 
-Propietario. Todos los derechos reservados © 2025 Contaplus
+Propietario. Todos los derechos reservados © 2025 Dataflow
 
 ---
 
 ## Contacto
 
-- **Web**: https://contaplus.com
-- **Email**: contacto@contaplus.com
-- **Twitter**: @contaplus
+- **Web**: https://dataflow.com
+- **Email**: contacto@dataflow.com
+- **Twitter**: @dataflow

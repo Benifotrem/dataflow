@@ -98,10 +98,10 @@
                         <input
                             type="text"
                             name="email_from_name"
-                            value="{{ old('email_from_name', $settings['email_from_name'] ?? 'Contaplus') }}"
+                            value="{{ old('email_from_name', $settings['email_from_name'] ?? 'Dataflow') }}"
                             required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="Contaplus"
+                            placeholder="Dataflow"
                         >
                     </div>
 

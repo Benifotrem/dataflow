@@ -19,7 +19,7 @@ class EntityController extends Controller
 
     public function create()
     {
-        $countries = collect(config('contaplus.supported_countries'))
+        $countries = collect(config('dataflow.supported_countries'))
             ->mapWithKeys(fn($data, $code) => [$code => $data['name']])
             ->toArray();
         return view('dashboard.entities.create', compact('countries'));
@@ -34,7 +34,7 @@ class EntityController extends Controller
             'fiscal_year_end' => 'nullable|string|max:5',
         ]);
 
-        $countryData = config('contaplus.supported_countries')[$validated['country']] ?? null;
+        $countryData = config('dataflow.supported_countries')[$validated['country']] ?? null;
 
         if (!$countryData) {
             return back()->withErrors(['country' => 'País no soportado'])->withInput();
@@ -74,7 +74,7 @@ class EntityController extends Controller
             abort(403);
         }
 
-        $countries = collect(config('contaplus.supported_countries'))
+        $countries = collect(config('dataflow.supported_countries'))
             ->mapWithKeys(fn($data, $code) => [$code => $data['name']])
             ->toArray();
         return view('dashboard.entities.edit', compact('entity', 'countries'));
@@ -93,7 +93,7 @@ class EntityController extends Controller
             'fiscal_year_end' => 'nullable|string|max:5',
         ]);
 
-        $countryData = config('contaplus.supported_countries')[$validated['country']] ?? null;
+        $countryData = config('dataflow.supported_countries')[$validated['country']] ?? null;
 
         if (!$countryData) {
             return back()->withErrors(['country' => 'País no soportado'])->withInput();

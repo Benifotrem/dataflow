@@ -40,7 +40,7 @@
                         type="email"
                         name="company_email"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        value="{{ old('company_email', $settings['company_email'] ?? 'info@contaplus.com') }}"
+                        value="{{ old('company_email', $settings['company_email'] ?? 'info@dataflow.com') }}"
                         required
                     >
                 </div>
@@ -133,7 +133,7 @@
                         name="support_email"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         value="{{ old('support_email', $settings['support_email'] ?? '') }}"
-                        placeholder="soporte@contaplus.com"
+                        placeholder="soporte@dataflow.com"
                     >
                 </div>
 

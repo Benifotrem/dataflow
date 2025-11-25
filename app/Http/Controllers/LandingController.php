@@ -12,7 +12,7 @@ class LandingController extends Controller
     public function index()
     {
         $seo = [
-            'title' => 'Contaplus - Automatización Contable con Inteligencia Artificial',
+            'title' => 'Dataflow - Automatización Contable con Inteligencia Artificial',
             'description' => 'Simplifica tu contabilidad con IA. Procesamiento automático de facturas, conciliación bancaria y cumplimiento fiscal para España e Hispanoamérica. Desde $19.99/mes.',
             'keywords' => 'contabilidad automática, software contable, automatización fiscal, OCR facturas, contabilidad España, contabilidad Latinoamérica',
             'image' => asset('images/og-image.jpg'),
@@ -28,7 +28,7 @@ class LandingController extends Controller
     public function pricing()
     {
         $seo = [
-            'title' => 'Precios - Contaplus',
+            'title' => 'Precios - Dataflow',
             'description' => 'Planes flexibles para PyMEs y despachos contables. Básico desde $9.99/mes, Avanzado desde $29.99/mes. Prueba gratis 14 días.',
             'keywords' => 'precios contabilidad, software contable precio, plan contable',
         ];
@@ -42,9 +42,9 @@ class LandingController extends Controller
     public function faq()
     {
         $seo = [
-            'title' => 'Preguntas Frecuentes - Contaplus',
-            'description' => 'Resuelve tus dudas sobre Contaplus. Respuestas sobre funcionalidad, seguridad, precios y más.',
-            'keywords' => 'FAQ contaplus, preguntas contabilidad, ayuda software contable',
+            'title' => 'Preguntas Frecuentes - Dataflow',
+            'description' => 'Resuelve tus dudas sobre Dataflow. Respuestas sobre funcionalidad, seguridad, precios y más.',
+            'keywords' => 'FAQ dataflow, preguntas contabilidad, ayuda software contable',
         ];
 
         return view('landing.faq', compact('seo'));
@@ -60,7 +60,7 @@ class LandingController extends Controller
             ->paginate(12);
 
         $seo = [
-            'title' => 'Blog - Contaplus',
+            'title' => 'Blog - Dataflow',
             'description' => 'Artículos, guías y novedades sobre contabilidad, fiscalidad y automatización con IA.',
             'keywords' => 'blog contabilidad, guías fiscales, automatización contable, noticias fiscales',
         ];
@@ -89,7 +89,7 @@ class LandingController extends Controller
             ->get();
 
         $seo = [
-            'title' => $post->title . ' - Contaplus Blog',
+            'title' => $post->title . ' - Dataflow Blog',
             'description' => $post->excerpt,
             'keywords' => implode(', ', $post->keywords ?? []),
             'image' => $post->featured_image ? asset('storage/' . $post->featured_image) : asset('images/og-image.jpg'),
@@ -104,8 +104,8 @@ class LandingController extends Controller
     public function terms()
     {
         $seo = [
-            'title' => 'Términos y Condiciones - Contaplus',
-            'description' => 'Términos y condiciones de uso de la plataforma Contaplus.',
+            'title' => 'Términos y Condiciones - Dataflow',
+            'description' => 'Términos y condiciones de uso de la plataforma Dataflow.',
             'keywords' => 'términos y condiciones, términos de servicio',
         ];
 
@@ -118,8 +118,8 @@ class LandingController extends Controller
     public function privacy()
     {
         $seo = [
-            'title' => 'Política de Privacidad - Contaplus',
-            'description' => 'Cómo protegemos y tratamos tus datos en Contaplus. Cumplimiento GDPR y normativas de protección de datos.',
+            'title' => 'Política de Privacidad - Dataflow',
+            'description' => 'Cómo protegemos y tratamos tus datos en Dataflow. Cumplimiento GDPR y normativas de protección de datos.',
             'keywords' => 'política de privacidad, protección de datos, GDPR',
         ];
 
