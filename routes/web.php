@@ -52,6 +52,12 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
         Route::delete('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'destroy'])->name('destroy');
     });
 
+    // Liquidación de IVA
+    Route::prefix('vat-liquidation')->name('vat-liquidation.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VatLiquidationController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\VatLiquidationController::class, 'export'])->name('export');
+    });
+
     // Transacciones
     Route::prefix('transactions')->name('transactions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\TransactionController::class, 'index'])->name('index');

@@ -127,10 +127,11 @@ class ProcessTelegramDocument implements ShouldQueue
                 'file_id' => $this->fileId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
+                'document_id' => $document->id ?? null,
             ]);
 
-            // Enviar notificación de error
-            $this->sendErrorNotification($telegramService, $e->getMessage());
+            // Enviar notificación de error con detalles del documento
+            $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
 
             throw $e;
         }
@@ -203,26 +204,51 @@ class ProcessTelegramDocument implements ShouldQueue
     {
         $message = "✅ <b>¡Factura procesada exitosamente!</b>\n\n";
 
-        if ($document->issuer) {
-            $message .= "👤 <b>Emisor:</b> {$document->issuer}\n";
+        // ID del documento para referencia
+        $message .= "🆔 <b>Documento ID:</b> #{$document->id}\n";
+        $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+
+        // Número de factura si existe
+        if ($document->invoice_number) {
+            $invoiceRef = $document->invoice_series
+                ? "{$document->invoice_series}-{$document->invoice_number}"
+                : $document->invoice_number;
+            $message .= "📋 <b>Nº Factura:</b> {$invoiceRef}\n";
         }
 
-        if ($document->amount) {
-            $currency = $document->currency ?? $this->user->tenant->currency_code ?? 'USD';
-            $message .= "💰 <b>Monto:</b> {$document->amount} {$currency}\n";
+        if ($document->issuer) {
+            $message .= "👤 <b>Emisor:</b> {$document->issuer}\n";
         }
 
         if ($document->document_date) {
             $message .= "📅 <b>Fecha:</b> {$document->document_date->format('d/m/Y')}\n";
         }
 
+        // Desglose de IVA si está disponible
+        if ($document->tax_base && $document->tax_amount) {
+            $currency = $document->currency ?? $this->user->tenant->currency_code ?? 'EUR';
+            $message .= "\n💵 <b>Desglose:</b>\n";
+            $message .= "   • Base imponible: " . number_format($document->tax_base, 2, ',', '.') . " {$currency}\n";
+
+            if ($document->tax_rate) {
+                $message .= "   • IVA ({$document->tax_rate}%): " . number_format($document->tax_amount, 2, ',', '.') . " {$currency}\n";
+            } else {
+                $message .= "   • IVA: " . number_format($document->tax_amount, 2, ',', '.') . " {$currency}\n";
+            }
+
+            $message .= "   • <b>Total: " . number_format($document->total_with_tax, 2, ',', '.') . " {$currency}</b>\n";
+        } elseif ($document->amount) {
+            $currency = $document->currency ?? $this->user->tenant->currency_code ?? 'EUR';
+            $message .= "\n💰 <b>Importe Total:</b> " . number_format($document->amount, 2, ',', '.') . " {$currency}\n";
+        }
+
         if ($document->ocr_data && isset($document->ocr_data['concept'])) {
             $concept = substr($document->ocr_data['concept'], 0, 100);
-            $message .= "📝 <b>Concepto:</b> {$concept}\n";
+            $message .= "\n📝 <b>Concepto:</b> {$concept}\n";
         }
 
         $message .= "\n📁 El documento ha sido guardado y organizado automáticamente.";
-        $message .= "\n\n🌐 Puedes verlo en: https://dataflow.guaraniappstore.com/documents";
+        $message .= "\n\n🌐 Ver en plataforma: https://dataflow.guaraniappstore.com/documents/{$document->id}";
 
         $telegramService->sendMessage($this->chatId, $message);
     }
@@ -230,12 +256,49 @@ class ProcessTelegramDocument implements ShouldQueue
     /**
      * Enviar notificación de error
      */
-    protected function sendErrorNotification(TelegramService $telegramService, string $error): void
+    protected function sendErrorNotification(TelegramService $telegramService, string $error, ?Document $document = null): void
     {
-        $message = "❌ <b>Error al procesar la factura</b>\n\n";
-        $message .= "Lo sentimos, hubo un problema al procesar tu documento.\n\n";
-        $message .= "<b>Error:</b> {$error}\n\n";
-        $message .= "Por favor, intenta nuevamente o contacta al soporte si el problema persiste.";
+        $message = "❌ <b>Documento rechazado</b>\n\n";
+
+        // Incluir ID del documento si está disponible
+        if ($document) {
+            $message .= "🆔 <b>Documento ID:</b> #{$document->id}\n";
+            $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+        }
+
+        // Determinar el tipo de rechazo y proporcionar mensaje específico
+        if (str_contains($error, 'no es una factura') || str_contains($error, 'No se pudo determinar el tipo')) {
+            $message .= "🚫 <b>Motivo:</b> El documento enviado no es una factura válida.\n\n";
+            $message .= "⚠️ <b>Requisitos para facturas:</b>\n";
+            $message .= "   • Debe contener datos fiscales completos\n";
+            $message .= "   • Debe tener emisor, receptor, fecha e importe\n";
+            $message .= "   • No envíes fotos personales, capturas de pantalla o memes\n\n";
+            $message .= "💡 <b>Tipos de documentos aceptados:</b>\n";
+            $message .= "   ✅ Facturas con datos fiscales\n";
+            $message .= "   ✅ Recibos de proveedores\n";
+            $message .= "   ❌ Extractos bancarios (súbelos desde la web)\n";
+            $message .= "   ❌ Notas de entrega sin datos fiscales\n";
+        } elseif (str_contains($error, 'Calidad de imagen') || str_contains($error, 'insuficiente')) {
+            $message .= "📸 <b>Motivo:</b> Calidad de imagen insuficiente para lectura.\n\n";
+            $message .= "💡 <b>Recomendaciones:</b>\n";
+            $message .= "   • Asegúrate de que la imagen esté bien iluminada\n";
+            $message .= "   • Evita sombras o reflejos\n";
+            $message .= "   • Enfoca correctamente el documento\n";
+            $message .= "   • Si es posible, envía el PDF original\n";
+            $message .= "   • No envíes imágenes borrosas o pixeladas\n\n";
+            $message .= "🔄 Por favor, vuelve a enviar la factura con mejor calidad.";
+        } elseif (str_contains($error, 'Límite de documentos')) {
+            $message .= "🚨 <b>Motivo:</b> Límite mensual de documentos alcanzado.\n\n";
+            $message .= "💳 Para continuar procesando documentos, puedes:\n";
+            $message .= "   • Adquirir un addon de 500 documentos por $9.99\n";
+            $message .= "   • Esperar hasta el próximo mes\n\n";
+            $message .= "Usa /status para ver tu consumo actual.";
+        } else {
+            // Error genérico
+            $message .= "⚠️ <b>Motivo:</b> {$error}\n\n";
+            $message .= "Por favor, verifica el documento y vuelve a intentarlo.\n";
+            $message .= "Si el problema persiste, contacta al soporte.";
+        }
 
         $telegramService->sendMessage($this->chatId, $message);
     }
@@ -254,7 +317,11 @@ class ProcessTelegramDocument implements ShouldQueue
         // Intentar enviar notificación de fallo
         try {
             $telegramService = app(TelegramService::class);
-            $this->sendErrorNotification($telegramService, 'El documento no pudo ser procesado después de varios intentos.');
+            $this->sendErrorNotification(
+                $telegramService,
+                'El documento no pudo ser procesado después de varios intentos.',
+                null
+            );
         } catch (\Exception $e) {
             Log::error('No se pudo enviar notificación de fallo', [
                 'error' => $e->getMessage(),
