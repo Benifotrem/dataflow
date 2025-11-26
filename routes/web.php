@@ -45,6 +45,7 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Documentos
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\DocumentExportController::class, 'export'])->name('export');
         Route::get('/create', [\App\Http\Controllers\Dashboard\DocumentController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'store'])->name('store');
         Route::get('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'show'])->name('show');
