@@ -34,12 +34,11 @@ class ForgotPasswordController extends Controller
         }
 
         // Send password reset link
-        $status = Password::sendResetLink(
+        // Always return success message to prevent user enumeration
+        Password::sendResetLink(
             $request->only('email')
         );
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', 'Te hemos enviado un enlace para restablecer tu contraseña.')
-            : back()->withErrors(['email' => 'No pudimos encontrar un usuario con ese correo electrónico.']);
+        return back()->with('status', 'Si el correo electrónico existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña.');
     }
 }
