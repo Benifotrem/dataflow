@@ -30,7 +30,7 @@ class BrevoApiTransport extends AbstractTransport
             ],
             'to' => collect($to)->map(fn(Address $addr) => [
                 'email' => $addr->getAddress(),
-                'name' => $addr->getName(),
+                'name' => $addr->getName() ?: $addr->getAddress(),
             ])->toArray(),
             'subject' => $email->getSubject(),
             'htmlContent' => $email->getHtmlBody(),
