@@ -82,9 +82,33 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo gestionan el IVA de diferentes países?</h3>
+                <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo gestionan el IVA y los impuestos de diferentes países?</h3>
+                <p class="text-gray-700 mb-3">
+                    Dataflow reconoce y procesa automáticamente los distintos tipos de impuestos según el país configurado en tu entidad fiscal. Cada país tiene sus propias denominaciones y tipos:
+                </p>
+                <div class="text-gray-700 space-y-2 text-sm">
+                    <p><strong>España y Portugal:</strong> IVA con tipos General (21%/23%), Reducido (10%/13%), Superreducido (4%/6%), además de IRPF y Recargo de equivalencia.</p>
+                    <p><strong>América Latina:</strong> IVA con distintas tasas según país (10% en Paraguay, 16% en México, 19% en Colombia y Chile, 21% en Argentina, 22% en Uruguay), más retenciones y percepciones específicas de cada jurisdicción.</p>
+                    <p><strong>Brasil:</strong> Sistema complejo con ICMS (estadual), IPI, PIS, COFINS, ISS (municipal).</p>
+                    <p class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                        <strong>⚙️ Importante:</strong> Los tipos de IVA son <strong>configurables</strong> desde tu dashboard. Puedes establecer los porcentajes que aplican en tu país, y si cambian en el futuro (por reformas fiscales), los puedes actualizar en cualquier momento sin afectar tus registros históricos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo configuro los tipos de IVA para mi país?</h3>
+                <p class="text-gray-700 mb-3">
+                    Durante la configuración inicial de tu entidad fiscal, podrás definir los tipos de IVA que aplican en tu país. Por ejemplo:
+                </p>
+                <ul class="text-gray-700 text-sm list-disc list-inside space-y-1 mb-3">
+                    <li>IVA General: 21% (España), 16% (México), 19% (Colombia)</li>
+                    <li>IVA Reducido: 10% (España), 5% (Paraguay)</li>
+                    <li>IVA Exento: 0%</li>
+                    <li>Retenciones (IRPF, Ganancias, etc.)</li>
+                </ul>
                 <p class="text-gray-700">
-                    Cada entidad fiscal se configura con el país correspondiente, y el sistema aplica automáticamente las reglas fiscales de ese país: IVA/VAT, retenciones, tipos impositivos, etc. Por ejemplo, en España usamos 21% de IVA, en México 16%, en Argentina 21%, etc.
+                    El sistema OCR detectará automáticamente estos tipos en tus facturas y los clasificará correctamente. Si los tipos de IVA cambian en tu país por reforma fiscal, simplemente actualizas la configuración y el sistema seguirá procesando correctamente las nuevas facturas, mientras mantiene el histórico con los tipos anteriores.
                 </p>
             </div>
 
