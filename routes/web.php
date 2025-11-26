@@ -58,6 +58,17 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
         Route::get('/export', [\App\Http\Controllers\VatLiquidationController::class, 'export'])->name('export');
     });
 
+    // Calendario Fiscal
+    Route::prefix('fiscal-events')->name('fiscal-events.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'store'])->name('store');
+        Route::get('/{fiscalEvent}/edit', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'edit'])->name('edit');
+        Route::put('/{fiscalEvent}', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'update'])->name('update');
+        Route::delete('/{fiscalEvent}', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'destroy'])->name('destroy');
+        Route::patch('/{fiscalEvent}/toggle-active', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'toggleActive'])->name('toggle-active');
+    });
+
     // Transacciones
     Route::prefix('transactions')->name('transactions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\TransactionController::class, 'index'])->name('index');
