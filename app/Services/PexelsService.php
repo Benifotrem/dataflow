@@ -80,9 +80,9 @@ class PexelsService
         // Descargar la imagen
         $imageContent = Http::get($imageUrl)->body();
 
-        // Guardar en storage/app/public/blog
-        $path = "blog/{$filename}";
-        Storage::disk('public')->put($path, $imageContent);
+        // Guardar en public/uploads/blog
+        $uploadPath = base_path("uploads/blog/{$filename}");
+        file_put_contents($uploadPath, $imageContent); $path = "blog/{$filename}";
 
         return $path;
     }

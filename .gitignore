@@ -27,3 +27,4 @@ Thumbs.db
 .env.*
 .env.save
 .env.backup
+uploads/

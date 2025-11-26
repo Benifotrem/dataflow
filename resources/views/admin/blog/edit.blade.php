@@ -144,7 +144,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     Imagen Destacada
                 </label>
-                <img src="{{ asset('storage/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full max-w-2xl rounded-lg">
+                <img src="{{ asset('uploads/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full max-w-2xl rounded-lg">
                 @if($post->image_credits)
                     <p class="text-sm text-gray-500 mt-2">{{ $post->image_credits }}</p>
                 @endif
