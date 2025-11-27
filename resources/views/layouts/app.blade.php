@@ -77,6 +77,20 @@
                     <span>Entidades Fiscales</span>
                 </a>
 
+                <a href="{{ route('fiscal-events.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-purple-700 transition {{ request()->routeIs('fiscal-events.*') ? 'bg-purple-700' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Calendario Fiscal</span>
+                </a>
+
+                <a href="{{ route('vat-liquidation.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-purple-700 transition {{ request()->routeIs('vat-liquidation.*') ? 'bg-purple-700' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Liquidación IVA</span>
+                </a>
+
                 <div class="border-t border-purple-700 my-4"></div>
 
                 @if(auth()->user()->role === 'admin')

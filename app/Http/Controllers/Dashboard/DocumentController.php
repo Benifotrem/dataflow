@@ -21,6 +21,7 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $documents = Document::where('tenant_id', $request->user()->tenant_id)
+            ->with('entity')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

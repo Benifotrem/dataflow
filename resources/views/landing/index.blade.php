@@ -367,7 +367,7 @@
                     <h3 class="text-2xl font-bold mb-2">Plan Básico</h3>
                     <p class="text-gray-600 mb-6">Para PyMEs y autónomos</p>
                     <div class="mb-6">
-                        <span class="text-5xl font-bold">$19.99</span>
+                        <span class="text-5xl font-bold">$9.99</span>
                         <span class="text-gray-600">/mes</span>
                     </div>
                     <a href="#" class="block w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition mb-6">
@@ -385,7 +385,7 @@
                         <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
                         </svg>
-                        <span><strong>500 documentos IA/mes</strong> incluidos</span>
+                        <span><strong>300 documentos IA/mes</strong> incluidos</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -414,16 +414,16 @@
                 </ul>
             </div>
 
-            {{-- Plan Avanzado --}}
+            {{-- Plan Profesional --}}
             <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl shadow-2xl p-8 border-2 border-purple-600 relative">
                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-purple-900 px-4 py-1 rounded-full text-sm font-bold">
                     RECOMENDADO
                 </div>
                 <div class="text-center">
-                    <h3 class="text-2xl font-bold mb-2">Plan Avanzado</h3>
+                    <h3 class="text-2xl font-bold mb-2">Plan Profesional</h3>
                     <p class="text-purple-100 mb-6">Para despachos y contadores</p>
                     <div class="mb-6">
-                        <span class="text-5xl font-bold">$49.99</span>
+                        <span class="text-5xl font-bold">$29.99</span>
                         <span class="text-purple-100">/mes</span>
                     </div>
                     <a href="#" class="block w-full bg-white text-purple-600 hover:bg-gray-100 py-3 rounded-lg font-bold transition mb-6">
@@ -441,7 +441,7 @@
                         <svg class="w-6 h-6 text-green-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
                         </svg>
-                        <span><strong>500 documentos IA/mes</strong> incluidos</span>
+                        <span><strong>1000 documentos IA/mes</strong> incluidos</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-green-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -479,10 +479,10 @@
 
         <div class="text-center mt-12">
             <p class="text-gray-600 mb-4">
-                ¿Necesitas más documentos? <strong>$9.99</strong> por cada 500 documentos adicionales
+                ¿Necesitas más documentos? <strong>$4.99/mes</strong> por 250 adicionales o <strong>$9.99/mes</strong> por 1000 adicionales
             </p>
-            <a href="{{ route('faq') }}" class="text-purple-600 hover:text-purple-700 font-medium underline">
-                Ver preguntas frecuentes sobre precios →
+            <a href="{{ route('pricing') }}" class="text-purple-600 hover:text-purple-700 font-medium underline">
+                Ver todos los precios →
             </a>
         </div>
     </div>
