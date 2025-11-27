@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
+  <!-- Icono de flujo de datos con degradado -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="12" cy="20" r="4" fill="url(#grad1)" opacity="0.8"/>
+  <circle cx="28" cy="20" r="4" fill="url(#grad1)"/>
+  <path d="M 16 20 L 24 20" stroke="url(#grad1)" stroke-width="2" stroke-dasharray="2,2"/>
+
+  <!-- Texto DATAFLOW -->
+  <text x="40" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="bold" letter-spacing="1" fill="#1f2937">
+    DATAFLOW
+  </text>
+</svg>

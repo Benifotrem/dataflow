@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="white">
+  <!-- Icono de flujo de datos -->
+  <circle cx="12" cy="20" r="4" opacity="0.8"/>
+  <circle cx="28" cy="20" r="4"/>
+  <path d="M 16 20 L 24 20" stroke="white" stroke-width="2" stroke-dasharray="2,2"/>
+
+  <!-- Texto DATAFLOW -->
+  <text x="40" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="bold" letter-spacing="1">
+    DATAFLOW
+  </text>
+</svg>
