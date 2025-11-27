@@ -17,7 +17,7 @@
             {{-- Logo --}}
             <div class="flex items-center justify-between h-16 px-6 bg-purple-900">
                 <a href="{{ route('dashboard.index') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-white.png') }}" alt="Dataflow" class="h-8" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <img src="{{ asset('images/logo-white.jpg') }}" alt="Dataflow" class="h-8" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <span class="text-xl font-bold" style="display: none;">Dataflow</span>
                 </a>
                 <button class="lg:hidden" onclick="toggleSidebar()">
