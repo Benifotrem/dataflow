@@ -55,7 +55,7 @@
         {{-- Featured Image --}}
         @if($post->featured_image)
             <div class="mb-8 rounded-xl overflow-hidden shadow-lg">
-                <img src="{{ asset('storage/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-auto">
+                <img src="{{ asset('uploads/' . $post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-auto">
                 @if($post->image_credits)
                     <p class="text-xs text-gray-500 mt-2 text-center">{{ $post->image_credits }}</p>
                 @endif
@@ -104,7 +104,7 @@
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
                         @if($related->featured_image)
                             <a href="{{ route('blog.show', $related->slug) }}">
-                                <img src="{{ asset('storage/' . $related->featured_image) }}" alt="{{ $related->title }}" class="w-full h-48 object-cover">
+                                <img src="{{ asset('uploads/' . $related->featured_image) }}" alt="{{ $related->title }}" class="w-full h-48 object-cover">
                             </a>
                         @else
                             <div class="h-48 bg-gradient-to-br from-purple-500 to-blue-600"></div>
