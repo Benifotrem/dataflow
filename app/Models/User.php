@@ -101,4 +101,12 @@ class User extends Authenticatable
             'telegram_linked_at' => null,
         ]);
     }
+
+    /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }

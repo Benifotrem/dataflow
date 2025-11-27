@@ -16,8 +16,9 @@
         <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-purple-800 to-purple-900 text-white transform transition-transform duration-200 lg:translate-x-0 -translate-x-full" id="sidebar">
             {{-- Logo --}}
             <div class="flex items-center justify-between h-16 px-6 bg-purple-900">
-                <a href="{{ route('dashboard.index') }}" class="text-xl font-bold">
-                    Dataflow
+                <a href="{{ route('dashboard.index') }}" class="flex items-center">
+                    <img src="{{ asset('images/logo-white.png') }}" alt="Dataflow" class="h-8" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span class="text-xl font-bold" style="display: none;">Dataflow</span>
                 </a>
                 <button class="lg:hidden" onclick="toggleSidebar()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

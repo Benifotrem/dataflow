@@ -27,6 +27,12 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', [RegisterController::class, 'show'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
+
+    // Password Reset
+    Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'show'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'show'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'store'])->name('password.update');
 });
 
 Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');
@@ -39,10 +45,28 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Documentos
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\DocumentExportController::class, 'export'])->name('export');
         Route::get('/create', [\App\Http\Controllers\Dashboard\DocumentController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'store'])->name('store');
         Route::get('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'show'])->name('show');
         Route::delete('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'destroy'])->name('destroy');
+    });
+
+    // Liquidación de IVA
+    Route::prefix('vat-liquidation')->name('vat-liquidation.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VatLiquidationController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\VatLiquidationController::class, 'export'])->name('export');
+    });
+
+    // Calendario Fiscal
+    Route::prefix('fiscal-events')->name('fiscal-events.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'store'])->name('store');
+        Route::get('/{fiscalEvent}/edit', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'edit'])->name('edit');
+        Route::put('/{fiscalEvent}', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'update'])->name('update');
+        Route::delete('/{fiscalEvent}', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'destroy'])->name('destroy');
+        Route::patch('/{fiscalEvent}/toggle-active', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'toggleActive'])->name('toggle-active');
     });
 
     // Transacciones
