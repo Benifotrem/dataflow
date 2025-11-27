@@ -228,7 +228,7 @@
                             <h5 class="font-bold mb-3">Primera Vez - Conexión (Solo una vez):</h5>
                             <ol class="space-y-3 text-gray-700">
                                 <li><strong>Paso 1:</strong> Abre Telegram → Busca <code class="bg-purple-200 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code></li>
-                                <li><strong>Paso 2:</strong> Ve a <a href="/settings" class="text-purple-600 underline">Configuración de Dataflow</a> → Copia tu código</li>
+                                <li><strong>Paso 2:</strong> Ve a <a href="/profile" class="text-purple-600 underline">Mi Perfil en Dataflow</a> → Copia tu código</li>
                                 <li><strong>Paso 3:</strong> Pega el código en el chat de Telegram</li>
                                 <li><strong>Paso 4:</strong> ✅ ¡Listo! Ya estás conectado</li>
                             </ol>
