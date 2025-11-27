@@ -160,7 +160,7 @@
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="bg-yellow-400 text-purple-900 font-bold px-3 py-1 rounded-full text-sm">3</span>
-                            <span>Envías a <strong>@DataflowBot</strong></span>
+                            <span>Envías a <strong>@dataflow_guaraniappstore_bot</strong></span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="bg-green-400 text-green-900 font-bold px-3 py-1 rounded-full text-sm">✓</span>

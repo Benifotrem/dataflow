@@ -227,7 +227,7 @@
                         <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 mb-4">
                             <h5 class="font-bold mb-3">Primera Vez - Conexión (Solo una vez):</h5>
                             <ol class="space-y-3 text-gray-700">
-                                <li><strong>Paso 1:</strong> Abre Telegram → Busca <code class="bg-purple-200 px-2 py-1 rounded">@DataflowBot</code></li>
+                                <li><strong>Paso 1:</strong> Abre Telegram → Busca <code class="bg-purple-200 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code></li>
                                 <li><strong>Paso 2:</strong> Ve a <a href="/settings" class="text-purple-600 underline">Configuración de Dataflow</a> → Copia tu código</li>
                                 <li><strong>Paso 3:</strong> Pega el código en el chat de Telegram</li>
                                 <li><strong>Paso 4:</strong> ✅ ¡Listo! Ya estás conectado</li>
@@ -244,7 +244,7 @@
                             <div class="border-2 border-purple-200 rounded-lg p-4">
                                 <h6 class="font-bold text-purple-600 mb-2">📄 Opción 2: PDF</h6>
                                 <p class="text-sm text-gray-700">
-                                    Recibes factura por email → Reenvías PDF a @DataflowBot → Procesada automáticamente
+                                    Recibes factura por email → Reenvías PDF a @dataflow_guaraniappstore_bot → Procesada automáticamente
                                 </p>
                             </div>
                             <div class="border-2 border-purple-200 rounded-lg p-4">
