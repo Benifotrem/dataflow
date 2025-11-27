@@ -76,6 +76,10 @@ class DocumentController extends Controller
     public function show(Document $document)
     {
         $this->authorize('view', $document);
+
+        // Cargar relación entity
+        $document->load('entity');
+
         return view('dashboard.documents.show', compact('document'));
     }
 
