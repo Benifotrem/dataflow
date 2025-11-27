@@ -42,6 +42,11 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Dashboard\DashboardController::class, 'index'])->name('dashboard.index');
 
+    // Perfil de Usuario
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
     // Documentos
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'index'])->name('index');
