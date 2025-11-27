@@ -8,10 +8,10 @@
         <div class="grid md:grid-cols-2 gap-12 items-center">
             <div>
                 <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                    Automatiza tu Contabilidad con <span class="text-yellow-300">Inteligencia Artificial</span>
+                    Procesa Facturas desde <span class="text-yellow-300">Telegram</span> con Inteligencia Artificial
                 </h1>
                 <p class="text-xl md:text-2xl mb-8 text-purple-100">
-                    Olvídate de las tareas manuales. Dataflow procesa facturas, concilia extractos y gestiona tu fiscalidad automáticamente.
+                    📱 Envía facturas por Telegram desde tu móvil. La IA procesa todo automáticamente. <strong>Ahorra 14 horas al mes.</strong>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 mb-8">
                     <a href="#" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition text-center">
@@ -131,6 +131,111 @@
     </div>
 </section>
 
+{{-- Telegram Magic Section --}}
+<section class="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 text-white">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                📱 La Magia de Telegram: Tu Oficina Contable de Bolsillo
+            </h2>
+            <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+                ¿Por qué perder tiempo en el ordenador cuando puedes procesar facturas desde tu móvil en segundos?
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <div class="space-y-6">
+                <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                    <h3 class="text-2xl font-bold mb-3 flex items-center gap-2">
+                        <span class="text-3xl">📸</span> Tan Simple Como Sacar una Foto
+                    </h3>
+                    <ol class="space-y-3 text-lg">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-yellow-400 text-purple-900 font-bold px-3 py-1 rounded-full text-sm">1</span>
+                            <span>Estás en el super y recibes la factura</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-yellow-400 text-purple-900 font-bold px-3 py-1 rounded-full text-sm">2</span>
+                            <span>Abres Telegram → Foto de la factura</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-yellow-400 text-purple-900 font-bold px-3 py-1 rounded-full text-sm">3</span>
+                            <span>Envías a <strong>@DataflowBot</strong></span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-green-400 text-green-900 font-bold px-3 py-1 rounded-full text-sm">✓</span>
+                            <span><strong>¡Listo! En 10 segundos está procesada</strong></span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-400 to-emerald-400 text-gray-900 rounded-xl p-6">
+                    <h4 class="font-bold text-xl mb-3">⏱️ ¿Cuánto Tiempo Ahorras?</h4>
+                    <div class="space-y-2">
+                        <p class="flex justify-between items-center">
+                            <span>Método tradicional (50 facturas):</span>
+                            <strong class="text-xl">3 horas</strong>
+                        </p>
+                        <p class="flex justify-between items-center">
+                            <span>Con Dataflow por Telegram:</span>
+                            <strong class="text-xl text-green-700">5 minutos</strong>
+                        </p>
+                        <div class="border-t-2 border-green-600 pt-2 mt-2">
+                            <p class="flex justify-between items-center text-lg font-bold">
+                                <span>AHORRO AL MES:</span>
+                                <span class="text-2xl text-green-700">14 HORAS</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                    <h3 class="text-2xl font-bold mb-4">🤖 El Bot Hace Todo por Ti:</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">✅</span>
+                            <div>
+                                <strong>Valida la factura</strong> (2 seg)
+                                <p class="text-sm text-blue-100">Verifica que sea legible y válida</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">🧠</span>
+                            <div>
+                                <strong>Extrae con IA</strong> (8 seg)
+                                <p class="text-sm text-blue-100">Número, fecha, emisor, IVA, totales...</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">💾</span>
+                            <div>
+                                <strong>Guarda en la nube</strong>
+                                <p class="text-sm text-blue-100">Organizado, clasificado, listo para reportes</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-2xl">🔔</span>
+                            <div>
+                                <strong>Te notifica</strong>
+                                <p class="text-sm text-blue-100">Recibes confirmación con todos los datos</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-center">
+                    <a href="#pricing" class="inline-block bg-yellow-400 hover:bg-yellow-300 text-purple-900 px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg">
+                        Conectar Mi Telegram Ahora →
+                    </a>
+                    <p class="text-sm text-blue-100 mt-3">Configuración en 30 segundos • Sin descargar apps</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {{-- Solution Section --}}
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6">
@@ -144,15 +249,15 @@
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-8 rounded-xl">
-                <div class="bg-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <div class="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 p-8 rounded-xl border-2 border-purple-300">
+                <div class="bg-gradient-to-br from-blue-600 to-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L8.08 13.768l-2.98-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold mb-3">OCR Inteligente</h3>
+                <h3 class="text-xl font-bold mb-3 text-purple-700">📱 Integración con Telegram</h3>
                 <p class="text-gray-600">
-                    Sube facturas en PDF, imagen o Excel. Nuestra IA extrae todos los datos automáticamente: importes, IVA, fechas, proveedor.
+                    Envía facturas desde tu móvil por Telegram. El bot procesa automáticamente con IA: importes, IVA, fechas, proveedor. <strong>En 10 segundos.</strong>
                 </p>
             </div>
 
@@ -224,20 +329,20 @@
     <div class="container mx-auto px-6">
         <div class="grid md:grid-cols-4 gap-8 text-center">
             <div>
+                <div class="text-5xl font-bold mb-2">14h</div>
+                <div class="text-purple-200">Ahorradas al mes</div>
+            </div>
+            <div>
+                <div class="text-5xl font-bold mb-2">10seg</div>
+                <div class="text-purple-200">Procesar factura por Telegram</div>
+            </div>
+            <div>
                 <div class="text-5xl font-bold mb-2">95%</div>
                 <div class="text-purple-200">Reducción de errores</div>
             </div>
             <div>
-                <div class="text-5xl font-bold mb-2">10h</div>
-                <div class="text-purple-200">Ahorradas por semana</div>
-            </div>
-            <div>
-                <div class="text-5xl font-bold mb-2">500+</div>
-                <div class="text-purple-200">Empresas confían en nosotros</div>
-            </div>
-            <div>
                 <div class="text-5xl font-bold mb-2">24/7</div>
-                <div class="text-purple-200">Procesamiento continuo</div>
+                <div class="text-purple-200">Desde tu móvil</div>
             </div>
         </div>
     </div>
