@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -9,6 +10,12 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
+    protected TelegramService $telegramService;
+
+    public function __construct(TelegramService $telegramService)
+    {
+        $this->telegramService = $telegramService;
+    }
     /**
      * Mostrar el perfil del usuario
      */
@@ -57,5 +64,32 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Contraseña actualizada exitosamente');
+    }
+
+    /**
+     * Generar código de vinculación de Telegram
+     */
+    public function generateTelegramCode()
+    {
+        $user = Auth::user();
+        $code = $this->telegramService->generateLinkCode($user);
+
+        return back()->with('telegram_code', $code);
+    }
+
+    /**
+     * Desvincular cuenta de Telegram
+     */
+    public function unlinkTelegram()
+    {
+        $user = Auth::user();
+
+        if (!$user->hasTelegramLinked()) {
+            return back()->withErrors(['telegram' => 'No tienes una cuenta de Telegram vinculada']);
+        }
+
+        $user->unlinkTelegram();
+
+        return back()->with('success', 'Cuenta de Telegram desvinculada exitosamente');
     }
 }

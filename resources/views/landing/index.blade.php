@@ -14,7 +14,7 @@
                     📱 Envía facturas por Telegram desde tu móvil. La IA procesa todo automáticamente. <strong>Ahorra 14 horas al mes.</strong>
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                    <a href="#" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition text-center">
+                    <a href="{{ route('register') }}" class="bg-white text-purple-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition text-center">
                         Prueba Gratis 14 Días
                     </a>
                     <a href="#demo" class="glass-effect text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/20 transition text-center">

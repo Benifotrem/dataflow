@@ -52,6 +52,97 @@
         </form>
     </div>
 
+    {{-- Configuración de Telegram --}}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Configuración de Telegram</h2>
+
+        @if($user->hasTelegramLinked())
+            {{-- Cuenta Vinculada --}}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-green-900 mb-1">✅ Cuenta de Telegram Vinculada</h3>
+                        <p class="text-sm text-green-700 mb-2">
+                            <strong>Usuario:</strong> {{ $user->telegram_username ? '@' . $user->telegram_username : 'Usuario de Telegram' }}
+                        </p>
+                        <p class="text-sm text-green-700 mb-3">
+                            <strong>Vinculado desde:</strong> {{ $user->telegram_linked_at->format('d/m/Y H:i') }}
+                        </p>
+                        <p class="text-sm text-green-700 mb-3">
+                            Ahora puedes enviar facturas directamente desde Telegram al bot <code class="bg-green-200 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code>
+                        </p>
+                        <form action="{{ route('profile.telegram.unlink') }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas desvincular tu cuenta de Telegram?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm">
+                                Desvincular Telegram
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @else
+            {{-- Cuenta No Vinculada --}}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-blue-900 mb-2">📱 Vincula tu Cuenta de Telegram</h3>
+                        <p class="text-sm text-blue-700 mb-4">
+                            Vincula tu cuenta para enviar facturas desde Telegram y recibir notificaciones instantáneas.
+                        </p>
+
+                        @if(session('telegram_code'))
+                            {{-- Mostrar Código Generado --}}
+                            <div class="bg-white border-2 border-blue-400 rounded-lg p-4 mb-4">
+                                <p class="text-sm text-gray-700 mb-2"><strong>Tu código de vinculación:</strong></p>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <code class="text-2xl font-mono font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded">{{ session('telegram_code') }}</code>
+                                    <button onclick="copyToClipboard('{{ session('telegram_code') }}')" class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 transition text-sm">
+                                        Copiar
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-600 mb-2">⏱️ Este código expira en 15 minutos</p>
+                                <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
+                                    <p class="text-sm text-gray-700 font-semibold mb-2">Pasos para vincular:</p>
+                                    <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                                        <li>Abre Telegram y busca <code class="bg-gray-200 px-2 py-0.5 rounded">@dataflow_guaraniappstore_bot</code></li>
+                                        <li>Inicia conversación con el bot presionando <strong>START</strong></li>
+                                        <li>Envía el código <code class="bg-blue-200 px-2 py-0.5 rounded font-mono">{{ session('telegram_code') }}</code> al bot</li>
+                                        <li>¡Listo! Recibirás confirmación cuando se vincule</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        @else
+                            {{-- Generar Código --}}
+                            <form action="{{ route('profile.telegram.generate-code') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                                    Generar Código de Vinculación
+                                </button>
+                            </form>
+                        @endif
+
+                        <div class="mt-4 pt-4 border-t border-blue-200">
+                            <p class="text-xs text-blue-700 mb-2"><strong>¿Qué puedes hacer con Telegram?</strong></p>
+                            <ul class="text-xs text-blue-700 space-y-1">
+                                <li>✅ Envía facturas en PDF o foto directamente desde tu móvil</li>
+                                <li>✅ Recibe notificaciones instantáneas cuando se procesen</li>
+                                <li>✅ Consulta el estado de tus documentos</li>
+                                <li>✅ Gestiona tu suscripción y pagos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
     {{-- Cambiar Contraseña --}}
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Cambiar Contraseña</h2>
@@ -111,4 +202,17 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Código copiado al portapapeles: ' + text);
+    }, function(err) {
+        console.error('Error al copiar: ', err);
+    });
+}
+</script>
+@endpush
+
 @endsection
