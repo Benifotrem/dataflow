@@ -193,6 +193,17 @@ class BrevoService
                 </div>
                 <p style="font-size: 14px; color: #777;">Si no puedes hacer clic en el botón, copia y pega el siguiente enlace en tu navegador:</p>
                 <p style="font-size: 14px; color: #667eea; word-break: break-all;">{$verificationUrl}</p>
+
+                <!-- Advertencia de seguridad -->
+                <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 14px; color: #991b1b; font-weight: bold;">🔒 Advertencia de Seguridad:</p>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 13px; color: #991b1b;">
+                        <li><strong>NUNCA compartas este enlace</strong> con nadie. Es personal e intransferible.</li>
+                        <li>Dataflow <strong>NUNCA te pedirá</strong> este enlace por teléfono, email o cualquier otro medio.</li>
+                        <li>Verifica siempre que la URL sea: <strong>dataflow.guaraniappstore.com</strong></li>
+                    </ul>
+                </div>
+
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si no creaste esta cuenta, puedes ignorar este email de forma segura.</p>
                 <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
@@ -228,6 +239,18 @@ class BrevoService
                 <p style="font-size: 14px; color: #777;">Este enlace expirará en 60 minutos por razones de seguridad.</p>
                 <p style="font-size: 14px; color: #777;">Si no puedes hacer clic en el botón, copia y pega el siguiente enlace en tu navegador:</p>
                 <p style="font-size: 14px; color: #667eea; word-break: break-all;">{$resetUrl}</p>
+
+                <!-- Advertencia de seguridad -->
+                <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 14px; color: #991b1b; font-weight: bold;">🔒 Advertencia de Seguridad:</p>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 13px; color: #991b1b;">
+                        <li><strong>NUNCA compartas este enlace</strong> con nadie. Es personal e intransferible.</li>
+                        <li>Dataflow <strong>NUNCA te pedirá</strong> este enlace por teléfono, email o cualquier otro medio.</li>
+                        <li>Si recibes solicitudes sospechosas, repórtalas inmediatamente.</li>
+                        <li>Verifica siempre que la URL sea: <strong>dataflow.guaraniappstore.com</strong></li>
+                    </ul>
+                </div>
+
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                 <p style="font-size: 13px; color: #999;">Si no solicitaste restablecer tu contraseña, puedes ignorar este email de forma segura. Tu contraseña no cambiará.</p>
                 <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
