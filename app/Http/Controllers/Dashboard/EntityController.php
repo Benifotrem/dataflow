@@ -10,15 +10,37 @@ class EntityController extends Controller
 {
     public function index(Request $request)
     {
-        $entities = Entity::where('tenant_id', $request->user()->tenant_id)
+        $tenant = $request->user()->tenant;
+        $entities = Entity::where('tenant_id', $tenant->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('dashboard.entities.index', compact('entities'));
+        $subscription = $tenant->activeSubscription();
+        $canCreateMore = true;
+
+        // Verificar si puede crear más entidades
+        if ($subscription && $subscription->isBasic() && $entities->count() >= 1) {
+            $canCreateMore = false;
+        }
+
+        return view('dashboard.entities.index', compact('entities', 'canCreateMore', 'subscription'));
     }
 
     public function create()
     {
+        $tenant = auth()->user()->tenant;
+        $subscription = $tenant->activeSubscription();
+
+        // Verificar límite de entidades según plan
+        if ($subscription && $subscription->isBasic()) {
+            $entitiesCount = Entity::where('tenant_id', $tenant->id)->count();
+
+            if ($entitiesCount >= 1) {
+                return redirect()->route('entities.index')
+                    ->withErrors(['error' => 'El Plan Básico solo permite crear 1 entidad fiscal. Actualiza a Plan Profesional para entidades ilimitadas.']);
+            }
+        }
+
         $countries = collect(config('dataflow.supported_countries'))
             ->mapWithKeys(fn($data, $code) => [$code => $data['name']])
             ->toArray();
@@ -27,6 +49,20 @@ class EntityController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = auth()->user()->tenant;
+        $subscription = $tenant->activeSubscription();
+
+        // Verificar límite de entidades según plan
+        if ($subscription && $subscription->isBasic()) {
+            $entitiesCount = Entity::where('tenant_id', $tenant->id)->count();
+
+            if ($entitiesCount >= 1) {
+                return back()
+                    ->withErrors(['error' => 'El Plan Básico solo permite crear 1 entidad fiscal. Actualiza a Plan Profesional para entidades ilimitadas.'])
+                    ->withInput();
+            }
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tax_id' => 'required|string|max:50',
