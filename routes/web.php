@@ -20,6 +20,10 @@ Route::get('/terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('/privacy', [LandingController::class, 'privacy'])->name('privacy');
 Route::get('/sitemap.xml', [LandingController::class, 'sitemap'])->name('sitemap');
 
+// Newsletter Subscription
+Route::post('/subscribe', [\App\Http\Controllers\SubscriptionController::class, 'subscribe'])->name('subscribe');
+Route::get('/unsubscribe/{email}', [\App\Http\Controllers\SubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
+
 // Rutas de Autenticación
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -130,6 +134,15 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
         Route::post('/{post}/publish', [\App\Http\Controllers\Admin\BlogController::class, 'publish'])->name('publish');
         Route::post('/{post}/archive', [\App\Http\Controllers\Admin\BlogController::class, 'archive'])->name('archive');
         Route::delete('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'destroy'])->name('destroy');
+    });
+
+    // Subscribers Management
+    Route::prefix('subscribers')->name('subscribers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SubscriberController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\Admin\SubscriberController::class, 'export'])->name('export');
+        Route::post('/{subscriber}/toggle-status', [\App\Http\Controllers\Admin\SubscriberController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{subscriber}', [\App\Http\Controllers\Admin\SubscriberController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-delete', [\App\Http\Controllers\Admin\SubscriberController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     // Settings - Blog Configuration

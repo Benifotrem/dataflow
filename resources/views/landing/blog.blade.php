@@ -98,17 +98,41 @@
             <p class="text-purple-100 mb-6 max-w-2xl mx-auto">
                 Recibe artículos, guías y actualizaciones directamente en tu correo. Sin spam, solo contenido valioso.
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 max-w-md mx-auto">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-4 max-w-md mx-auto">
+                    {{ session('info') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 max-w-md mx-auto">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('subscribe') }}" class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                @csrf
+                <input type="hidden" name="source" value="blog">
                 <input
                     type="email"
+                    name="email"
                     placeholder="tu@email.com"
+                    required
+                    value="{{ old('email') }}"
                     class="flex-1 px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-300"
                 >
-                <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                <button type="submit" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                     Suscribirme
                 </button>
-            </div>
-            <p class="text-sm text-purple-200 mt-4">Próximamente disponible</p>
+            </form>
+            <p class="text-sm text-purple-200 mt-4">Puedes darte de baja en cualquier momento</p>
         </div>
     </div>
 </section>
