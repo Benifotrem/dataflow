@@ -154,7 +154,7 @@
 
             {{-- Buttons --}}
             <div class="flex items-center justify-between pt-4 border-t">
-                <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-gray-800">
+                <a href="{{ route('dashboard.index') }}" class="text-gray-600 hover:text-gray-800">
                     ← Volver al Panel
                 </a>
                 <button
