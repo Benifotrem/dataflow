@@ -186,6 +186,93 @@
         </form>
     </div>
 
+    {{-- Plan de Suscripción --}}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Plan de Suscripción</h2>
+
+        @php
+            $subscription = $user->tenant->activeSubscription();
+        @endphp
+
+        @if($subscription)
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-purple-900">
+                            @if($subscription->plan === 'basic')
+                                Plan Básico
+                            @elseif($subscription->plan === 'advanced')
+                                Plan Profesional
+                            @else
+                                {{ ucfirst($subscription->plan) }}
+                            @endif
+                        </h3>
+                        <p class="text-sm text-purple-700">
+                            Estado:
+                            @if($subscription->status === 'active')
+                                <span class="font-semibold text-green-600">✓ Activo</span>
+                            @elseif($subscription->status === 'trial')
+                                <span class="font-semibold text-blue-600">🎯 Periodo de Prueba</span>
+                            @else
+                                <span class="font-semibold">{{ ucfirst($subscription->status) }}</span>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-purple-900">
+                            ${{ number_format($subscription->price, 2) }}
+                        </p>
+                        <p class="text-xs text-purple-700">/ mes</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    @if($subscription->starts_at)
+                    <div>
+                        <span class="text-gray-600">Inicio:</span>
+                        <span class="font-medium ml-2">{{ $subscription->starts_at->format('d/m/Y') }}</span>
+                    </div>
+                    @endif
+
+                    @if($subscription->expires_at)
+                    <div>
+                        <span class="text-gray-600">Vencimiento:</span>
+                        <span class="font-medium ml-2">{{ $subscription->expires_at->format('d/m/Y') }}</span>
+                    </div>
+                    @endif
+
+                    <div>
+                        <span class="text-gray-600">Documentos/mes:</span>
+                        <span class="font-medium ml-2">{{ $subscription->document_limit }}</span>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-600">Entidades fiscales:</span>
+                        <span class="font-medium ml-2">
+                            @if($subscription->isBasic())
+                                1 (máximo)
+                            @else
+                                Ilimitadas
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="{{ route('pricing') }}" class="flex-1 text-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    Ver Planes Disponibles
+                </a>
+            </div>
+        @else
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p class="text-sm text-yellow-800">
+                    No tienes un plan activo. Contacta al administrador o <a href="{{ route('pricing') }}" class="underline font-semibold">elige un plan</a>.
+                </p>
+            </div>
+        @endif
+    </div>
+
     {{-- Información del Sistema --}}
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Información del Sistema</h2>

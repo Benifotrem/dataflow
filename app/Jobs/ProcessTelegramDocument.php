@@ -251,6 +251,22 @@ class ProcessTelegramDocument implements ShouldQueue
         $message .= "\n\n🌐 Ver en plataforma: https://dataflow.guaraniappstore.com/documents/{$document->id}";
 
         $telegramService->sendMessage($this->chatId, $message);
+
+        // Enviar también notificación por email
+        try {
+            $brevoService = new \App\Services\BrevoService();
+            if ($brevoService->isConfigured()) {
+                $documentUrl = url("/documents/{$document->id}");
+                $brevoService->sendDocumentProcessedNotification(
+                    $this->user->email,
+                    $this->user->name,
+                    $document->original_filename,
+                    $documentUrl
+                );
+            }
+        } catch (\Exception $e) {
+            Log::warning('No se pudo enviar email de notificación de documento: ' . $e->getMessage());
+        }
     }
 
     /**

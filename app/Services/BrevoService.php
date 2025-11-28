@@ -321,6 +321,188 @@ class BrevoService
     }
 
     /**
+     * Enviar notificación de documento procesado
+     */
+    public function sendDocumentProcessedNotification(string $email, string $name, string $documentName, string $documentUrl): bool
+    {
+        try {
+            $response = Http::withHeaders([
+                'api-key' => $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->post("{$this->baseUrl}/smtp/email", [
+                'sender' => [
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
+                ],
+                'to' => [
+                    [
+                        'email' => $email,
+                        'name' => $name,
+                    ],
+                ],
+                'subject' => '✅ Documento procesado exitosamente - Dataflow',
+                'htmlContent' => $this->getDocumentProcessedTemplate($name, $documentName, $documentUrl),
+            ]);
+
+            if ($response->successful()) {
+                Log::info("Notificación de documento procesado enviada a: {$email}");
+                return true;
+            }
+
+            Log::error("Error al enviar notificación de documento procesado: " . $response->body());
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("Error en BrevoService::sendDocumentProcessedNotification: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Template de documento procesado
+     */
+    protected function getDocumentProcessedTemplate(string $name, string $documentName, string $documentUrl): string
+    {
+        return <<<HTML
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Documento Procesado</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">✅ Documento Procesado</h1>
+            </div>
+            <div style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h2 style="color: #333; margin-top: 0;">¡Hola {$name}!</h2>
+                <p style="font-size: 16px; color: #555;">Tu documento ha sido procesado exitosamente por nuestra inteligencia artificial.</p>
+                <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <p style="margin: 0; font-size: 16px; color: #333;"><strong>Documento:</strong> {$documentName}</p>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #059669;">Los datos han sido extraídos y están disponibles en tu dashboard.</p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{$documentUrl}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ver Documento</a>
+                </div>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                <p style="font-size: 13px; color: #999;">Saludos,<br>El equipo de Dataflow</p>
+            </div>
+        </body>
+        </html>
+        HTML;
+    }
+
+    /**
+     * Enviar informe mensual
+     */
+    public function sendMonthlyReport(string $email, string $name, array $reportData): bool
+    {
+        try {
+            $response = Http::withHeaders([
+                'api-key' => $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->post("{$this->baseUrl}/smtp/email", [
+                'sender' => [
+                    'name' => config('app.name', 'Dataflow'),
+                    'email' => config('mail.from.address', 'no-reply@dataflow.com'),
+                ],
+                'to' => [
+                    [
+                        'email' => $email,
+                        'name' => $name,
+                    ],
+                ],
+                'subject' => "📊 Informe Mensual {$reportData['month']} - Dataflow",
+                'htmlContent' => $this->getMonthlyReportTemplate($name, $reportData),
+            ]);
+
+            if ($response->successful()) {
+                Log::info("Informe mensual enviado a: {$email}");
+                return true;
+            }
+
+            Log::error("Error al enviar informe mensual: " . $response->body());
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("Error en BrevoService::sendMonthlyReport: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Template de informe mensual
+     */
+    protected function getMonthlyReportTemplate(string $name, array $data): string
+    {
+        $month = $data['month'];
+        $year = $data['year'];
+        $documentsCount = $data['documents_count'];
+        $transactionsCount = $data['transactions_count'];
+        $totalIncome = number_format($data['total_income'], 2);
+        $totalExpenses = number_format($data['total_expenses'], 2);
+        $balance = number_format($data['balance'], 2);
+        $currency = $data['currency'] ?? 'USD';
+
+        return <<<HTML
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Informe Mensual</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">📊 Informe Mensual</h1>
+                <p style="color: white; margin: 10px 0 0 0; font-size: 18px;">{$month} {$year}</p>
+            </div>
+            <div style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h2 style="color: #333; margin-top: 0;">¡Hola {$name}!</h2>
+                <p style="font-size: 16px; color: #555;">Aquí está tu resumen de actividad del mes pasado.</p>
+
+                <div style="background: #f9fafb; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="margin-top: 0; color: #667eea;">Documentos Procesados</h3>
+                    <p style="font-size: 32px; font-weight: bold; color: #333; margin: 10px 0;">{$documentsCount}</p>
+                    <p style="font-size: 14px; color: #666; margin: 0;">facturas y recibos procesados</p>
+                </div>
+
+                <div style="background: #f9fafb; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="margin-top: 0; color: #667eea;">Transacciones Registradas</h3>
+                    <p style="font-size: 32px; font-weight: bold; color: #333; margin: 10px 0;">{$transactionsCount}</p>
+                    <p style="font-size: 14px; color: #666; margin: 0;">movimientos financieros</p>
+                </div>
+
+                <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #059669;">💰 Ingresos</h3>
+                    <p style="font-size: 28px; font-weight: bold; color: #10b981; margin: 10px 0;">{$totalIncome} {$currency}</p>
+                </div>
+
+                <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #dc2626;">💸 Gastos</h3>
+                    <p style="font-size: 28px; font-weight: bold; color: #ef4444; margin: 10px 0;">{$totalExpenses} {$currency}</p>
+                </div>
+
+                <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #1d4ed8;">📈 Balance</h3>
+                    <p style="font-size: 28px; font-weight: bold; color: #3b82f6; margin: 10px 0;">{$balance} {$currency}</p>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://dataflow.guaraniappstore.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Ver Dashboard Completo</a>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                <p style="font-size: 13px; color: #999;">Este es un informe automático generado por Dataflow.</p>
+                <p style="font-size: 13px; color: #999; margin-top: 20px;">Saludos,<br>El equipo de Dataflow</p>
+            </div>
+        </body>
+        </html>
+        HTML;
+    }
+
+    /**
      * Verificar si Brevo está configurado
      */
     public function isConfigured(): bool
