@@ -37,6 +37,13 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');
 
+// Email Verification Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [\App\Http\Controllers\Auth\VerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\VerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('/email/resend', [\App\Http\Controllers\Auth\VerificationController::class, 'resend'])->name('verification.resend');
+});
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
