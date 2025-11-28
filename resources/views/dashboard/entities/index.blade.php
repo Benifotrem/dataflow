@@ -9,9 +9,21 @@
             <h2 class="text-2xl font-bold text-gray-900">Entidades Fiscales</h2>
             <p class="text-gray-600 mt-1">Gestiona las empresas o actividades económicas</p>
         </div>
-        <a href="{{ route('entities.create') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
-            + Nueva Entidad
-        </a>
+        @if($canCreateMore)
+            <a href="{{ route('entities.create') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                + Nueva Entidad
+            </a>
+        @else
+            <div class="relative group">
+                <button disabled class="bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed">
+                    + Nueva Entidad
+                </button>
+                <div class="absolute right-0 top-full mt-2 w-64 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-gray-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <strong>Plan Básico:</strong> Solo permite 1 entidad fiscal.
+                    <a href="{{ route('pricing') }}" class="text-purple-600 underline">Actualiza a Plan Profesional</a> para entidades ilimitadas.
+                </div>
+            </div>
+        @endif
     </div>
 
     @if($entities->isEmpty())
@@ -21,12 +33,14 @@
             </svg>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay entidades fiscales</h3>
             <p class="text-gray-600 mb-6">Crea tu primera entidad para comenzar a gestionar documentos y transacciones</p>
-            <a href="{{ route('entities.create') }}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Crear Primera Entidad
-            </a>
+            @if($canCreateMore)
+                <a href="{{ route('entities.create') }}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Crear Primera Entidad
+                </a>
+            @endif
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
