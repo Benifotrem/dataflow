@@ -1,9 +1,12 @@
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
+        Options -MultiViews -Indexes +FollowSymLinks
     </IfModule>
 
     RewriteEngine On
+
+    # Redirigir /storage/ a /www_storage/ (symlink funcional para imágenes)
+    RewriteRule ^storage/(.*)$ www_storage/$1 [L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
