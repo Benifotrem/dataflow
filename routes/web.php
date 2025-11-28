@@ -46,6 +46,8 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::post('/profile/telegram/generate-code', [\App\Http\Controllers\ProfileController::class, 'generateTelegramCode'])->name('profile.telegram.generate-code');
+    Route::delete('/profile/telegram/unlink', [\App\Http\Controllers\ProfileController::class, 'unlinkTelegram'])->name('profile.telegram.unlink');
 
     // Documentos
     Route::prefix('documents')->name('documents.')->group(function () {
