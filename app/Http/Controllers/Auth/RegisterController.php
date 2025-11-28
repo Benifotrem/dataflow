@@ -72,21 +72,15 @@ class RegisterController extends Controller
             // Autenticar al usuario
             Auth::login($user);
 
-            // Enviar email de bienvenida si está habilitado
+            // Enviar email de verificación
             try {
-                $emailWelcomeEnabled = Setting::get('email_welcome_enabled', true);
-                if ($emailWelcomeEnabled) {
-                    $brevoService = new BrevoService();
-                    if ($brevoService->isConfigured()) {
-                        $brevoService->sendWelcomeEmail($user->email, $user->name);
-                    }
-                }
+                $user->sendEmailVerificationNotification();
             } catch (\Exception $e) {
                 // No fallar el registro si el email falla
-                Log::warning('No se pudo enviar email de bienvenida: ' . $e->getMessage());
+                Log::warning('No se pudo enviar email de verificación: ' . $e->getMessage());
             }
 
-            return redirect('/dashboard')->with('success', '¡Bienvenido a Dataflow! Tu cuenta ha sido creada exitosamente.');
+            return redirect()->route('verification.notice')->with('success', '¡Bienvenido a Dataflow! Por favor verifica tu email para continuar.');
 
         } catch (\Exception $e) {
             DB::rollBack();
