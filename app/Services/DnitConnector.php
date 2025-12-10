@@ -325,7 +325,7 @@ class DnitConnector
     protected function queryRucApi(string $ruc): array
     {
         // Para ambiente de desarrollo/testing
-        if (config('app.env') === 'local' || !$this->username) {
+        if (config('app.env') === 'local') {
             Log::warning('Modo de desarrollo: validación simulada', ['ruc' => $ruc]);
 
             return [
@@ -382,7 +382,7 @@ class DnitConnector
     protected function queryTimbradoApi(string $timbrado, string $ruc): array
     {
         // Para ambiente de desarrollo/testing
-        if (config('app.env') === 'local' || !$this->username) {
+        if (config('app.env') === 'local') {
             Log::warning('Modo de desarrollo: validación simulada', ['timbrado' => $timbrado, 'ruc' => $ruc]);
 
             return [
