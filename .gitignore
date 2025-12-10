@@ -28,3 +28,20 @@ Thumbs.db
 .env.save
 .env.backup
 uploads/
+
+# Archivos de configuración con secretos
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+secrets.json
+config/secrets.php
+
+# Backups que puedan contener datos sensibles
+*.sql
+*.sqlite
+*.bak
+backup/
+backups/

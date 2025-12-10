@@ -1,0 +1,486 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Document;
+use App\Models\User;
+use App\Services\OcrVisionService;
+use App\Services\DnitConnector;
+use App\Services\TelegramService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+/**
+ * Job de orquestación para procesamiento de facturas con OCR y validación fiscal
+ *
+ * Este Job coordina:
+ * 1. Extracción de datos con OpenAI Vision (OCR)
+ * 2. Validación fiscal con DNIT (SET de Paraguay)
+ * 3. Almacenamiento del documento
+ * 4. Notificaciones al usuario vía Telegram
+ */
+class OcrInvoiceProcessingJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Número de reintentos
+     */
+    public $tries = 3;
+
+    /**
+     * Timeout en segundos (más largo para OCR + validación)
+     */
+    public $timeout = 600;
+
+    /**
+     * Delay entre reintentos (en segundos)
+     */
+    public $backoff = [30, 60, 120];
+
+    protected User $user;
+    protected string $fileId;
+    protected string $fileName;
+    protected string $mimeType;
+    protected int $chatId;
+    protected ?string $promptContext;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param User $user Usuario que envió el documento
+     * @param string $fileId ID del archivo en Telegram
+     * @param string $fileName Nombre del archivo
+     * @param string $mimeType Tipo MIME
+     * @param int $chatId ID del chat de Telegram
+     * @param string|null $promptContext Contexto adicional para el OCR
+     */
+    public function __construct(
+        User $user,
+        string $fileId,
+        string $fileName,
+        string $mimeType,
+        int $chatId,
+        ?string $promptContext = null
+    ) {
+        $this->user = $user;
+        $this->fileId = $fileId;
+        $this->fileName = $fileName;
+        $this->mimeType = $mimeType;
+        $this->chatId = $chatId;
+        $this->promptContext = $promptContext;
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(
+        TelegramService $telegramService,
+        OcrVisionService $ocrVisionService,
+        DnitConnector $dnitConnector
+    ): void {
+        try {
+            Log::info('🚀 Iniciando procesamiento de factura con validación fiscal', [
+                'user_id' => $this->user->id,
+                'file_id' => $this->fileId,
+                'file_name' => $this->fileName,
+            ]);
+
+            // PASO 1: Descargar archivo de Telegram
+            $fileData = $telegramService->downloadFile($this->fileId);
+
+            if (!$fileData) {
+                throw new \Exception('No se pudo descargar el archivo de Telegram');
+            }
+
+            // PASO 2: Crear registro de documento inicial
+            $document = Document::create([
+                'tenant_id' => $this->user->tenant_id,
+                'entity_id' => $this->user->tenant->entities()->first()?->id,
+                'user_id' => $this->user->id,
+                'type' => 'invoice',
+                'file_path' => '', // Se actualizará después
+                'original_filename' => $this->fileName,
+                'mime_type' => $this->mimeType,
+                'file_size' => $fileData['size'],
+                'ocr_status' => 'pending',
+            ]);
+
+            Log::info('📄 Documento creado', ['document_id' => $document->id]);
+
+            // PASO 3: Guardar archivo temporalmente
+            $tempPath = "documents/telegram/temp/{$document->id}_{$this->fileName}";
+            Storage::put($tempPath, $fileData['content']);
+            $document->update(['file_path' => $tempPath, 'ocr_status' => 'processing']);
+
+            // PASO 4: Procesar OCR con OpenAI Vision
+            Log::info('🔍 Iniciando extracción OCR', ['document_id' => $document->id]);
+
+            $base64Image = base64_encode($fileData['content']);
+            $ocrResult = $ocrVisionService->extractInvoiceData(
+                $base64Image,
+                $this->mimeType,
+                $this->promptContext ?? ''
+            );
+
+            if (!$ocrResult['success']) {
+                throw new \Exception('Error en OCR: ' . ($ocrResult['error'] ?? 'Desconocido'));
+            }
+
+            $extractedData = $ocrResult['data'];
+            $validation = $ocrResult['validation'];
+
+            Log::info('✅ OCR completado', [
+                'document_id' => $document->id,
+                'completeness' => $validation['completeness'] ?? 0,
+                'errors' => $validation['errors'] ?? [],
+            ]);
+
+            // Actualizar documento con datos de OCR
+            $document->update([
+                'ocr_data' => $extractedData,
+                'amount' => $extractedData['monto_total'] ?? null,
+                'currency' => $extractedData['moneda'] ?? 'PYG',
+                'document_date' => $extractedData['fecha_emision'] ?? null,
+                'issuer' => $extractedData['razon_social_emisor'] ?? null,
+                'invoice_number' => $extractedData['numero_factura'] ?? null,
+                'tax_amount' => $extractedData['total_iva'] ?? null,
+                'tax_base' => $extractedData['subtotal'] ?? null,
+            ]);
+
+            // PASO 5: Validar con DNIT si tenemos los datos necesarios
+            $dnitValidation = null;
+            $needsManualCheck = false;
+
+            if ($validation['valid']) {
+                Log::info('🔐 Iniciando validación fiscal con DNIT', ['document_id' => $document->id]);
+
+                try {
+                    $dnitValidation = $dnitConnector->validateInvoice([
+                        'ruc_emisor' => $extractedData['ruc_emisor'] ?? null,
+                        'timbrado' => $extractedData['timbrado'] ?? null,
+                        'fecha_emision' => $extractedData['fecha_emision'] ?? null,
+                        'monto_total' => $extractedData['monto_total'] ?? null,
+                    ]);
+
+                    Log::info('🏛️ Validación DNIT completada', [
+                        'document_id' => $document->id,
+                        'valid' => $dnitValidation['valid'],
+                        'errors' => $dnitValidation['errors'] ?? [],
+                    ]);
+
+                    // Si la validación DNIT falla, marcar para revisión manual
+                    if (!$dnitValidation['valid']) {
+                        $needsManualCheck = true;
+                        $rejectionReasons = implode(', ', $dnitValidation['errors']);
+
+                        $document->update([
+                            'quality_status' => 'MANUAL_CHECK',
+                            'rejection_reason' => "Validación fiscal fallida: {$rejectionReasons}",
+                            'validated' => false,
+                        ]);
+                    } else {
+                        // Validación exitosa
+                        $document->update([
+                            'quality_status' => 'VALIDATED',
+                            'validated' => true,
+                            'validated_at' => now(),
+                        ]);
+                    }
+
+                } catch (\Exception $e) {
+                    Log::warning('⚠️ Error en validación DNIT', [
+                        'document_id' => $document->id,
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    $needsManualCheck = true;
+                    $document->update([
+                        'quality_status' => 'MANUAL_CHECK',
+                        'rejection_reason' => "Error al validar con DNIT: {$e->getMessage()}",
+                    ]);
+                }
+            } else {
+                // OCR incompleto o con errores
+                $needsManualCheck = true;
+                $ocrErrors = implode(', ', $validation['errors']);
+
+                $document->update([
+                    'quality_status' => 'MANUAL_CHECK',
+                    'rejection_reason' => "Datos de OCR incompletos: {$ocrErrors}",
+                ]);
+            }
+
+            // PASO 6: Reorganizar archivo en estructura de carpetas
+            if ($document->issuer && $document->document_date) {
+                $newPath = $this->organizeDocument($document, $fileData['content']);
+
+                if ($newPath) {
+                    Storage::delete($tempPath);
+                    $document->update(['file_path' => $newPath]);
+
+                    Log::info('📁 Documento organizado', [
+                        'document_id' => $document->id,
+                        'new_path' => $newPath,
+                    ]);
+                }
+            }
+
+            // PASO 7: Actualizar estado final de OCR
+            $document->update(['ocr_status' => 'completed']);
+
+            // PASO 8: Enviar notificación al usuario
+            if ($needsManualCheck) {
+                $this->sendManualCheckNotification(
+                    $telegramService,
+                    $document,
+                    $validation,
+                    $dnitValidation
+                );
+            } else {
+                $this->sendSuccessNotification(
+                    $telegramService,
+                    $document,
+                    $validation,
+                    $dnitValidation
+                );
+            }
+
+            Log::info('✨ Procesamiento de factura completado exitosamente', [
+                'document_id' => $document->id,
+                'user_id' => $this->user->id,
+                'needs_manual_check' => $needsManualCheck,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('❌ Error crítico en procesamiento de factura', [
+                'user_id' => $this->user->id,
+                'file_id' => $this->fileId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Marcar documento como fallido si existe
+            if (isset($document)) {
+                $document->update([
+                    'ocr_status' => 'failed',
+                    'quality_status' => 'FAILED',
+                    'rejection_reason' => $e->getMessage(),
+                ]);
+            }
+
+            // Enviar notificación de error
+            $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Organizar documento en estructura de carpetas
+     */
+    protected function organizeDocument(Document $document, string $fileContent): ?string
+    {
+        try {
+            $issuer = $this->sanitizeFileName($document->issuer);
+            $year = $document->document_date->format('Y');
+            $month = $document->document_date->format('m');
+
+            $basePath = "contadores/{$this->user->id}/facturas/{$issuer}/{$year}/{$month}";
+            $extension = pathinfo($this->fileName, PATHINFO_EXTENSION);
+            $uniqueName = time() . '_' . $document->id . '.' . $extension;
+            $fullPath = "{$basePath}/{$uniqueName}";
+
+            Storage::put($fullPath, $fileContent);
+
+            return $fullPath;
+        } catch (\Exception $e) {
+            Log::error('Error al organizar documento', [
+                'document_id' => $document->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Sanitizar nombre de archivo
+     */
+    protected function sanitizeFileName(string $name): string
+    {
+        $name = preg_replace('/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]/', '', $name);
+        $name = preg_replace('/\s+/', '_', $name);
+        $name = trim($name, '_-');
+
+        return substr($name, 0, 50) ?: 'sin_nombre';
+    }
+
+    /**
+     * Enviar notificación de éxito (factura validada)
+     */
+    protected function sendSuccessNotification(
+        TelegramService $telegramService,
+        Document $document,
+        array $validation,
+        ?array $dnitValidation
+    ): void {
+        $message = "✅ <b>¡Factura procesada y validada con la SET!</b>\n\n";
+
+        $message .= "🆔 <b>ID:</b> #{$document->id}\n";
+        $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+
+        // Datos fiscales
+        if ($document->ocr_data) {
+            $data = $document->ocr_data;
+
+            if (isset($data['ruc_emisor'])) {
+                $message .= "🏢 <b>RUC Emisor:</b> {$data['ruc_emisor']} ✓\n";
+            }
+
+            if (isset($data['razon_social_emisor'])) {
+                $message .= "📋 <b>Razón Social:</b> {$data['razon_social_emisor']}\n";
+            }
+
+            if (isset($data['timbrado'])) {
+                $message .= "🔐 <b>Timbrado:</b> {$data['timbrado']} ✓\n";
+            }
+
+            if (isset($data['numero_factura'])) {
+                $message .= "📑 <b>Nº Factura:</b> {$data['numero_factura']}\n";
+            }
+
+            if ($document->document_date) {
+                $message .= "📅 <b>Fecha:</b> {$document->document_date->format('d/m/Y')}\n";
+            }
+
+            $message .= "\n💰 <b>MONTOS:</b>\n";
+
+            if (isset($data['subtotal'])) {
+                $message .= "   • Subtotal: " . number_format($data['subtotal'], 0, ',', '.') . " PYG\n";
+            }
+
+            if (isset($data['iva_5']) && $data['iva_5'] > 0) {
+                $message .= "   • IVA 5%: " . number_format($data['iva_5'], 0, ',', '.') . " PYG\n";
+            }
+
+            if (isset($data['iva_10']) && $data['iva_10'] > 0) {
+                $message .= "   • IVA 10%: " . number_format($data['iva_10'], 0, ',', '.') . " PYG\n";
+            }
+
+            if (isset($data['monto_total'])) {
+                $message .= "   • <b>TOTAL: " . number_format($data['monto_total'], 0, ',', '.') . " PYG</b>\n";
+            }
+        }
+
+        $message .= "\n🎯 <b>Completitud:</b> {$validation['completeness']}%\n";
+        $message .= "🏛️ <b>Estado SET:</b> Validado correctamente\n";
+
+        $message .= "\n📁 El documento ha sido guardado y está listo para contabilizar.";
+        $message .= "\n\n🌐 Ver en plataforma: " . config('app.url') . "/documents/{$document->id}";
+
+        $telegramService->sendMessage($this->chatId, $message);
+    }
+
+    /**
+     * Enviar notificación de revisión manual
+     */
+    protected function sendManualCheckNotification(
+        TelegramService $telegramService,
+        Document $document,
+        array $validation,
+        ?array $dnitValidation
+    ): void {
+        $message = "⚠️ <b>Factura requiere revisión manual</b>\n\n";
+
+        $message .= "🆔 <b>ID:</b> #{$document->id}\n";
+        $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+
+        $message .= "📊 <b>DATOS EXTRAÍDOS:</b>\n";
+
+        if ($document->ocr_data) {
+            $data = $document->ocr_data;
+
+            $message .= "   • RUC: " . ($data['ruc_emisor'] ?? '❌ No detectado') . "\n";
+            $message .= "   • Timbrado: " . ($data['timbrado'] ?? '❌ No detectado') . "\n";
+            $message .= "   • Fecha: " . ($data['fecha_emision'] ?? '❌ No detectada') . "\n";
+            $message .= "   • Monto: " . ($data['monto_total'] ?? '❌ No detectado') . "\n";
+        }
+
+        $message .= "\n⚠️ <b>MOTIVOS DE REVISIÓN:</b>\n";
+
+        // Errores de OCR
+        if (!empty($validation['errors'])) {
+            foreach ($validation['errors'] as $error) {
+                $message .= "   • {$error}\n";
+            }
+        }
+
+        // Errores de DNIT
+        if ($dnitValidation && !empty($dnitValidation['errors'])) {
+            foreach ($dnitValidation['errors'] as $error) {
+                $message .= "   • {$error}\n";
+            }
+        }
+
+        $message .= "\n💡 <b>RECOMENDACIONES:</b>\n";
+        $message .= "   1. Verifica la calidad de la imagen\n";
+        $message .= "   2. Asegúrate de que todos los datos fiscales sean legibles\n";
+        $message .= "   3. Puedes editar manualmente los datos desde la plataforma web\n";
+
+        $message .= "\n🌐 Revisar documento: " . config('app.url') . "/documents/{$document->id}";
+
+        $telegramService->sendMessage($this->chatId, $message);
+    }
+
+    /**
+     * Enviar notificación de error
+     */
+    protected function sendErrorNotification(
+        TelegramService $telegramService,
+        string $error,
+        ?Document $document = null
+    ): void {
+        $message = "❌ <b>Error al procesar factura</b>\n\n";
+
+        if ($document) {
+            $message .= "🆔 <b>ID:</b> #{$document->id}\n";
+            $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+        }
+
+        $message .= "⚠️ <b>Error:</b> {$error}\n\n";
+        $message .= "Por favor, intenta nuevamente o contacta al soporte si el problema persiste.";
+
+        $telegramService->sendMessage($this->chatId, $message);
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('Job OcrInvoiceProcessingJob falló definitivamente', [
+            'user_id' => $this->user->id,
+            'file_id' => $this->fileId,
+            'error' => $exception->getMessage(),
+        ]);
+
+        try {
+            $telegramService = app(TelegramService::class);
+            $this->sendErrorNotification(
+                $telegramService,
+                'El documento no pudo ser procesado después de varios intentos.',
+                null
+            );
+        } catch (\Exception $e) {
+            Log::error('No se pudo enviar notificación de fallo', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+}

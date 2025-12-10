@@ -48,4 +48,12 @@ return [
         'webhook_url' => env('PAGOPAR_WEBHOOK_URL'),
     ],
 
+    'dnit' => [
+        'wsdl_url' => env('DNIT_WSDL_URL', 'https://ekuatia.set.gov.py/consultas/qr'),
+        'username' => env('DNIT_USERNAME'),
+        'password' => env('DNIT_PASSWORD'),
+        'timeout' => env('DNIT_TIMEOUT', 30),
+        'cache_ttl' => env('DNIT_CACHE_TTL', 2592000), // 30 días
+    ],
+
 ];
