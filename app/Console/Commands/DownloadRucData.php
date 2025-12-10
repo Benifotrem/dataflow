@@ -29,7 +29,7 @@ class DownloadRucData extends Command
     /**
      * URL base para descargar archivos RUC de la SET
      */
-    protected string $baseUrl = 'http://www.set.gov.py/rest/contents/download/collaboration/sites/PARAGUAY-SET/documents/informes-periodicos/ruc/';
+    protected string $baseUrl = 'https://www.set.gov.py/rest/contents/download/collaboration/sites/PARAGUAY-SET/documents/informes-periodicos/ruc/';
 
     /**
      * Directorio temporal para almacenar archivos
