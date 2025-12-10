@@ -317,15 +317,17 @@ class DnitConnector
     }
 
     /**
-     * Consultar API de RUC de la SET
+     * Consultar RUC desde base de datos local (datos oficiales de la SET)
      *
-     * NOTA: Esta es una implementación de ejemplo.
-     * En producción, deberás ajustar según la API real de la SET.
+     * Este método consulta la base de datos local que contiene los datos
+     * oficiales publicados por la SET Paraguay.
+     *
+     * Para actualizar los datos, ejecuta: php artisan ruc:download
      */
     protected function queryRucApi(string $ruc): array
     {
-        // Para ambiente de desarrollo/testing
-        if (config('app.env') === 'local') {
+        // Para ambiente de desarrollo/testing con simulación
+        if (config('app.env') === 'local' && config('services.dnit.simulate', false)) {
             Log::warning('Modo de desarrollo: validación simulada', ['ruc' => $ruc]);
 
             return [
@@ -340,40 +342,48 @@ class DnitConnector
             ];
         }
 
-        // Implementación real con HTTP (la SET usa REST para consultas públicas)
-        // URL real: https://servicios.set.gov.py/eset-publico/rest/contribuyente/ruc
-        $response = Http::timeout($this->timeout)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->get("https://servicios.set.gov.py/eset-publico/rest/contribuyente/ruc", [
+        // Limpiar RUC (quitar guiones, espacios, puntos)
+        $rucLimpio = str_replace(['-', ' ', '.'], '', $ruc);
+
+        try {
+            // Consultar en base de datos local (datos oficiales de la SET)
+            $contribuyente = \DB::table('ruc_contribuyentes')
+                ->where('ruc', $rucLimpio)
+                ->first();
+
+            if ($contribuyente) {
+                return [
+                    'valid' => true,
+                    'data' => [
+                        'ruc' => $contribuyente->ruc,
+                        'razon_social' => $contribuyente->razon_social,
+                        'estado' => $contribuyente->estado ?? 'ACTIVO',
+                        'tipo_contribuyente' => $contribuyente->tipo_contribuyente ?? null,
+                        'dv' => $contribuyente->dv ?? null,
+                        'offline' => true, // Indica que es consulta offline
+                    ],
+                    'error' => null,
+                ];
+            }
+
+            return [
+                'valid' => false,
+                'data' => null,
+                'error' => 'RUC no encontrado en la base de datos local. Ejecuta "php artisan ruc:download" para actualizar.',
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error consultando RUC en base de datos local', [
                 'ruc' => $ruc,
+                'error' => $e->getMessage(),
             ]);
 
-        if (!$response->successful()) {
-            throw new \Exception('Error al consultar RUC: ' . $response->status());
-        }
-
-        $data = $response->json();
-
-        // La API retorna un objeto con datos del contribuyente
-        if (isset($data['ruc'])) {
             return [
-                'valid' => true,
-                'data' => [
-                    'ruc' => $data['ruc'],
-                    'razon_social' => $data['nombre'] ?? $data['razonSocial'] ?? null,
-                    'estado' => $data['estado'] ?? 'DESCONOCIDO',
-                ],
-                'error' => null,
+                'valid' => false,
+                'data' => null,
+                'error' => 'Error consultando RUC: ' . $e->getMessage(),
             ];
         }
-
-        return [
-            'valid' => false,
-            'data' => null,
-            'error' => 'RUC no encontrado en la base de datos de la SET',
-        ];
     }
 
     /**
