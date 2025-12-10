@@ -71,13 +71,28 @@ class TelegramController extends Controller
         $user = $this->telegramService->findUserByTelegramId($telegramId);
 
         if (!$user) {
+            // MODO PRUEBA TEMPORAL: Asignar usuario admin automáticamente
+            $user = User::where('is_admin', true)->first();
+            if (!$user) {
+                $user = User::first(); // Fallback a cualquier usuario
+            }
+
+            if (!$user) {
+                $this->telegramService->sendMessage(
+                    $chatId,
+                    "❌ Error: No hay usuarios en el sistema. Contacta al administrador."
+                );
+                return;
+            }
+
+            // Notificar modo prueba
             $this->telegramService->sendMessage(
                 $chatId,
-                "⚠️ <b>Cuenta no vinculada</b>\n\n" .
-                "Para usar este bot, primero debes vincular tu cuenta de Dataflow.\n\n" .
-                "Usa el comando /link para obtener instrucciones."
+                "⚠️ <b>MODO PRUEBA</b>\n\n" .
+                "Procesando como: <b>{$user->name}</b>\n" .
+                "Email: {$user->email}\n\n" .
+                "Para vincular tu cuenta, usa /link después."
             );
-            return;
         }
 
         // Manejar documentos (PDF o imágenes)
