@@ -104,6 +104,7 @@ class OcrVisionService
 
             Log::info('Respuesta de OpenAI recibida', [
                 'content_length' => strlen($content),
+                'raw_content' => $content, // TEMPORAL: Ver qué responde exactamente OpenAI
             ]);
 
             // Parsear JSON de la respuesta
