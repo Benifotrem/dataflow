@@ -366,12 +366,28 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         if ($document->ocr_data) {
             $data = $document->ocr_data;
 
+            // Usar RUC validado con formato correcto (RUC-DV)
             if (isset($data['ruc_emisor'])) {
-                $message .= "🏢 <b>RUC Emisor:</b> {$data['ruc_emisor']} ✓\n";
+                $rucFormateado = $data['ruc_emisor'];
+
+                // Si hay validación de DNIT, usar el RUC validado con formato correcto
+                if ($dnitValidation && isset($dnitValidation['data']['ruc_validation']['data']['ruc'])) {
+                    $rucValidado = $dnitValidation['data']['ruc_validation']['data']['ruc'];
+                    $dvValidado = $dnitValidation['data']['ruc_validation']['data']['dv'] ?? '';
+                    $rucFormateado = $dvValidado ? "{$rucValidado}-{$dvValidado}" : $rucValidado;
+                }
+
+                $message .= "🏢 <b>RUC Emisor:</b> {$rucFormateado} ✓\n";
             }
 
-            if (isset($data['razon_social_emisor'])) {
-                $message .= "📋 <b>Razón Social:</b> {$data['razon_social_emisor']}\n";
+            // Usar Razón Social validada de la SET si está disponible
+            $razonSocial = $data['razon_social_emisor'] ?? null;
+            if ($dnitValidation && isset($dnitValidation['data']['ruc_validation']['data']['razon_social'])) {
+                $razonSocial = $dnitValidation['data']['ruc_validation']['data']['razon_social'];
+            }
+
+            if ($razonSocial) {
+                $message .= "📋 <b>Razón Social:</b> {$razonSocial}\n";
             }
 
             if (isset($data['timbrado'])) {
@@ -433,7 +449,25 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         if ($document->ocr_data) {
             $data = $document->ocr_data;
 
-            $message .= "   • RUC: " . ($data['ruc_emisor'] ?? '❌ No detectado') . "\n";
+            // Usar RUC validado si está disponible (con formato correcto)
+            $rucFormateado = $data['ruc_emisor'] ?? '❌ No detectado';
+            if ($dnitValidation && isset($dnitValidation['data']['ruc_validation']['data']['ruc'])) {
+                $rucValidado = $dnitValidation['data']['ruc_validation']['data']['ruc'];
+                $dvValidado = $dnitValidation['data']['ruc_validation']['data']['dv'] ?? '';
+                $rucFormateado = $dvValidado ? "{$rucValidado}-{$dvValidado}" : $rucValidado;
+            }
+
+            $message .= "   • RUC: " . $rucFormateado . "\n";
+
+            // Usar Razón Social validada si está disponible
+            $razonSocial = $data['razon_social_emisor'] ?? null;
+            if ($dnitValidation && isset($dnitValidation['data']['ruc_validation']['data']['razon_social'])) {
+                $razonSocial = $dnitValidation['data']['ruc_validation']['data']['razon_social'];
+            }
+            if ($razonSocial) {
+                $message .= "   • Razón Social: " . $razonSocial . "\n";
+            }
+
             $message .= "   • Timbrado: " . ($data['timbrado'] ?? '❌ No detectado') . "\n";
             $message .= "   • Fecha: " . ($data['fecha_emision'] ?? '❌ No detectada') . "\n";
             $message .= "   • Monto: " . ($data['monto_total'] ?? '❌ No detectado') . "\n";
