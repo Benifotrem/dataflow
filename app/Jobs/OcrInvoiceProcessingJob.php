@@ -180,14 +180,12 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                         $rejectionReasons = implode(', ', $dnitValidation['errors']);
 
                         $document->update([
-                            'quality_status' => 'MANUAL_CHECK',
                             'rejection_reason' => "Validación fiscal fallida: {$rejectionReasons}",
                             'validated' => false,
                         ]);
                     } else {
                         // Validación exitosa
                         $document->update([
-                            'quality_status' => 'VALIDATED',
                             'validated' => true,
                             'validated_at' => now(),
                         ]);
@@ -201,7 +199,6 @@ class OcrInvoiceProcessingJob implements ShouldQueue
 
                     $needsManualCheck = true;
                     $document->update([
-                        'quality_status' => 'MANUAL_CHECK',
                         'rejection_reason' => "Error al validar con DNIT: {$e->getMessage()}",
                     ]);
                 }
@@ -211,7 +208,6 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 $ocrErrors = implode(', ', $validation['errors']);
 
                 $document->update([
-                    'quality_status' => 'MANUAL_CHECK',
                     'rejection_reason' => "Datos de OCR incompletos: {$ocrErrors}",
                 ]);
             }
@@ -269,7 +265,6 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             if (isset($document)) {
                 $document->update([
                     'ocr_status' => 'failed',
-                    'quality_status' => 'FAILED',
                     'rejection_reason' => $e->getMessage(),
                 ]);
             }
