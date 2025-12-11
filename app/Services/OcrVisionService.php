@@ -392,9 +392,12 @@ PROMPT;
         }
 
         // Validar formato de Timbrado (solo para facturas tradicionales)
+        // HEURÍSTICA: Si el "timbrado" tiene más de 10 dígitos, probablemente es número de factura electrónica
         if (!$isElectronica && isset($data['timbrado'])) {
             $timbrado = preg_replace('/[^0-9]/', '', $data['timbrado']);
-            if (strlen($timbrado) !== 8) {
+
+            // Si tiene más de 10 dígitos, es probablemente factura electrónica (no validar)
+            if (strlen($timbrado) <= 10 && strlen($timbrado) !== 8) {
                 $errors[] = 'Formato de Timbrado inválido (debe tener 8 dígitos)';
             }
         }
