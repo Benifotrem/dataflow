@@ -168,22 +168,39 @@ DATOS DEL RECEPTOR (si existen):
   "ruc_receptor": "RUC del cliente/receptor si está visible",
   "razon_social_receptor": "Nombre del cliente/receptor si está visible",
 
-MONTOS - PROCESO DE LECTURA PASO A PASO:
-Para cada casilla de monto, sigue estos pasos:
-1. Localiza visualmente la casilla en la factura
-2. Lee TODOS los dígitos que veas, ignorando puntos y símbolos
-3. Si ves "90.000", cuenta: 9-0-.-0-0-0 = 6 caracteres, 5 dígitos → escribe 90000
-4. Si ves "81.819", cuenta: 8-1-.-8-1-9 = 6 caracteres, 5 dígitos → escribe 81819
-5. Si ves "8.181", cuenta: 8-.-1-8-1 = 5 caracteres, 4 dígitos → escribe 8181
+⚠️⚠️⚠️ ADVERTENCIA CRÍTICA SOBRE MONTOS ⚠️⚠️⚠️
 
-Extrae estos campos:
-  "subtotal_gravado_5": "Casilla 'Gravado 5%' - Lee TODO el número con todos sus dígitos",
-  "subtotal_gravado_10": "Casilla 'Gravado 10%' - Lee TODO el número con todos sus dígitos",
-  "subtotal_exentas": "Casilla 'Exentas' - Lee TODO el número con todos sus dígitos",
-  "iva_5": "Casilla 'IVA 5%' - Lee TODO el número con todos sus dígitos",
-  "iva_10": "Casilla 'IVA 10%' - Lee TODO el número con todos sus dígitos",
-  "total_iva": "Casilla 'Total IVA' - Lee TODO el número con todos sus dígitos",
-  "monto_total": "Casilla 'TOTAL' - MUY IMPORTANTE: Lee TODO el número completo con TODOS los dígitos",
+🚫 NO CALCULES - SOLO LEE LO QUE ESTÁ ESCRITO
+
+Cada casilla de la factura tiene un número DIFERENTE escrito. Debes leer cada una INDEPENDIENTEMENTE.
+
+❌ ERROR FRECUENTE: Ver que el TOTAL es 90.000 y pensar:
+   "El IVA debe ser 10% de 90.000, entonces es 9.000"
+   ¡ESTO ESTÁ MAL! Debes LEER qué dice la casilla de IVA, no calcularlo.
+
+✅ CORRECTO: Buscar la casilla que dice "IVA 10%" y leer el número que tiene escrito.
+   Puede decir "8.181" (que es diferente de 9.000)
+
+MONTOS - PROCESO DE LECTURA PASO A PASO:
+Para CADA casilla individualmente:
+1. Ubica visualmente la casilla específica (ej: busca donde dice "Gravado 10%")
+2. Lee el número que está ESCRITO en esa casilla (no el de otra casilla)
+3. Copia TODOS los dígitos, quitando solo puntos y símbolos
+4. NO relaciones este número con otros - cada casilla es independiente
+
+Ejemplo:
+- Si la casilla "Gravado 10%" dice "81.819" → extraes 81819 (NO 90000, NO 82000)
+- Si la casilla "IVA 10%" dice "8.181" → extraes 8181 (NO 9000, NO 8000)
+- Si la casilla "TOTAL" dice "90.000" → extraes 90000
+
+Extrae estos campos (cada uno de su casilla correspondiente):
+  "subtotal_gravado_5": "Busca casilla 'Gravado 5%' o 'Sub Total 5%' → Lee el número de ESA casilla",
+  "subtotal_gravado_10": "Busca casilla 'Gravado 10%' o 'Sub Total 10%' → Lee el número de ESA casilla",
+  "subtotal_exentas": "Busca casilla 'Exentas' → Lee el número de ESA casilla",
+  "iva_5": "Busca casilla 'IVA 5%' → Lee el número de ESA casilla (NO calcules 5% de nada)",
+  "iva_10": "Busca casilla 'IVA 10%' → Lee el número de ESA casilla (NO calcules 10% de nada)",
+  "total_iva": "Busca casilla 'Total IVA' → Lee el número de ESA casilla (NO sumes nada)",
+  "monto_total": "Busca casilla 'TOTAL' o 'Total a Pagar' → Lee el número de ESA casilla",
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
@@ -245,30 +262,46 @@ VALIDACIÓN:
 
 ✅ EJEMPLO COMPLETO DE EXTRACCIÓN CORRECTA:
 
-Si ves en la factura:
-- Gravado 10%: 81.819
-- IVA 10%: 8.181
-- TOTAL: 90.000
+Imagina que en la factura ves estas casillas:
+┌──────────────────┬──────────┐
+│ Gravado 10%      │ 81.819   │ ← Esta casilla dice 81.819
+│ IVA 10%          │ 8.181    │ ← Esta casilla dice 8.181
+│ TOTAL            │ 90.000   │ ← Esta casilla dice 90.000
+└──────────────────┴──────────┘
 
-Debes extraer:
+✅ EXTRACCIÓN CORRECTA:
 {
-  "subtotal_gravado_10": 81819,
-  "iva_10": 8181,
-  "monto_total": 90000
+  "subtotal_gravado_10": 81819,   ← Leí 81.819 de la casilla "Gravado 10%"
+  "iva_10": 8181,                  ← Leí 8.181 de la casilla "IVA 10%"
+  "monto_total": 90000             ← Leí 90.000 de la casilla "TOTAL"
 }
 
-❌ INCORRECTO (no hagas esto):
+❌ ERRORES COMUNES (NO hagas esto):
 {
-  "subtotal_gravado_10": 81,    ← ERROR: falta 819
-  "iva_10": 8,                   ← ERROR: falta 181
-  "monto_total": 90              ← ERROR: falta 000
+  "subtotal_gravado_10": 90000,   ← ERROR: Copió el TOTAL en lugar de leer la casilla Gravado 10%
+  "iva_10": 9000,                  ← ERROR: Calculó 10% de 90.000 en lugar de leer la casilla IVA 10%
+  "monto_total": 90000             ← Correcto
+}
+
+O:
+{
+  "subtotal_gravado_10": 81,      ← ERROR: Solo leyó parte del número (falta 819)
+  "iva_10": 8,                     ← ERROR: Solo leyó parte del número (falta 181)
+  "monto_total": 90                ← ERROR: Solo leyó parte del número (falta 000)
 }
 
 🔍 AUTO-VERIFICACIÓN antes de responder:
-1. ¿Leí TODOS los dígitos de cada casilla?
-2. ¿El monto_total tiene sentido? (debería ser miles o millones)
-3. ¿Quité los puntos separadores de miles?
-4. ¿Quité símbolos monetarios (₲, Gs.)?
+1. ¿Leí directamente cada casilla SIN calcular nada?
+2. ¿Los números que extraje son DIFERENTES entre sí? (no todos iguales al TOTAL)
+3. ¿El IVA 10% es diferente a 9000? (si no, probablemente calculé 10% del total)
+4. ¿Leí TODOS los dígitos de cada número? (ej: 81819, no 81)
+5. ¿El monto_total tiene sentido? (miles o millones de guaraníes)
+6. ¿Quité puntos separadores y símbolos (₲, Gs.)?
+
+⚠️ SEÑALES DE QUE CALCULASTE (revisa si es así):
+- El iva_10 es exactamente el 10% del monto_total
+- El subtotal_gravado_10 es igual al monto_total
+- Todos los números son redondos (90000, 9000) sin dígitos "raros" (81819, 8181)
 
 ✅ DEVUELVE:
 SOLO el objeto JSON completo con TODOS los campos extraídos. Sin texto antes o después.
