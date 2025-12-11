@@ -121,6 +121,14 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             // PASO 4: Procesar OCR con OpenAI Vision
             Log::info('🔍 Iniciando extracción OCR', ['document_id' => $document->id]);
 
+            // Verificar que no sea PDF (OpenAI Vision no soporta PDFs)
+            if (str_starts_with($this->mimeType, 'application/pdf')) {
+                throw new \Exception(
+                    "OpenAI Vision no procesa PDFs. Por favor envía la factura como FOTO (JPG/PNG). " .
+                    "Toma una foto clara de la factura con tu celular."
+                );
+            }
+
             $base64Image = base64_encode($fileData['content']);
             $ocrResult = $ocrVisionService->extractInvoiceData(
                 $base64Image,
@@ -260,6 +268,30 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            // Si es error de PDF, notificar y NO reintentar
+            if (str_contains($e->getMessage(), 'OpenAI Vision no procesa PDFs')) {
+                if (isset($document)) {
+                    $document->update(['ocr_status' => 'failed', 'rejection_reason' => $e->getMessage()]);
+                }
+
+                // Notificar al usuario
+                if (isset($telegramService)) {
+                    $telegramService->sendMessage(
+                        $this->chatId,
+                        "❌ <b>Formato no soportado</b>\n\n" .
+                        "📄 Por favor envía la factura como <b>FOTO</b> (no PDF):\n\n" .
+                        "1. Abre la cámara de tu celular\n" .
+                        "2. Toma una foto clara de la factura\n" .
+                        "3. Envíala aquí\n\n" .
+                        "💡 <b>Tip:</b> Asegúrate de que todos los datos sean legibles."
+                    );
+                }
+
+                // Marcar el job como fallido SIN reintentar
+                $this->fail($e);
+                return;
+            }
 
             // Marcar documento como fallido si existe
             if (isset($document)) {
