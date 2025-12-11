@@ -200,7 +200,13 @@ Busca estas etiquetas y copia EXACTAMENTE el número que ves a su lado:
   "iva_10": Busca "Liquidación del IVA" o "IVA 10%" (la fila del resumen, NO la columna) → Copia ese número
   "iva_5": Busca "IVA 5%" en el resumen final → Copia ese número
   "total_iva": Busca "Total IVA" o "Liquidación del IVA (Total)" → Copia ese número
-  "monto_total": Busca "TOTAL" o "Total a Pagar" (última fila) → Copia ese número
+
+  "monto_total": ⚠️ MUY IMPORTANTE - Este es el MONTO TOTAL A PAGAR:
+     - Busca "TOTAL A PAGAR" o "SUB - TOTALES" (suele ser el número MÁS GRANDE de la factura)
+     - NO confundas con "Total IVA" o "Liquidación del IVA" (esos son solo los impuestos)
+     - Es el monto final que el cliente debe pagar
+     - Ejemplo: Si ves "TOTAL A PAGAR: 8.453.000" y "Total IVA: 768.455",
+       el monto_total es 8453000 (no 768455)
 
 IMPORTANTE: Distingue entre:
 - COLUMNAS de la tabla de items (Exentas, IVA 5%, IVA 10%) → Estos son montos con IVA incluido
