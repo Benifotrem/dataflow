@@ -193,14 +193,24 @@ Ejemplo:
 - Si la casilla "IVA 10%" dice "8.181" → extraes 8181 (NO 9000, NO 8000)
 - Si la casilla "TOTAL" dice "90.000" → extraes 90000
 
+⚠️ UBICACIÓN DE CASILLAS EN LA FACTURA:
+En facturas paraguayas, las casillas de montos están en DIFERENTES lugares:
+- "Gravado 10%" está en una fila ANTES del total (número más pequeño, ej: 81.819)
+- "IVA 10%" está en otra fila (número pequeño, ej: 8.181)
+- "TOTAL" está al FINAL, en letra grande o negrita (número más grande, ej: 90.000)
+
+❌ NO CONFUNDAS:
+- "Gravado 10%" NO es lo mismo que "TOTAL"
+- Si el Gravado 10% = TOTAL, estás leyendo la casilla equivocada
+
 Extrae estos campos (cada uno de su casilla correspondiente):
-  "subtotal_gravado_5": "Busca casilla 'Gravado 5%' o 'Sub Total 5%' → Lee el número de ESA casilla",
-  "subtotal_gravado_10": "Busca casilla 'Gravado 10%' o 'Sub Total 10%' → Lee el número de ESA casilla",
-  "subtotal_exentas": "Busca casilla 'Exentas' → Lee el número de ESA casilla",
-  "iva_5": "Busca casilla 'IVA 5%' → Lee el número de ESA casilla (NO calcules 5% de nada)",
-  "iva_10": "Busca casilla 'IVA 10%' → Lee el número de ESA casilla (NO calcules 10% de nada)",
-  "total_iva": "Busca casilla 'Total IVA' → Lee el número de ESA casilla (NO sumes nada)",
-  "monto_total": "Busca casilla 'TOTAL' o 'Total a Pagar' → Lee el número de ESA casilla",
+  "subtotal_gravado_5": "Casilla 'Gravado 5%' o 'Sub Total 5%' (ANTES del total, número diferente al total)",
+  "subtotal_gravado_10": "Casilla 'Gravado 10%' o 'Sub Total 10%' (ANTES del total, será MENOR que el total, ej: si total=90000 entonces gravado≈81819)",
+  "subtotal_exentas": "Casilla 'Exentas' (solo si tiene productos exentos)",
+  "iva_5": "Casilla 'IVA 5%' (número pequeño, diferente al total)",
+  "iva_10": "Casilla 'IVA 10%' (número pequeño, diferente al total, ej: 8181 si total=90000)",
+  "total_iva": "Casilla 'Total IVA' (suma de IVAs, similar al iva_10 si solo hay 10%)",
+  "monto_total": "Casilla 'TOTAL' o 'Total a Pagar' (el número MÁS GRANDE, al final, en negrita)",
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
@@ -292,16 +302,23 @@ O:
 
 🔍 AUTO-VERIFICACIÓN antes de responder:
 1. ¿Leí directamente cada casilla SIN calcular nada?
-2. ¿Los números que extraje son DIFERENTES entre sí? (no todos iguales al TOTAL)
-3. ¿El IVA 10% es diferente a 9000? (si no, probablemente calculé 10% del total)
-4. ¿Leí TODOS los dígitos de cada número? (ej: 81819, no 81)
-5. ¿El monto_total tiene sentido? (miles o millones de guaraníes)
-6. ¿Quité puntos separadores y símbolos (₲, Gs.)?
+2. ¿Los números son DIFERENTES entre sí?
+3. ¿El subtotal_gravado_10 es MENOR que monto_total? (si son iguales, ERROR)
+4. ¿El IVA 10% es diferente a 9000 o 9% del total? (si es 9000 o 10% exacto, ERROR)
+5. ¿Leí TODOS los dígitos de cada número? (ej: 81819, no 81)
+6. ¿Los números tienen dígitos "raros" como 81819, 8181? (señal de lectura correcta)
+7. ¿Quité puntos separadores y símbolos (₲, Gs.)?
 
-⚠️ SEÑALES DE QUE CALCULASTE (revisa si es así):
-- El iva_10 es exactamente el 10% del monto_total
-- El subtotal_gravado_10 es igual al monto_total
-- Todos los números son redondos (90000, 9000) sin dígitos "raros" (81819, 8181)
+⚠️ SEÑALES DE ERROR - Revisa si:
+- subtotal_gravado_10 = monto_total (están iguales) ← ❌ ERROR GRAVE
+- iva_10 es exactamente 10% del monto_total ← ❌ Calculaste
+- subtotal_gravado_10 + iva_10 = monto_total exactamente ← ⚠️ Probablemente correcto
+- Todos los números son redondos (90000, 9000) ← ⚠️ Probablemente calculaste
+
+✅ SEÑALES DE ÉXITO:
+- subtotal_gravado_10 ≠ monto_total (son diferentes)
+- Números tienen dígitos "raros": 81819, 8181 (no redondos)
+- subtotal_gravado_10 + iva_10 ≈ monto_total (suma aproximada)
 
 ✅ DEVUELVE:
 SOLO el objeto JSON completo con TODOS los campos extraídos. Sin texto antes o después.
