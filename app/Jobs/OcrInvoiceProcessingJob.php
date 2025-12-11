@@ -126,6 +126,18 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             $imageMimeType = $this->mimeType;
 
             if (str_starts_with($this->mimeType, 'application/pdf')) {
+                // Verificar que las dependencias estén instaladas
+                if (!class_exists(\Spatie\PdfToImage\Pdf::class)) {
+                    throw new \Exception(
+                        "El servidor aún no está configurado para procesar PDFs.\n\n" .
+                        "Por favor:\n" .
+                        "1. Envía la factura como FOTO (JPG/PNG)\n" .
+                        "2. Toma una foto clara con tu celular\n" .
+                        "3. Asegúrate de que todos los datos sean legibles\n\n" .
+                        "El administrador será notificado para completar la configuración."
+                    );
+                }
+
                 Log::info('📄 PDF detectado, convirtiendo a imagen...', ['document_id' => $document->id]);
 
                 $pdfConverter = app(\App\Services\PdfConverterService::class);
