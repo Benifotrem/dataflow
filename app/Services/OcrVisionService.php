@@ -181,17 +181,33 @@ Cada casilla de la factura tiene un número DIFERENTE escrito. Debes leer cada u
 ✅ CORRECTO: Buscar la casilla que dice "IVA 10%" y leer el número que tiene escrito.
    Puede decir "8.181" (que es diferente de 9.000)
 
-MONTOS - PROCESO DE LECTURA PASO A PASO:
-Para CADA casilla individualmente:
-1. Ubica visualmente la casilla específica (ej: busca donde dice "Gravado 10%")
-2. Lee el número que está ESCRITO en esa casilla (no el de otra casilla)
-3. Copia TODOS los dígitos, quitando solo puntos y símbolos
-4. NO relaciones este número con otros - cada casilla es independiente
+MONTOS - PROCESO DE 3 PASOS:
 
-Ejemplo:
-- Si la casilla "Gravado 10%" dice "81.819" → extraes 81819 (NO 90000, NO 82000)
-- Si la casilla "IVA 10%" dice "8.181" → extraes 8181 (NO 9000, NO 8000)
-- Si la casilla "TOTAL" dice "90.000" → extraes 90000
+🔍 PASO 1: IDENTIFICAR todas las filas de montos (NO extraer todavía, solo ver):
+Mira la parte inferior de la factura y lista mentalmente TODAS las filas que tengan montos:
+- Fila 1: ¿Dice "Gravado 10%" o "Sub Total 10%"? → Anota mentalmente el número que ves
+- Fila 2: ¿Dice "Gravado 5%" o "Sub Total 5%"? → Anota mentalmente el número que ves
+- Fila 3: ¿Dice "Exentas"? → Anota mentalmente el número que ves
+- Fila 4: ¿Dice "IVA 10%"? → Anota mentalmente el número que ves
+- Fila 5: ¿Dice "IVA 5%"? → Anota mentalmente el número que ves
+- Fila 6: ¿Dice "Total IVA"? → Anota mentalmente el número que ves
+- Fila FINAL: ¿Dice "TOTAL" o "Total a Pagar" (letra grande/negrita)? → Este es el más grande
+
+📝 PASO 2: VERIFICAR que los números son DIFERENTES:
+- El número de "Gravado 10%" debe ser DIFERENTE al de "TOTAL"
+- El número de "IVA 10%" debe ser DIFERENTE al de "TOTAL"
+- Si "Gravado 10%" = "TOTAL", estás mirando la fila equivocada
+
+✍️ PASO 3: EXTRAER cada número de su fila correspondiente:
+Para cada campo, busca la ETIQUETA (texto) y copia el número de ESA fila:
+- subtotal_gravado_10: Busca la fila con etiqueta "Gravado 10%" → Copia su número
+- iva_10: Busca la fila con etiqueta "IVA 10%" → Copia su número
+- monto_total: Busca la fila con etiqueta "TOTAL" (la última, número más grande) → Copia su número
+
+Ejemplo real:
+Fila 1: "Gravado 10%: 81.819" → extraes 81819
+Fila 2: "IVA 10%: 8.181" → extraes 8181
+Fila 3: "TOTAL: 90.000" → extraes 90000
 
 ⚠️ UBICACIÓN DE CASILLAS EN LA FACTURA:
 En facturas paraguayas, las casillas de montos están en DIFERENTES lugares:
@@ -203,14 +219,47 @@ En facturas paraguayas, las casillas de montos están en DIFERENTES lugares:
 - "Gravado 10%" NO es lo mismo que "TOTAL"
 - Si el Gravado 10% = TOTAL, estás leyendo la casilla equivocada
 
-Extrae estos campos (cada uno de su casilla correspondiente):
-  "subtotal_gravado_5": "Casilla 'Gravado 5%' o 'Sub Total 5%' (ANTES del total, número diferente al total)",
-  "subtotal_gravado_10": "Casilla 'Gravado 10%' o 'Sub Total 10%' (ANTES del total, será MENOR que el total, ej: si total=90000 entonces gravado≈81819)",
-  "subtotal_exentas": "Casilla 'Exentas' (solo si tiene productos exentos)",
-  "iva_5": "Casilla 'IVA 5%' (número pequeño, diferente al total)",
-  "iva_10": "Casilla 'IVA 10%' (número pequeño, diferente al total, ej: 8181 si total=90000)",
-  "total_iva": "Casilla 'Total IVA' (suma de IVAs, similar al iva_10 si solo hay 10%)",
-  "monto_total": "Casilla 'TOTAL' o 'Total a Pagar' (el número MÁS GRANDE, al final, en negrita)",
+Extrae estos campos buscando por ETIQUETA (texto que acompaña al número):
+
+"subtotal_gravado_5":
+   Busca texto: "Gravado 5%", "Sub Total 5%", "Gravadas 5%", "Base 5%"
+   Ubicación: ANTES del total
+   Valor esperado: Número DIFERENTE al total
+
+"subtotal_gravado_10":
+   Busca texto: "Gravado 10%", "Sub Total 10%", "Gravadas 10%", "Base 10%", "Gravado IVA 10%"
+   Ubicación: ANTES del total (arriba de la fila del TOTAL)
+   Valor esperado: MENOR que el total (ej: si total=90000 entonces gravado≈81819)
+   ⚠️ NO uses el valor de la fila "TOTAL" para este campo
+
+   💡 CASO ESPECIAL: Si no encuentras esas etiquetas exactas, busca:
+   - La fila que está INMEDIATAMENTE ARRIBA de "IVA 10%"
+   - O la primera fila de montos (excluyendo items individuales)
+   - Debe ser un número MENOR que el TOTAL final
+   - Si solo ves 2 filas principales de montos (una pequeña y el TOTAL grande),
+     la pequeña probablemente es el Gravado 10%
+
+"subtotal_exentas":
+   Busca texto: "Exentas", "Exento", "Exempt"
+   Solo si existe esta fila
+
+"iva_5":
+   Busca texto: "IVA 5%", "Liquidación IVA 5%"
+   Valor esperado: Número pequeño
+
+"iva_10":
+   Busca texto: "IVA 10%", "Liquidación IVA 10%"
+   Valor esperado: Número pequeño (ej: 8181 si total=90000)
+   ⚠️ NO calcules 10% del total
+
+"total_iva":
+   Busca texto: "Total IVA", "IVA Total", "Liquidación del IVA"
+   Valor esperado: Similar a iva_10 si solo hay IVA 10%
+
+"monto_total":
+   Busca texto: "TOTAL", "Total a Pagar", "Total General", "TOTAL Gs."
+   Ubicación: En la ÚLTIMA fila, generalmente en letra MÁS GRANDE o negrita
+   Valor esperado: El número MÁS GRANDE de todas las filas
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
