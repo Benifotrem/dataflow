@@ -86,8 +86,8 @@ class OcrVisionService
                             ],
                         ],
                     ],
-                    'max_tokens' => 1500,
-                    'temperature' => 0.1, // Baja temperatura para respuestas más deterministas
+                    'max_tokens' => 2000, // Más tokens para respuesta completa
+                    'temperature' => 0.0, // Temperatura 0 para máxima precisión y consistencia
                 ]);
 
             if (!$response->successful()) {
@@ -168,14 +168,22 @@ DATOS DEL RECEPTOR (si existen):
   "ruc_receptor": "RUC del cliente/receptor si está visible",
   "razon_social_receptor": "Nombre del cliente/receptor si está visible",
 
-MONTOS (lee EXACTAMENTE de las casillas finales):
-  "subtotal_gravado_5": "Monto en la casilla 'Gravado 5%' o 'Sub Total 5%' (lee el número exacto)",
-  "subtotal_gravado_10": "Monto en la casilla 'Gravado 10%' o 'Sub Total 10%' (lee el número exacto)",
-  "subtotal_exentas": "Monto en la casilla 'Exentas' o 'Sub Total Exentas' (lee el número exacto)",
-  "iva_5": "Monto en la casilla 'IVA 5%' (lee el número exacto)",
-  "iva_10": "Monto en la casilla 'IVA 10%' (lee el número exacto)",
-  "total_iva": "Monto en la casilla 'Total IVA' o 'IVA Total' (lee el número exacto)",
-  "monto_total": "Monto en la casilla 'TOTAL' o 'Total a Pagar' (lee el número exacto, este es el más importante)",
+MONTOS - PROCESO DE LECTURA PASO A PASO:
+Para cada casilla de monto, sigue estos pasos:
+1. Localiza visualmente la casilla en la factura
+2. Lee TODOS los dígitos que veas, ignorando puntos y símbolos
+3. Si ves "90.000", cuenta: 9-0-.-0-0-0 = 6 caracteres, 5 dígitos → escribe 90000
+4. Si ves "81.819", cuenta: 8-1-.-8-1-9 = 6 caracteres, 5 dígitos → escribe 81819
+5. Si ves "8.181", cuenta: 8-.-1-8-1 = 5 caracteres, 4 dígitos → escribe 8181
+
+Extrae estos campos:
+  "subtotal_gravado_5": "Casilla 'Gravado 5%' - Lee TODO el número con todos sus dígitos",
+  "subtotal_gravado_10": "Casilla 'Gravado 10%' - Lee TODO el número con todos sus dígitos",
+  "subtotal_exentas": "Casilla 'Exentas' - Lee TODO el número con todos sus dígitos",
+  "iva_5": "Casilla 'IVA 5%' - Lee TODO el número con todos sus dígitos",
+  "iva_10": "Casilla 'IVA 10%' - Lee TODO el número con todos sus dígitos",
+  "total_iva": "Casilla 'Total IVA' - Lee TODO el número con todos sus dígitos",
+  "monto_total": "Casilla 'TOTAL' - MUY IMPORTANTE: Lee TODO el número completo con TODOS los dígitos",
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
@@ -195,23 +203,72 @@ OTROS DATOS:
   "calidad_imagen": "ALTA, MEDIA o BAJA - evalúa qué tan legible está la imagen"
 }
 
-📝 FORMATO DE NÚMEROS:
-- Escribe los números SIN símbolos (₲, Gs., $), SIN separadores de miles (puntos o comas)
-- Usa PUNTO para decimales: 1500000.50 (no 1.500.000,50)
-- Si ves "90.000" en la factura, escríbelo como 90000 (sin punto de miles)
-- Si ves "1.500.000" en la factura, escríbelo como 1500000
+📝 FORMATO DE NÚMEROS PARAGUAYOS - LEE CON ATENCIÓN:
 
-⚠️ MUY IMPORTANTE SOBRE MONTOS:
-En Paraguay los guaraníes se escriben con PUNTO como separador de miles:
-- Si ves "90.000" → significa noventa mil guaraníes → escribe: 90000
-- Si ves "1.500.000" → significa un millón quinientos mil → escribe: 1500000
-- Si ves "180" o "180.00" → significa ciento ochenta → escribe: 180
+⚠️ CRÍTICO: En facturas paraguayas, el PUNTO (.) es separador de miles, NO decimal.
+
+EJEMPLOS REALES de cómo leer números:
+┌─────────────────────┬──────────────────────────┬────────────────┐
+│ Lo que VES escrito  │ Qué significa            │ Cómo escribirlo│
+├─────────────────────┼──────────────────────────┼────────────────┤
+│ "90.000"            │ Noventa mil guaraníes    │ 90000          │
+│ "1.500.000"         │ Un millón quinientos mil │ 1500000        │
+│ "81.819"            │ Ochenta y un mil...      │ 81819          │
+│ "8.181"             │ Ocho mil ciento ochenta  │ 8181           │
+│ "180"               │ Ciento ochenta           │ 180            │
+│ "₲ 90.000"          │ Noventa mil guaraníes    │ 90000          │
+│ "Gs. 1.234.567"     │ Un millón...             │ 1234567        │
+└─────────────────────┴──────────────────────────┴────────────────┘
+
+🚨 ERROR COMÚN que debes EVITAR:
+❌ NO confundas "90.000" con "90" - SON DIFERENTES
+   "90.000" = noventa MIL (90000)
+   "90" = noventa (90)
+
+REGLAS PARA LEER NÚMEROS:
+1. Lee el número COMPLETO, incluyendo TODOS los dígitos
+2. Quita TODOS los puntos que separan miles
+3. Quita símboos monetarios (₲, Gs., PYG)
+4. Si tiene coma decimal (raro en Paraguay), reemplázala por punto
+5. El resultado debe ser un número entero SIN separadores
+
+VALIDACIÓN:
+- Si extraes menos de 1000 de una casilla de "TOTAL", probablemente estés leyendo MAL
+- Las facturas paraguayas suelen tener montos de miles o millones de guaraníes
+- Si ves 3 dígitos después del punto (ej: 90.000), ese punto separa miles
 
 🚫 NO HAGAS:
 - NO sumes IVAs para obtener totales
 - NO calcules el subtotal sumando items
 - NO multipliques cantidad × precio
 - SOLO lee lo que está escrito en cada casilla
+
+✅ EJEMPLO COMPLETO DE EXTRACCIÓN CORRECTA:
+
+Si ves en la factura:
+- Gravado 10%: 81.819
+- IVA 10%: 8.181
+- TOTAL: 90.000
+
+Debes extraer:
+{
+  "subtotal_gravado_10": 81819,
+  "iva_10": 8181,
+  "monto_total": 90000
+}
+
+❌ INCORRECTO (no hagas esto):
+{
+  "subtotal_gravado_10": 81,    ← ERROR: falta 819
+  "iva_10": 8,                   ← ERROR: falta 181
+  "monto_total": 90              ← ERROR: falta 000
+}
+
+🔍 AUTO-VERIFICACIÓN antes de responder:
+1. ¿Leí TODOS los dígitos de cada casilla?
+2. ¿El monto_total tiene sentido? (debería ser miles o millones)
+3. ¿Quité los puntos separadores de miles?
+4. ¿Quité símbolos monetarios (₲, Gs.)?
 
 ✅ DEVUELVE:
 SOLO el objeto JSON completo con TODOS los campos extraídos. Sin texto antes o después.
