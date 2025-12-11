@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Conector para validación fiscal con la SET (DNIT) de Paraguay
+ * Soporta facturas tradicionales con timbrado y facturas electrónicas
  *
  * Este servicio se conecta al sistema de la Dirección Nacional de Ingresos Tributarios
  * para validar RUCs, Timbrados y datos de facturas electrónicas.
