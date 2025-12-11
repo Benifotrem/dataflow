@@ -112,11 +112,19 @@ class OcrVisionService
             // Validar que tenga los campos requeridos
             $validationResult = $this->validateExtractedData($extractedData);
 
+            // Si la validación falla, agregar detalles del error
+            $error = null;
+            if (!$validationResult['valid']) {
+                $errors = $validationResult['errors'] ?? ['Datos incompletos o inválidos'];
+                $error = implode('; ', $errors);
+            }
+
             return [
                 'success' => $validationResult['valid'],
                 'data' => $extractedData,
                 'validation' => $validationResult,
                 'raw_response' => $content,
+                'error' => $error, // Siempre incluir error (null si no hay error)
             ];
 
         } catch (\Exception $e) {
