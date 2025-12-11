@@ -176,25 +176,54 @@ Tu trabajo es copiar el número que está al lado de cada etiqueta específica.
 
 Busca estas etiquetas y copia EXACTAMENTE el número que ves a su lado:
 
-  "subtotal_gravado_10": Busca etiqueta "Gravado 10%" o "Sub Total 10%" → Copia ese número
-  "subtotal_gravado_5": Busca etiqueta "Gravado 5%" o "Sub Total 5%" → Copia ese número
-  "subtotal_exentas": Busca etiqueta "Exentas" → Copia ese número
-  "iva_10": Busca etiqueta "IVA 10%" → Copia ese número (NO calcules, COPIA)
-  "iva_5": Busca etiqueta "IVA 5%" → Copia ese número
-  "total_iva": Busca etiqueta "Total IVA" → Copia ese número
-  "monto_total": Busca etiqueta "TOTAL" (última fila, letra grande) → Copia ese número
+  "subtotal_gravado_10":
+     OPCIÓN 1: Si encuentras etiqueta "Gravado 10%" o "Sub Total 10%" → Copia ese número
+     OPCIÓN 2: Si NO existe esa etiqueta pero hay una tabla de items con columna "IVA 10%" con un monto:
+               → Calcula: (monto de columna IVA 10%) / 1.1
+               Ejemplo: Si columna IVA 10% dice 90.000 → subtotal_gravado_10 = 90000 / 1.1 = 81818
 
-EJEMPLO VISUAL de cómo se ve una factura:
+  "subtotal_gravado_5":
+     OPCIÓN 1: Si encuentras "Gravado 5%" → Copia ese número
+     OPCIÓN 2: Si NO existe pero hay columna "IVA 5%" → Calcula: (monto columna IVA 5%) / 1.05
+
+  "subtotal_exentas": Busca etiqueta "Exentas" en la columna de valores → Copia ese número
+
+  "iva_10": Busca "Liquidación del IVA" o "IVA 10%" (la fila del resumen, NO la columna) → Copia ese número
+  "iva_5": Busca "IVA 5%" en el resumen final → Copia ese número
+  "total_iva": Busca "Total IVA" o "Liquidación del IVA (Total)" → Copia ese número
+  "monto_total": Busca "TOTAL" o "Total a Pagar" (última fila) → Copia ese número
+
+IMPORTANTE: Distingue entre:
+- COLUMNAS de la tabla de items (Exentas, IVA 5%, IVA 10%) → Estos son montos con IVA incluido
+- FILAS del resumen final (Liquidación del IVA) → Estos son los impuestos calculados
+
+EJEMPLO 1 - Factura CON campo "Gravado 10%" explícito:
 ┌──────────────┬──────────┐
 │ Gravado 10%  │  81.819  │ ← Copia 81819 para subtotal_gravado_10
 │ IVA 10%      │   8.181  │ ← Copia 8181 para iva_10
 │ TOTAL        │  90.000  │ ← Copia 90000 para monto_total
 └──────────────┴──────────┘
 
+EJEMPLO 2 - Factura SIN campo "Gravado 10%" (tiene tabla con columnas):
+Tabla de items:
+┌──────────┬────────┬─────────┬─────────┐
+│ Cantidad │ Precio │ Exentas │ IVA 10% │
+│    1     │ 90.000 │    0    │  90.000 │ ← Monto en columna IVA 10%
+└──────────┴────────┴─────────┴─────────┘
+
+Resumen:
+│ Liquidación del IVA (10%) │  8.182  │ ← Copia 8182 para iva_10
+│ Total a Pagar             │ 90.000  │ ← Copia 90000 para monto_total
+
+Para este caso:
+- subtotal_gravado_10 = 90000 / 1.1 = 81818 (calculas porque no hay etiqueta "Gravado 10%")
+- iva_10 = 8182 (copias de "Liquidación del IVA")
+- monto_total = 90000 (copias de "Total a Pagar")
+
 VERIFICA tu respuesta:
-- ¿subtotal_gravado_10 es DIFERENTE de monto_total? Debe serlo
+- ¿subtotal_gravado_10 + iva_10 ≈ monto_total? Debe cumplirse (ej: 81818 + 8182 = 90000)
 - ¿iva_10 es aproximadamente 1/10 de subtotal_gravado_10? Debe serlo
-- ¿Los números tienen dígitos como 81819, 8181? Buena señal
+- Si calculaste el gravado: ¿es menor que el total? Debe serlo
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
