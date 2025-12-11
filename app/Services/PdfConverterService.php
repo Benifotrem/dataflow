@@ -30,20 +30,26 @@ class PdfConverterService
                 mkdir($tempDir, 0755, true);
             }
 
-            // Nombre único para la imagen
-            $imageName = 'pdf_' . uniqid() . '.jpg';
+            // Nombre único para la imagen (PNG para evitar pérdida de calidad)
+            $imageName = 'pdf_' . uniqid() . '.png';
             $imagePath = $tempDir . '/' . $imageName;
 
             // Convertir PDF a imagen (solo primera página)
             $pdf = new Pdf($pdfPath);
             $pdf->setPage(1)
-                ->setResolution(300) // Alta resolución para mejor OCR
-                ->setOutputFormat('jpg')
+                ->setResolution(600) // Resolución muy alta para máxima legibilidad
+                ->setOutputFormat('png') // PNG para evitar compresión con pérdida
                 ->saveImage($imagePath);
+
+            // Obtener tamaño de la imagen generada
+            $imageSize = file_exists($imagePath) ? filesize($imagePath) : 0;
 
             Log::info('PDF convertido a imagen exitosamente', [
                 'pdf_path' => $pdfPath,
                 'image_path' => $imagePath,
+                'image_size_kb' => round($imageSize / 1024, 2),
+                'resolution' => 600,
+                'format' => 'png',
             ]);
 
             return [

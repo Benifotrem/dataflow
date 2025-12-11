@@ -165,9 +165,9 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     );
                 }
 
-                // Leer imagen convertida
+                // Leer imagen convertida (ahora en PNG para mejor calidad)
                 $imageContent = file_get_contents($conversion['image_path']);
-                $imageMimeType = 'image/jpeg';
+                $imageMimeType = 'image/png';
 
                 // Limpiar archivos temporales
                 @unlink($pdfTempPath);
