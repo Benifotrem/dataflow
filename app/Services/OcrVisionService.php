@@ -320,13 +320,22 @@ PROMPT;
         $errors = [];
         $warnings = [];
 
+        // Detectar si es factura electrónica
+        $isElectronica = isset($data['tipo_factura']) &&
+                         (stripos($data['tipo_factura'], 'ELECTRONICA') !== false ||
+                          stripos($data['tipo_factura'], 'ELECTRÓNICA') !== false);
+
         // Campos críticos para factura paraguaya
         $criticalFields = [
             'ruc_emisor' => 'RUC del emisor',
-            'timbrado' => 'Timbrado',
             'fecha_emision' => 'Fecha de emisión',
             'monto_total' => 'Monto total',
         ];
+
+        // El timbrado solo es obligatorio en facturas NO electrónicas
+        if (!$isElectronica) {
+            $criticalFields['timbrado'] = 'Timbrado';
+        }
 
         foreach ($criticalFields as $field => $label) {
             if (empty($data[$field]) || $data[$field] === null) {
@@ -342,8 +351,8 @@ PROMPT;
             }
         }
 
-        // Validar formato de Timbrado
-        if (isset($data['timbrado'])) {
+        // Validar formato de Timbrado (solo para facturas tradicionales)
+        if (!$isElectronica && isset($data['timbrado'])) {
             $timbrado = preg_replace('/[^0-9]/', '', $data['timbrado']);
             if (strlen($timbrado) !== 8) {
                 $errors[] = 'Formato de Timbrado inválido (debe tener 8 dígitos)';
