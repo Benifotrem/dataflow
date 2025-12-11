@@ -185,22 +185,26 @@ class DnitConnector
         $data = [];
 
         // Validar RUC
+        $rucValidado = null;
         if (isset($invoiceData['ruc_emisor'])) {
             $rucValidation = $this->validateRuc($invoiceData['ruc_emisor']);
             $data['ruc_validation'] = $rucValidation;
 
             if (!$rucValidation['valid']) {
                 $errors[] = $rucValidation['error'] ?? 'RUC inválido';
+            } else {
+                // Guardar el RUC validado (puede ser diferente al extraído si hubo fallback)
+                $rucValidado = $rucValidation['data']['ruc'] ?? $invoiceData['ruc_emisor'];
             }
         } else {
             $errors[] = 'RUC del emisor no proporcionado';
         }
 
-        // Validar Timbrado
-        if (isset($invoiceData['timbrado']) && isset($invoiceData['ruc_emisor'])) {
+        // Validar Timbrado (usar RUC validado, no el extraído)
+        if (isset($invoiceData['timbrado']) && $rucValidado) {
             $timbradoValidation = $this->validateTimbrado(
                 $invoiceData['timbrado'],
-                $invoiceData['ruc_emisor']
+                $rucValidado
             );
             $data['timbrado_validation'] = $timbradoValidation;
 
