@@ -347,9 +347,19 @@ class DnitConnector
 
         try {
             // Consultar en base de datos local (datos oficiales de la SET)
+            // Intentar buscar con el RUC completo primero
             $contribuyente = \DB::table('ruc_contribuyentes')
                 ->where('ruc', $rucLimpio)
                 ->first();
+
+            // Si no encuentra y el RUC tiene más de 1 dígito,
+            // intentar separando el último dígito (probablemente es el DV pegado)
+            if (!$contribuyente && strlen($rucLimpio) > 1) {
+                $rucSinUltimo = substr($rucLimpio, 0, -1);
+                $contribuyente = \DB::table('ruc_contribuyentes')
+                    ->where('ruc', $rucSinUltimo)
+                    ->first();
+            }
 
             if ($contribuyente) {
                 return [
