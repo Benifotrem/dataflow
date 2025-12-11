@@ -130,8 +130,14 @@ class OcrInvoiceProcessingJob implements ShouldQueue
 
                 $pdfConverter = app(\App\Services\PdfConverterService::class);
 
+                // Crear directorio temp si no existe
+                $tempDir = storage_path('app/temp');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0755, true);
+                }
+
                 // Guardar PDF temporalmente
-                $pdfTempPath = storage_path('app/temp/pdf_' . $document->id . '.pdf');
+                $pdfTempPath = $tempDir . '/pdf_' . $document->id . '.pdf';
                 file_put_contents($pdfTempPath, $fileData['content']);
 
                 // Convertir a imagen
