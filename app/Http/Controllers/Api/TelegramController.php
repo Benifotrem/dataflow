@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Services\PagoParService;
 use App\Services\TelegramService;
+use App\Services\TelegramConversationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
@@ -15,10 +16,14 @@ use Telegram\Bot\Api;
 class TelegramController extends Controller
 {
     protected TelegramService $telegramService;
+    protected TelegramConversationService $conversationService;
 
-    public function __construct(TelegramService $telegramService)
-    {
+    public function __construct(
+        TelegramService $telegramService,
+        TelegramConversationService $conversationService
+    ) {
         $this->telegramService = $telegramService;
+        $this->conversationService = $conversationService;
     }
 
     /**
@@ -109,15 +114,8 @@ class TelegramController extends Controller
                 return;
             }
 
-            $this->telegramService->sendMessage(
-                $chatId,
-                "ℹ️ Envíame un documento (PDF o imagen) de una factura para procesarlo.\n\n" .
-                "Comandos disponibles:\n" .
-                "/start - Iniciar el bot\n" .
-                "/help - Ver ayuda\n" .
-                "/link - Vincular cuenta\n" .
-                "/status - Ver estado de tu cuenta"
-            );
+            // Procesar conversación con IA
+            $this->handleConversation($message['text'], $chatId, $user);
         }
     }
 
@@ -299,6 +297,36 @@ class TelegramController extends Controller
             "🔗 <b>Vinculado desde:</b> " . $user->telegram_linked_at->format('d/m/Y H:i');
 
         $this->telegramService->sendMessage($chatId, $message);
+    }
+
+    /**
+     * Manejar conversación con el usuario
+     */
+    protected function handleConversation(string $text, int $chatId, User $user)
+    {
+        try {
+            // Mostrar acción de "escribiendo"
+            $this->telegramService->sendChatAction($chatId, 'typing');
+
+            // Procesar mensaje y obtener respuesta
+            $response = $this->conversationService->processMessage($user, $text, $chatId);
+
+            // Enviar respuesta
+            $this->telegramService->sendMessage($chatId, $response);
+
+        } catch (\Exception $e) {
+            Log::error('Error en conversación Telegram', [
+                'user_id' => $user->id,
+                'chat_id' => $chatId,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->telegramService->sendMessage(
+                $chatId,
+                "❌ Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo.\n\n" .
+                "💡 <b>Tip:</b> También puedes enviarme una factura (PDF o imagen) para procesarla automáticamente."
+            );
+        }
     }
 
     /**
