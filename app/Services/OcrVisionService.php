@@ -294,6 +294,35 @@ PROMPT;
             throw new \Exception('La respuesta de OpenAI no es JSON válido: ' . json_last_error_msg());
         }
 
+        // Normalizar números paraguayos (usan punto como separador de miles)
+        $numericalFields = [
+            'subtotal_gravado_10',
+            'subtotal_gravado_5',
+            'subtotal_exentas',
+            'iva_10',
+            'iva_5',
+            'total_iva',
+            'monto_total',
+        ];
+
+        foreach ($numericalFields as $field) {
+            if (isset($decoded[$field]) && $decoded[$field] !== '') {
+                $decoded[$field] = parse_paraguayan_number($decoded[$field]);
+            }
+        }
+
+        // Normalizar montos en items
+        if (isset($decoded['items']) && is_array($decoded['items'])) {
+            foreach ($decoded['items'] as &$item) {
+                $itemFields = ['precio_unitario', 'exentas', 'gravado_5', 'gravado_10'];
+                foreach ($itemFields as $field) {
+                    if (isset($item[$field]) && $item[$field] !== '') {
+                        $item[$field] = parse_paraguayan_number($item[$field]);
+                    }
+                }
+            }
+        }
+
         return $decoded;
     }
 

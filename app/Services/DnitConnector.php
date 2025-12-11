@@ -200,19 +200,32 @@ class DnitConnector
             $errors[] = 'RUC del emisor no proporcionado';
         }
 
-        // Validar Timbrado (usar RUC validado, no el extraído)
-        if (isset($invoiceData['timbrado']) && $rucValidado) {
-            $timbradoValidation = $this->validateTimbrado(
-                $invoiceData['timbrado'],
-                $rucValidado
-            );
-            $data['timbrado_validation'] = $timbradoValidation;
+        // Detectar si es factura electrónica
+        $isElectronica = isset($invoiceData['tipo_factura']) &&
+                         (stripos($invoiceData['tipo_factura'], 'ELECTRONICA') !== false ||
+                          stripos($invoiceData['tipo_factura'], 'ELECTRÓNICA') !== false);
 
-            if (!$timbradoValidation['valid']) {
-                $errors[] = $timbradoValidation['error'] ?? 'Timbrado inválido';
+        // Validar Timbrado (solo para facturas tradicionales, no electrónicas)
+        if (!$isElectronica) {
+            if (isset($invoiceData['timbrado']) && $rucValidado) {
+                $timbradoValidation = $this->validateTimbrado(
+                    $invoiceData['timbrado'],
+                    $rucValidado
+                );
+                $data['timbrado_validation'] = $timbradoValidation;
+
+                if (!$timbradoValidation['valid']) {
+                    $errors[] = $timbradoValidation['error'] ?? 'Timbrado inválido';
+                }
+            } else {
+                $errors[] = 'Timbrado no proporcionado';
             }
         } else {
-            $errors[] = 'Timbrado no proporcionado';
+            // Es factura electrónica, no requiere timbrado
+            $data['timbrado_validation'] = [
+                'valid' => true,
+                'message' => 'Factura electrónica - no requiere timbrado tradicional',
+            ];
         }
 
         // Validar fecha (formato YYYY-MM-DD)
