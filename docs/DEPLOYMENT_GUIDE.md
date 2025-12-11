@@ -10,7 +10,38 @@
 
 ---
 
-## 📦 Paso 1: Actualizar Código en Producción
+## 🚀 DESPLIEGUE RÁPIDO (Método Recomendado)
+
+```bash
+ssh u489458217@tu-servidor.hostinger.com
+cd /home/u489458217/domains/dataflow.guaraniappstore.com/public_html
+
+# 1. Actualizar código
+git pull origin claude/aranduka-core-architecture-013R2N35J7x7K8PwQETakzRW
+
+# 2. Ejecutar migración
+php artisan migrate --force
+
+# 3. Resolver dependencias y limpiar caché
+./fix-composer.sh
+
+# 4. Probar conversión de PDF
+php test-pdf-conversion.php
+
+# 5. Reiniciar webhook
+./restart-webhook.sh
+
+# 6. Probar en Telegram
+# Envía un PDF al bot y pregunta: "¿Qué es RG-90?"
+```
+
+**¡Listo!** Si todos los scripts pasan, tu bot está funcionando.
+
+---
+
+## 📦 Paso 1: Actualizar Código en Producción (Manual)
+
+Si prefieres hacerlo paso a paso:
 
 ```bash
 ssh u489458217@tu-servidor.hostinger.com
@@ -20,6 +51,7 @@ cd /home/u489458217/domains/dataflow.guaraniappstore.com/public_html
 git pull origin claude/aranduka-core-architecture-013R2N35J7x7K8PwQETakzRW
 
 # Instalar dependencias
+rm composer.lock
 composer install --no-dev --optimize-autoloader
 ```
 
