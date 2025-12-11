@@ -360,6 +360,11 @@ PROMPT;
                          (stripos($data['tipo_factura'], 'ELECTRONICA') !== false ||
                           stripos($data['tipo_factura'], 'ELECTRÓNICA') !== false);
 
+        Log::info('🔍 Detección de factura electrónica', [
+            'tipo_factura' => $data['tipo_factura'] ?? 'NO DEFINIDO',
+            'is_electronica' => $isElectronica ? 'SÍ' : 'NO',
+        ]);
+
         // Campos críticos para factura paraguaya
         $criticalFields = [
             'ruc_emisor' => 'RUC del emisor',
