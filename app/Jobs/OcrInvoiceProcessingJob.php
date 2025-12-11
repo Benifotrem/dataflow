@@ -221,6 +221,7 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                         'timbrado' => $extractedData['timbrado'] ?? null,
                         'fecha_emision' => $extractedData['fecha_emision'] ?? null,
                         'monto_total' => $extractedData['monto_total'] ?? null,
+                        'tipo_factura' => $extractedData['tipo_factura'] ?? null, // CRÍTICO: Necesario para detectar facturas electrónicas
                     ]);
 
                     Log::info('🏛️ Validación DNIT completada', [
