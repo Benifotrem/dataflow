@@ -139,47 +139,83 @@ class OcrVisionService
     protected function buildParaguayanInvoicePrompt(string $context = ''): string
     {
         $basePrompt = <<<'PROMPT'
-Analiza la imagen de la factura paraguaya y extrae la siguiente información fiscal según la RG-90 de la SET (Subsecretaría de Estado de Tributación).
+Analiza esta FACTURA PARAGUAYA (formato RG-90 de la SET) y extrae TODOS los datos fiscales que encuentres.
 
-IMPORTANTE: Devuelve ÚNICAMENTE un objeto JSON válido con los siguientes campos. Si un campo no es legible o no existe en la imagen, usa `null`.
+⚠️ REGLAS CRÍTICAS:
+1. LEE DIRECTAMENTE las casillas y campos del documento - NO CALCULES NADA
+2. NO hagas sumas, restas ni operaciones matemáticas
+3. Si un campo tiene un valor escrito, cópialo exactamente como aparece
+4. Si una casilla está vacía o ilegible, usa `null`
+5. Extrae TODOS los datos visibles para que el usuario pueda revisarlos
 
-Campos requeridos:
+📋 ESTRUCTURA DE FACTURA RG-90 - Extrae estos campos:
+
+DATOS DEL EMISOR (parte superior):
 {
-  "ruc_emisor": "RUC del emisor (formato: 12345678-9, solo números sin guiones)",
-  "razon_social_emisor": "Razón social o nombre del emisor",
+  "ruc_emisor": "RUC completo del emisor (incluye dígito verificador, solo números sin guiones ni espacios)",
+  "razon_social_emisor": "Nombre completo o razón social del emisor",
+  "direccion_emisor": "Dirección del emisor si está visible",
+  "telefono_emisor": "Teléfono si está visible",
+
+DATOS DEL COMPROBANTE:
   "timbrado": "Número de timbrado (8 dígitos)",
+  "numero_factura": "Número completo de factura (ej: 001-001-0012345)",
   "fecha_emision": "Fecha de emisión (formato: YYYY-MM-DD)",
-  "numero_factura": "Número de factura completo (ej: 001-001-0012345)",
-  "serie": "Serie de la factura si existe",
-  "condicion_venta": "Condición de venta: CONTADO o CREDITO",
-  "tipo_factura": "Tipo: FACTURA, BOLETA, AUTOFACTURA, etc.",
+  "condicion_venta": "CONTADO o CREDITO",
+  "tipo_factura": "FACTURA, CONTADO, CREDITO, etc.",
 
-  "subtotal": "Subtotal/Base imponible (número decimal, sin símbolos)",
-  "iva_5": "IVA 5% (número decimal, null si no aplica)",
-  "iva_10": "IVA 10% (número decimal, null si no aplica)",
-  "total_iva": "Total IVA (suma de todos los IVAs)",
-  "monto_total": "Monto total de la factura (número decimal)",
+DATOS DEL RECEPTOR (si existen):
+  "ruc_receptor": "RUC del cliente/receptor si está visible",
+  "razon_social_receptor": "Nombre del cliente/receptor si está visible",
 
-  "moneda": "Código de moneda (PYG, USD, etc.)",
+MONTOS (lee EXACTAMENTE de las casillas finales):
+  "subtotal_gravado_5": "Monto en la casilla 'Gravado 5%' o 'Sub Total 5%' (lee el número exacto)",
+  "subtotal_gravado_10": "Monto en la casilla 'Gravado 10%' o 'Sub Total 10%' (lee el número exacto)",
+  "subtotal_exentas": "Monto en la casilla 'Exentas' o 'Sub Total Exentas' (lee el número exacto)",
+  "iva_5": "Monto en la casilla 'IVA 5%' (lee el número exacto)",
+  "iva_10": "Monto en la casilla 'IVA 10%' (lee el número exacto)",
+  "total_iva": "Monto en la casilla 'Total IVA' o 'IVA Total' (lee el número exacto)",
+  "monto_total": "Monto en la casilla 'TOTAL' o 'Total a Pagar' (lee el número exacto, este es el más importante)",
+
+ITEMS/PRODUCTOS (si son legibles):
   "items": [
     {
-      "descripcion": "Descripción del producto/servicio",
-      "cantidad": "Cantidad (número)",
-      "precio_unitario": "Precio unitario (número decimal)",
-      "subtotal": "Subtotal del ítem (número decimal)"
+      "cantidad": "Cantidad del ítem",
+      "descripcion": "Descripción completa del producto/servicio",
+      "precio_unitario": "Precio unitario",
+      "exentas": "Monto exento si aplica",
+      "gravado_5": "Monto gravado al 5% si aplica",
+      "gravado_10": "Monto gravado al 10% si aplica"
     }
   ],
 
-  "observaciones": "Observaciones o notas adicionales si existen",
-  "calidad_imagen": "ALTA, MEDIA o BAJA - evalúa la legibilidad de la imagen"
+OTROS DATOS:
+  "moneda": "PYG (guaraníes) por defecto, o USD si dice dólares",
+  "observaciones": "Cualquier observación, nota o comentario visible en la factura",
+  "calidad_imagen": "ALTA, MEDIA o BAJA - evalúa qué tan legible está la imagen"
 }
 
-REGLAS IMPORTANTES:
-1. Devuelve SOLO el JSON, sin texto adicional antes o después
-2. Todos los números deben ser sin separadores de miles, con punto decimal (ej: 1500000.50)
-3. El RUC debe ser solo números, sin guiones
-4. La fecha debe ser YYYY-MM-DD
-5. Si la imagen es ilegible o no es una factura, devuelve: {"error": "descripción del problema"}
+📝 FORMATO DE NÚMEROS:
+- Escribe los números SIN símbolos (₲, Gs., $), SIN separadores de miles (puntos o comas)
+- Usa PUNTO para decimales: 1500000.50 (no 1.500.000,50)
+- Si ves "90.000" en la factura, escríbelo como 90000 (sin punto de miles)
+- Si ves "1.500.000" en la factura, escríbelo como 1500000
+
+⚠️ MUY IMPORTANTE SOBRE MONTOS:
+En Paraguay los guaraníes se escriben con PUNTO como separador de miles:
+- Si ves "90.000" → significa noventa mil guaraníes → escribe: 90000
+- Si ves "1.500.000" → significa un millón quinientos mil → escribe: 1500000
+- Si ves "180" o "180.00" → significa ciento ochenta → escribe: 180
+
+🚫 NO HAGAS:
+- NO sumes IVAs para obtener totales
+- NO calcules el subtotal sumando items
+- NO multipliques cantidad × precio
+- SOLO lee lo que está escrito en cada casilla
+
+✅ DEVUELVE:
+SOLO el objeto JSON completo con TODOS los campos extraídos. Sin texto antes o después.
+Si la imagen no es una factura o es completamente ilegible, devuelve: {"error": "descripción del problema"}
 
 PROMPT;
 

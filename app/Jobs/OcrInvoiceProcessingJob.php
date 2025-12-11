@@ -402,18 +402,36 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 $message .= "📅 <b>Fecha:</b> {$document->document_date->format('d/m/Y')}\n";
             }
 
-            $message .= "\n💰 <b>MONTOS:</b>\n";
-
-            if (isset($data['subtotal'])) {
-                $message .= "   • Subtotal: " . number_format($data['subtotal'], 0, ',', '.') . " PYG\n";
+            // Receptor si existe
+            if (isset($data['ruc_receptor'])) {
+                $message .= "🏪 <b>RUC Receptor:</b> {$data['ruc_receptor']}\n";
+            }
+            if (isset($data['razon_social_receptor'])) {
+                $message .= "👤 <b>Cliente:</b> {$data['razon_social_receptor']}\n";
             }
 
-            if (isset($data['iva_5']) && $data['iva_5'] > 0) {
-                $message .= "   • IVA 5%: " . number_format($data['iva_5'], 0, ',', '.') . " PYG\n";
-            }
+            $message .= "\n💰 <b>MONTOS EXTRAÍDOS:</b>\n";
 
+            if (isset($data['subtotal_gravado_10']) && $data['subtotal_gravado_10'] > 0) {
+                $message .= "   • Gravado 10%: ₲ " . number_format($data['subtotal_gravado_10'], 0, ',', '.') . "\n";
+            }
             if (isset($data['iva_10']) && $data['iva_10'] > 0) {
-                $message .= "   • IVA 10%: " . number_format($data['iva_10'], 0, ',', '.') . " PYG\n";
+                $message .= "   • IVA 10%: ₲ " . number_format($data['iva_10'], 0, ',', '.') . "\n";
+            }
+
+            if (isset($data['subtotal_gravado_5']) && $data['subtotal_gravado_5'] > 0) {
+                $message .= "   • Gravado 5%: ₲ " . number_format($data['subtotal_gravado_5'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['iva_5']) && $data['iva_5'] > 0) {
+                $message .= "   • IVA 5%: ₲ " . number_format($data['iva_5'], 0, ',', '.') . "\n";
+            }
+
+            if (isset($data['subtotal_exentas']) && $data['subtotal_exentas'] > 0) {
+                $message .= "   • Exentas: ₲ " . number_format($data['subtotal_exentas'], 0, ',', '.') . "\n";
+            }
+
+            if (isset($data['total_iva']) && $data['total_iva'] > 0) {
+                $message .= "   • <b>Total IVA:</b> ₲ " . number_format($data['total_iva'], 0, ',', '.') . "\n";
             }
 
             if (isset($data['monto_total'])) {
@@ -470,7 +488,36 @@ class OcrInvoiceProcessingJob implements ShouldQueue
 
             $message .= "   • Timbrado: " . ($data['timbrado'] ?? '❌ No detectado') . "\n";
             $message .= "   • Fecha: " . ($data['fecha_emision'] ?? '❌ No detectada') . "\n";
-            $message .= "   • Monto: " . ($data['monto_total'] ?? '❌ No detectado') . "\n";
+
+            if (isset($data['ruc_receptor'])) {
+                $message .= "   • RUC Receptor: " . $data['ruc_receptor'] . "\n";
+            }
+            if (isset($data['razon_social_receptor'])) {
+                $message .= "   • Cliente: " . $data['razon_social_receptor'] . "\n";
+            }
+
+            $message .= "\n   💰 <b>Montos:</b>\n";
+
+            if (isset($data['subtotal_gravado_10']) && $data['subtotal_gravado_10'] > 0) {
+                $message .= "      • Gravado 10%: ₲ " . number_format($data['subtotal_gravado_10'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['iva_10']) && $data['iva_10'] > 0) {
+                $message .= "      • IVA 10%: ₲ " . number_format($data['iva_10'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['subtotal_gravado_5']) && $data['subtotal_gravado_5'] > 0) {
+                $message .= "      • Gravado 5%: ₲ " . number_format($data['subtotal_gravado_5'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['iva_5']) && $data['iva_5'] > 0) {
+                $message .= "      • IVA 5%: ₲ " . number_format($data['iva_5'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['subtotal_exentas']) && $data['subtotal_exentas'] > 0) {
+                $message .= "      • Exentas: ₲ " . number_format($data['subtotal_exentas'], 0, ',', '.') . "\n";
+            }
+            if (isset($data['total_iva']) && $data['total_iva'] > 0) {
+                $message .= "      • Total IVA: ₲ " . number_format($data['total_iva'], 0, ',', '.') . "\n";
+            }
+
+            $message .= "      • <b>TOTAL: " . (isset($data['monto_total']) ? "₲ " . number_format($data['monto_total'], 0, ',', '.') : '❌ No detectado') . "</b>\n";
         }
 
         $message .= "\n⚠️ <b>MOTIVOS DE REVISIÓN:</b>\n";
