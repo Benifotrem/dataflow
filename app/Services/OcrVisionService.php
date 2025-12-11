@@ -139,14 +139,15 @@ class OcrVisionService
     protected function buildParaguayanInvoicePrompt(string $context = ''): string
     {
         $basePrompt = <<<'PROMPT'
-Analiza esta FACTURA PARAGUAYA (formato RG-90 de la SET) y extrae TODOS los datos fiscales que encuentres.
+Eres un OCR especializado en facturas paraguayas. Tu trabajo es COPIAR números exactamente como aparecen.
 
-⚠️ REGLAS CRÍTICAS:
-1. LEE DIRECTAMENTE las casillas y campos del documento - NO CALCULES NADA
-2. NO hagas sumas, restas ni operaciones matemáticas
-3. Si un campo tiene un valor escrito, cópialo exactamente como aparece
-4. Si una casilla está vacía o ilegible, usa `null`
-5. Extrae TODOS los datos visibles para que el usuario pueda revisarlos
+🚫 PROHIBIDO: Hacer cálculos, sumas, multiplicaciones o porcentajes
+✅ PERMITIDO: Solo COPIAR los números que ves escritos
+
+IMPORTANTE: En facturas paraguayas los números usan PUNTO como separador de miles:
+- Si ves "90.000" significa 90000 (noventa mil)
+- Si ves "81.819" significa 81819 (ochenta y un mil ochocientos diecinueve)
+- Si ves "8.181" significa 8181 (ocho mil ciento ochenta y uno)
 
 📋 ESTRUCTURA DE FACTURA RG-90 - Extrae estos campos:
 
@@ -165,101 +166,35 @@ DATOS DEL COMPROBANTE:
   "tipo_factura": "FACTURA, CONTADO, CREDITO, etc.",
 
 DATOS DEL RECEPTOR (si existen):
-  "ruc_receptor": "RUC del cliente/receptor si está visible",
-  "razon_social_receptor": "Nombre del cliente/receptor si está visible",
+  "ruc_receptor": "RUC del cliente si está visible",
+  "razon_social_receptor": "Nombre del cliente si está visible",
 
-⚠️⚠️⚠️ ADVERTENCIA CRÍTICA SOBRE MONTOS ⚠️⚠️⚠️
+MONTOS (la parte más importante - lee con mucha atención):
 
-🚫 NO CALCULES - SOLO LEE LO QUE ESTÁ ESCRITO
+En la factura hay varias FILAS con números. Cada fila tiene una ETIQUETA y un NÚMERO.
+Tu trabajo es copiar el número que está al lado de cada etiqueta específica.
 
-Cada casilla de la factura tiene un número DIFERENTE escrito. Debes leer cada una INDEPENDIENTEMENTE.
+Busca estas etiquetas y copia EXACTAMENTE el número que ves a su lado:
 
-❌ ERROR FRECUENTE: Ver que el TOTAL es 90.000 y pensar:
-   "El IVA debe ser 10% de 90.000, entonces es 9.000"
-   ¡ESTO ESTÁ MAL! Debes LEER qué dice la casilla de IVA, no calcularlo.
+  "subtotal_gravado_10": Busca etiqueta "Gravado 10%" o "Sub Total 10%" → Copia ese número
+  "subtotal_gravado_5": Busca etiqueta "Gravado 5%" o "Sub Total 5%" → Copia ese número
+  "subtotal_exentas": Busca etiqueta "Exentas" → Copia ese número
+  "iva_10": Busca etiqueta "IVA 10%" → Copia ese número (NO calcules, COPIA)
+  "iva_5": Busca etiqueta "IVA 5%" → Copia ese número
+  "total_iva": Busca etiqueta "Total IVA" → Copia ese número
+  "monto_total": Busca etiqueta "TOTAL" (última fila, letra grande) → Copia ese número
 
-✅ CORRECTO: Buscar la casilla que dice "IVA 10%" y leer el número que tiene escrito.
-   Puede decir "8.181" (que es diferente de 9.000)
+EJEMPLO VISUAL de cómo se ve una factura:
+┌──────────────┬──────────┐
+│ Gravado 10%  │  81.819  │ ← Copia 81819 para subtotal_gravado_10
+│ IVA 10%      │   8.181  │ ← Copia 8181 para iva_10
+│ TOTAL        │  90.000  │ ← Copia 90000 para monto_total
+└──────────────┴──────────┘
 
-MONTOS - PROCESO DE 3 PASOS:
-
-🔍 PASO 1: IDENTIFICAR todas las filas de montos (NO extraer todavía, solo ver):
-Mira la parte inferior de la factura y lista mentalmente TODAS las filas que tengan montos:
-- Fila 1: ¿Dice "Gravado 10%" o "Sub Total 10%"? → Anota mentalmente el número que ves
-- Fila 2: ¿Dice "Gravado 5%" o "Sub Total 5%"? → Anota mentalmente el número que ves
-- Fila 3: ¿Dice "Exentas"? → Anota mentalmente el número que ves
-- Fila 4: ¿Dice "IVA 10%"? → Anota mentalmente el número que ves
-- Fila 5: ¿Dice "IVA 5%"? → Anota mentalmente el número que ves
-- Fila 6: ¿Dice "Total IVA"? → Anota mentalmente el número que ves
-- Fila FINAL: ¿Dice "TOTAL" o "Total a Pagar" (letra grande/negrita)? → Este es el más grande
-
-📝 PASO 2: VERIFICAR que los números son DIFERENTES:
-- El número de "Gravado 10%" debe ser DIFERENTE al de "TOTAL"
-- El número de "IVA 10%" debe ser DIFERENTE al de "TOTAL"
-- Si "Gravado 10%" = "TOTAL", estás mirando la fila equivocada
-
-✍️ PASO 3: EXTRAER cada número de su fila correspondiente:
-Para cada campo, busca la ETIQUETA (texto) y copia el número de ESA fila:
-- subtotal_gravado_10: Busca la fila con etiqueta "Gravado 10%" → Copia su número
-- iva_10: Busca la fila con etiqueta "IVA 10%" → Copia su número
-- monto_total: Busca la fila con etiqueta "TOTAL" (la última, número más grande) → Copia su número
-
-Ejemplo real:
-Fila 1: "Gravado 10%: 81.819" → extraes 81819
-Fila 2: "IVA 10%: 8.181" → extraes 8181
-Fila 3: "TOTAL: 90.000" → extraes 90000
-
-⚠️ UBICACIÓN DE CASILLAS EN LA FACTURA:
-En facturas paraguayas, las casillas de montos están en DIFERENTES lugares:
-- "Gravado 10%" está en una fila ANTES del total (número más pequeño, ej: 81.819)
-- "IVA 10%" está en otra fila (número pequeño, ej: 8.181)
-- "TOTAL" está al FINAL, en letra grande o negrita (número más grande, ej: 90.000)
-
-❌ NO CONFUNDAS:
-- "Gravado 10%" NO es lo mismo que "TOTAL"
-- Si el Gravado 10% = TOTAL, estás leyendo la casilla equivocada
-
-Extrae estos campos buscando por ETIQUETA (texto que acompaña al número):
-
-"subtotal_gravado_5":
-   Busca texto: "Gravado 5%", "Sub Total 5%", "Gravadas 5%", "Base 5%"
-   Ubicación: ANTES del total
-   Valor esperado: Número DIFERENTE al total
-
-"subtotal_gravado_10":
-   Busca texto: "Gravado 10%", "Sub Total 10%", "Gravadas 10%", "Base 10%", "Gravado IVA 10%"
-   Ubicación: ANTES del total (arriba de la fila del TOTAL)
-   Valor esperado: MENOR que el total (ej: si total=90000 entonces gravado≈81819)
-   ⚠️ NO uses el valor de la fila "TOTAL" para este campo
-
-   💡 CASO ESPECIAL: Si no encuentras esas etiquetas exactas, busca:
-   - La fila que está INMEDIATAMENTE ARRIBA de "IVA 10%"
-   - O la primera fila de montos (excluyendo items individuales)
-   - Debe ser un número MENOR que el TOTAL final
-   - Si solo ves 2 filas principales de montos (una pequeña y el TOTAL grande),
-     la pequeña probablemente es el Gravado 10%
-
-"subtotal_exentas":
-   Busca texto: "Exentas", "Exento", "Exempt"
-   Solo si existe esta fila
-
-"iva_5":
-   Busca texto: "IVA 5%", "Liquidación IVA 5%"
-   Valor esperado: Número pequeño
-
-"iva_10":
-   Busca texto: "IVA 10%", "Liquidación IVA 10%"
-   Valor esperado: Número pequeño (ej: 8181 si total=90000)
-   ⚠️ NO calcules 10% del total
-
-"total_iva":
-   Busca texto: "Total IVA", "IVA Total", "Liquidación del IVA"
-   Valor esperado: Similar a iva_10 si solo hay IVA 10%
-
-"monto_total":
-   Busca texto: "TOTAL", "Total a Pagar", "Total General", "TOTAL Gs."
-   Ubicación: En la ÚLTIMA fila, generalmente en letra MÁS GRANDE o negrita
-   Valor esperado: El número MÁS GRANDE de todas las filas
+VERIFICA tu respuesta:
+- ¿subtotal_gravado_10 es DIFERENTE de monto_total? Debe serlo
+- ¿iva_10 es aproximadamente 1/10 de subtotal_gravado_10? Debe serlo
+- ¿Los números tienen dígitos como 81819, 8181? Buena señal
 
 ITEMS/PRODUCTOS (si son legibles):
   "items": [
@@ -274,104 +209,18 @@ ITEMS/PRODUCTOS (si son legibles):
   ],
 
 OTROS DATOS:
-  "moneda": "PYG (guaraníes) por defecto, o USD si dice dólares",
-  "observaciones": "Cualquier observación, nota o comentario visible en la factura",
-  "calidad_imagen": "ALTA, MEDIA o BAJA - evalúa qué tan legible está la imagen"
+  "moneda": "PYG",
+  "observaciones": "Si hay observaciones",
+  "calidad_imagen": "ALTA, MEDIA o BAJA"
 }
 
-📝 FORMATO DE NÚMEROS PARAGUAYOS - LEE CON ATENCIÓN:
+REGLAS FINALES:
+1. Quita los puntos de los números (90.000 → 90000)
+2. Quita símbolos monetarios (₲, Gs.)
+3. COPIA cada número de su etiqueta correspondiente
+4. NO calcules porcentajes ni hagas operaciones matemáticas
 
-⚠️ CRÍTICO: En facturas paraguayas, el PUNTO (.) es separador de miles, NO decimal.
-
-EJEMPLOS REALES de cómo leer números:
-┌─────────────────────┬──────────────────────────┬────────────────┐
-│ Lo que VES escrito  │ Qué significa            │ Cómo escribirlo│
-├─────────────────────┼──────────────────────────┼────────────────┤
-│ "90.000"            │ Noventa mil guaraníes    │ 90000          │
-│ "1.500.000"         │ Un millón quinientos mil │ 1500000        │
-│ "81.819"            │ Ochenta y un mil...      │ 81819          │
-│ "8.181"             │ Ocho mil ciento ochenta  │ 8181           │
-│ "180"               │ Ciento ochenta           │ 180            │
-│ "₲ 90.000"          │ Noventa mil guaraníes    │ 90000          │
-│ "Gs. 1.234.567"     │ Un millón...             │ 1234567        │
-└─────────────────────┴──────────────────────────┴────────────────┘
-
-🚨 ERROR COMÚN que debes EVITAR:
-❌ NO confundas "90.000" con "90" - SON DIFERENTES
-   "90.000" = noventa MIL (90000)
-   "90" = noventa (90)
-
-REGLAS PARA LEER NÚMEROS:
-1. Lee el número COMPLETO, incluyendo TODOS los dígitos
-2. Quita TODOS los puntos que separan miles
-3. Quita símboos monetarios (₲, Gs., PYG)
-4. Si tiene coma decimal (raro en Paraguay), reemplázala por punto
-5. El resultado debe ser un número entero SIN separadores
-
-VALIDACIÓN:
-- Si extraes menos de 1000 de una casilla de "TOTAL", probablemente estés leyendo MAL
-- Las facturas paraguayas suelen tener montos de miles o millones de guaraníes
-- Si ves 3 dígitos después del punto (ej: 90.000), ese punto separa miles
-
-🚫 NO HAGAS:
-- NO sumes IVAs para obtener totales
-- NO calcules el subtotal sumando items
-- NO multipliques cantidad × precio
-- SOLO lee lo que está escrito en cada casilla
-
-✅ EJEMPLO COMPLETO DE EXTRACCIÓN CORRECTA:
-
-Imagina que en la factura ves estas casillas:
-┌──────────────────┬──────────┐
-│ Gravado 10%      │ 81.819   │ ← Esta casilla dice 81.819
-│ IVA 10%          │ 8.181    │ ← Esta casilla dice 8.181
-│ TOTAL            │ 90.000   │ ← Esta casilla dice 90.000
-└──────────────────┴──────────┘
-
-✅ EXTRACCIÓN CORRECTA:
-{
-  "subtotal_gravado_10": 81819,   ← Leí 81.819 de la casilla "Gravado 10%"
-  "iva_10": 8181,                  ← Leí 8.181 de la casilla "IVA 10%"
-  "monto_total": 90000             ← Leí 90.000 de la casilla "TOTAL"
-}
-
-❌ ERRORES COMUNES (NO hagas esto):
-{
-  "subtotal_gravado_10": 90000,   ← ERROR: Copió el TOTAL en lugar de leer la casilla Gravado 10%
-  "iva_10": 9000,                  ← ERROR: Calculó 10% de 90.000 en lugar de leer la casilla IVA 10%
-  "monto_total": 90000             ← Correcto
-}
-
-O:
-{
-  "subtotal_gravado_10": 81,      ← ERROR: Solo leyó parte del número (falta 819)
-  "iva_10": 8,                     ← ERROR: Solo leyó parte del número (falta 181)
-  "monto_total": 90                ← ERROR: Solo leyó parte del número (falta 000)
-}
-
-🔍 AUTO-VERIFICACIÓN antes de responder:
-1. ¿Leí directamente cada casilla SIN calcular nada?
-2. ¿Los números son DIFERENTES entre sí?
-3. ¿El subtotal_gravado_10 es MENOR que monto_total? (si son iguales, ERROR)
-4. ¿El IVA 10% es diferente a 9000 o 9% del total? (si es 9000 o 10% exacto, ERROR)
-5. ¿Leí TODOS los dígitos de cada número? (ej: 81819, no 81)
-6. ¿Los números tienen dígitos "raros" como 81819, 8181? (señal de lectura correcta)
-7. ¿Quité puntos separadores y símbolos (₲, Gs.)?
-
-⚠️ SEÑALES DE ERROR - Revisa si:
-- subtotal_gravado_10 = monto_total (están iguales) ← ❌ ERROR GRAVE
-- iva_10 es exactamente 10% del monto_total ← ❌ Calculaste
-- subtotal_gravado_10 + iva_10 = monto_total exactamente ← ⚠️ Probablemente correcto
-- Todos los números son redondos (90000, 9000) ← ⚠️ Probablemente calculaste
-
-✅ SEÑALES DE ÉXITO:
-- subtotal_gravado_10 ≠ monto_total (son diferentes)
-- Números tienen dígitos "raros": 81819, 8181 (no redondos)
-- subtotal_gravado_10 + iva_10 ≈ monto_total (suma aproximada)
-
-✅ DEVUELVE:
-SOLO el objeto JSON completo con TODOS los campos extraídos. Sin texto antes o después.
-Si la imagen no es una factura o es completamente ilegible, devuelve: {"error": "descripción del problema"}
+Devuelve SOLO el objeto JSON con todos los campos. Sin texto adicional.
 
 PROMPT;
 
