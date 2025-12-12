@@ -108,6 +108,25 @@ Route::get('/debug/auth-document/{id}', function($id) {
     }
 })->middleware('auth');
 
+// TEMPORAL: Ruta para probar renderizado de vista
+Route::get('/debug/render-document/{id}', function($id) {
+    try {
+        $document = \App\Models\Document::findOrFail($id);
+        $document->load('entity', 'user');
+
+        // Intentar renderizar la vista
+        return view('dashboard.documents.show', compact('document'));
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => explode("\n", $e->getTraceAsString()),
+        ], 500);
+    }
+})->middleware('auth');
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
