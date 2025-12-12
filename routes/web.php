@@ -146,6 +146,25 @@ Route::get('/debug/render-with-tenant/{id}', function($id) {
     }
 })->middleware(['auth', 'tenant.active']);
 
+// TEMPORAL: Simular exactamente el route model binding del controlador
+Route::get('/debug/exact-controller/{document}', function(\App\Models\Document $document) {
+    try {
+        // Simular exactamente lo que hace el controlador
+        Gate::authorize('view', $document);
+        $document->load('entity', 'user');
+
+        return view('dashboard.documents.show', compact('document'));
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => explode("\n", $e->getTraceAsString()),
+        ], 500);
+    }
+})->middleware(['auth', 'tenant.active']);
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
