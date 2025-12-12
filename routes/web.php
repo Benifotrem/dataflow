@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 // Cambio de idioma
@@ -63,6 +64,49 @@ Route::get('/debug/document/{id}', function($id) {
         ], 500);
     }
 });
+
+// TEMPORAL: Ruta de diagnóstico CON autenticación
+Route::get('/debug/auth-document/{id}', function($id) {
+    try {
+        $user = auth()->user();
+        $document = \App\Models\Document::findOrFail($id);
+
+        // Test authorization
+        $canView = false;
+        $authError = null;
+        try {
+            Gate::authorize('view', $document);
+            $canView = true;
+        } catch (\Exception $e) {
+            $authError = $e->getMessage();
+        }
+
+        return response()->json([
+            'success' => true,
+            'logged_in' => $user !== null,
+            'user' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'tenant_id' => $user->tenant_id,
+            ] : null,
+            'document' => [
+                'id' => $document->id,
+                'tenant_id' => $document->tenant_id,
+            ],
+            'authorization' => [
+                'can_view' => $canView,
+                'error' => $authError,
+                'match_tenant' => $user && $user->tenant_id === $document->tenant_id,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+})->middleware('auth');
 
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth', 'tenant.active'])->group(function () {
