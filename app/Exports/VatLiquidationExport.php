@@ -64,37 +64,32 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
     }
 
     /**
-     * Calculate totals by tax rate
+     * Calculate totals using ocr_data breakdown
      */
     protected function calculateTotals()
     {
         $this->totals = [
-            'total_base' => 0,
-            'total_vat' => 0,
-            'total_amount' => 0,
-            'by_rate' => [],
+            'gravado_10' => 0,
+            'iva_10' => 0,
+            'gravado_5' => 0,
+            'iva_5' => 0,
+            'exentas' => 0,
+            'total_iva' => 0,
+            'total' => 0,
+            'count' => 0,
         ];
 
         foreach ($this->documents as $document) {
-            $this->totals['total_base'] += $document->tax_base ?? 0;
-            $this->totals['total_vat'] += $document->tax_amount ?? 0;
-            $this->totals['total_amount'] += $document->total_with_tax ?? 0;
+            $ocrData = $document->ocr_data ?? [];
 
-            // Agrupar por tasa de IVA
-            $rate = $document->tax_rate ?? 0;
-            if (!isset($this->totals['by_rate'][$rate])) {
-                $this->totals['by_rate'][$rate] = [
-                    'base' => 0,
-                    'vat' => 0,
-                    'total' => 0,
-                    'count' => 0,
-                ];
-            }
-
-            $this->totals['by_rate'][$rate]['base'] += $document->tax_base ?? 0;
-            $this->totals['by_rate'][$rate]['vat'] += $document->tax_amount ?? 0;
-            $this->totals['by_rate'][$rate]['total'] += $document->total_with_tax ?? 0;
-            $this->totals['by_rate'][$rate]['count']++;
+            $this->totals['gravado_10'] += $ocrData['subtotal_gravado_10'] ?? 0;
+            $this->totals['iva_10'] += $ocrData['iva_10'] ?? 0;
+            $this->totals['gravado_5'] += $ocrData['subtotal_gravado_5'] ?? 0;
+            $this->totals['iva_5'] += $ocrData['iva_5'] ?? 0;
+            $this->totals['exentas'] += $ocrData['subtotal_exentas'] ?? 0;
+            $this->totals['total_iva'] += $ocrData['total_iva'] ?? 0;
+            $this->totals['total'] += $ocrData['monto_total'] ?? 0;
+            $this->totals['count']++;
         }
     }
 
@@ -110,52 +105,44 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
         $collection->push(new \stdClass());
         $collection->push(new \stdClass());
 
-        // Agregar resumen por tasa de IVA
-        foreach ($this->totals['by_rate'] as $rate => $data) {
-            $summary = new \stdClass();
-            $summary->is_summary = true;
-            $summary->summary_label = "SUBTOTAL IVA {$rate}%";
-            $summary->summary_count = $data['count'];
-            $summary->summary_base = $data['base'];
-            $summary->summary_vat = $data['vat'];
-            $summary->summary_total = $data['total'];
-            $collection->push($summary);
-        }
-
-        // Agregar fila vacía
-        $collection->push(new \stdClass());
-
         // Agregar totales generales
         $total = new \stdClass();
         $total->is_total = true;
         $total->total_label = 'TOTAL GENERAL';
-        $total->total_base = $this->totals['total_base'];
-        $total->total_vat = $this->totals['total_vat'];
-        $total->total_amount = $this->totals['total_amount'];
+        $total->total_count = $this->totals['count'];
+        $total->total_gravado_10 = $this->totals['gravado_10'];
+        $total->total_iva_10 = $this->totals['iva_10'];
+        $total->total_gravado_5 = $this->totals['gravado_5'];
+        $total->total_iva_5 = $this->totals['iva_5'];
+        $total->total_exentas = $this->totals['exentas'];
+        $total->total_total_iva = $this->totals['total_iva'];
+        $total->total_amount = $this->totals['total'];
         $collection->push($total);
 
         return $collection;
     }
 
     /**
-     * Define column headings
+     * Define column headings según normativa paraguaya
      */
     public function headings(): array
     {
         return [
-            'ID',
             'Fecha',
+            'Tipo',
             'Nº Factura',
-            'Serie',
-            'Emisor',
-            'Receptor',
-            'Entidad',
-            'Base Imponible',
-            'Tipo IVA (%)',
-            'Importe IVA',
-            'Total con IVA',
+            'RUC Emisor',
+            'Razón Social',
+            'Descripción',
+            'Base Gravada 10%',
+            'IVA 10%',
+            'Base Gravada 5%',
+            'IVA 5%',
+            'Exentas',
+            'Total IVA',
+            'Monto Total',
             'Moneda',
-            'Estado',
+            'Observaciones',
         ];
     }
 
@@ -164,25 +151,6 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
      */
     public function map($document): array
     {
-        // Filas de resumen por tasa
-        if (isset($document->is_summary)) {
-            return [
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                $document->summary_label,
-                number_format($document->summary_base, 2, ',', '.'),
-                '',
-                number_format($document->summary_vat, 2, ',', '.'),
-                number_format($document->summary_total, 2, ',', '.'),
-                $document->summary_count . ' facturas',
-                '',
-            ];
-        }
-
         // Fila de total general
         if (isset($document->is_total)) {
             return [
@@ -191,37 +159,43 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
                 '',
                 '',
                 '',
-                '',
                 $document->total_label,
-                number_format($document->total_base, 2, ',', '.'),
+                number_format($document->total_gravado_10, 0, ',', '.'),
+                number_format($document->total_iva_10, 0, ',', '.'),
+                number_format($document->total_gravado_5, 0, ',', '.'),
+                number_format($document->total_iva_5, 0, ',', '.'),
+                number_format($document->total_exentas, 0, ',', '.'),
+                number_format($document->total_total_iva, 0, ',', '.'),
+                number_format($document->total_amount, 0, ',', '.'),
                 '',
-                number_format($document->total_vat, 2, ',', '.'),
-                number_format($document->total_amount, 2, ',', '.'),
-                '',
-                '',
+                $document->total_count . ' facturas',
             ];
         }
 
         // Filas vacías
         if (!isset($document->id)) {
-            return ['', '', '', '', '', '', '', '', '', '', '', '', ''];
+            return ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
         }
 
-        // Datos normales de factura
+        // Datos normales de factura desde ocr_data
+        $ocrData = $document->ocr_data ?? [];
+
         return [
-            $document->id,
-            $document->document_date ? $document->document_date->format('d/m/Y') : 'N/A',
-            $document->invoice_number ?? 'N/A',
-            $document->invoice_series ?? '',
-            $document->issuer ?? 'N/A',
-            $document->recipient ?? 'N/A',
-            $document->entity->name ?? 'N/A',
-            $document->tax_base ? number_format($document->tax_base, 2, ',', '.') : '0,00',
-            $document->tax_rate ? number_format($document->tax_rate, 2, ',', '.') : '0,00',
-            $document->tax_amount ? number_format($document->tax_amount, 2, ',', '.') : '0,00',
-            $document->total_with_tax ? number_format($document->total_with_tax, 2, ',', '.') : '0,00',
-            $document->currency ?? 'EUR',
-            $document->validated ? 'Validado' : 'Pendiente',
+            $document->document_date ? $document->document_date->format('d/m/Y') : '',
+            $ocrData['tipo_factura'] ?? 'FACTURA',
+            $ocrData['numero_factura'] ?? $document->invoice_number ?? '',
+            $ocrData['ruc_emisor'] ?? '',
+            $ocrData['razon_social_emisor'] ?? $document->issuer ?? '',
+            $document->entity->name ?? '',
+            isset($ocrData['subtotal_gravado_10']) ? number_format($ocrData['subtotal_gravado_10'], 0, ',', '.') : '',
+            isset($ocrData['iva_10']) ? number_format($ocrData['iva_10'], 0, ',', '.') : '',
+            isset($ocrData['subtotal_gravado_5']) ? number_format($ocrData['subtotal_gravado_5'], 0, ',', '.') : '',
+            isset($ocrData['iva_5']) ? number_format($ocrData['iva_5'], 0, ',', '.') : '',
+            isset($ocrData['subtotal_exentas']) ? number_format($ocrData['subtotal_exentas'], 0, ',', '.') : '',
+            isset($ocrData['total_iva']) ? number_format($ocrData['total_iva'], 0, ',', '.') : '',
+            isset($ocrData['monto_total']) ? number_format($ocrData['monto_total'], 0, ',', '.') : '',
+            $ocrData['moneda'] ?? 'PYG',
+            $document->validated ? 'Validado' : 'Revisar',
         ];
     }
 
@@ -231,19 +205,13 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
     public function styles(Worksheet $sheet)
     {
         $lastRow = $sheet->getHighestRow();
-        $dataRows = $this->documents->count() - count($this->totals['by_rate']) - 3; // Rows without summaries
 
         return [
             // Encabezados
             1 => [
-                'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
+                'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '9333EA']], // Purple
-                'alignment' => ['horizontal' => 'center'],
-            ],
-            // Filas de resumen
-            ($lastRow - count($this->totals['by_rate']) - 1) . ':' . ($lastRow - 2) => [
-                'font' => ['bold' => true, 'size' => 11],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E5E7EB']], // Gray
+                'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
             ],
             // Fila de total general
             $lastRow => [
@@ -262,34 +230,28 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $lastRow = $sheet->getHighestRow();
+                $dataRows = $this->documents->count();
 
-                // Aplicar bordes a toda la tabla de datos
-                $dataRows = $this->documents->count() - count($this->totals['by_rate']) - 3;
-
-                $sheet->getStyle("A1:M{$dataRows}")
+                // Aplicar bordes a toda la tabla de datos (hasta la columna O = 15)
+                $sheet->getStyle("A1:O{$dataRows}")
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
-                // Aplicar bordes a las filas de resumen
-                $summaryStart = $lastRow - count($this->totals['by_rate']) - 1;
-                $summaryEnd = $lastRow - 2;
-
-                if ($summaryStart <= $summaryEnd) {
-                    $sheet->getStyle("A{$summaryStart}:M{$summaryEnd}")
-                        ->getBorders()
-                        ->getAllBorders()
-                        ->setBorderStyle(Border::BORDER_THIN);
-                }
-
                 // Aplicar bordes a la fila de total
-                $sheet->getStyle("A{$lastRow}:M{$lastRow}")
+                $sheet->getStyle("A{$lastRow}:O{$lastRow}")
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_MEDIUM);
 
                 // Congelar primera fila (encabezados)
                 $sheet->freezePane('A2');
+
+                // Ajustar ancho de columnas específicas
+                $sheet->getColumnDimension('A')->setWidth(12); // Fecha
+                $sheet->getColumnDimension('C')->setWidth(18); // Nº Factura
+                $sheet->getColumnDimension('D')->setWidth(15); // RUC
+                $sheet->getColumnDimension('E')->setWidth(30); // Razón Social
             },
         ];
     }
