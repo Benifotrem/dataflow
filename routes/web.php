@@ -167,8 +167,79 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\TenantsController::class, 'index'])->name('index');
         Route::get('/{tenant}', [\App\Http\Controllers\Admin\TenantsController::class, 'show'])->name('show');
-        Route::post('/{tenant}/extend-trial', [\App\Http\Controllers\Admin\TenantsController::class, 'extendTrial'])->name('extend-trial');
+
+        // TEMPORAL: Ruta inline mientras OPcache actualiza el controlador
+        Route::post('/{tenant}/extend-trial', function(\Illuminate\Http\Request $request, \App\Models\Tenant $tenant) {
+            try {
+                // Verificar permisos
+                if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+                    abort(403);
+                }
+
+                $request->validate([
+                    'days' => 'required|integer|min:1|max:365',
+                ]);
+
+                $currentTrialEnd = $tenant->trial_ends_at ? \Carbon\Carbon::parse($tenant->trial_ends_at) : now();
+                $newTrialEnd = $currentTrialEnd->addDays($request->days);
+
+                $tenant->update([
+                    'trial_ends_at' => $newTrialEnd,
+                ]);
+
+                \Illuminate\Support\Facades\Log::info('Período de prueba extendido', [
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->name,
+                    'days' => $request->days,
+                    'new_trial_end' => $newTrialEnd->format('Y-m-d'),
+                ]);
+
+                return back()->with('success', "Período de prueba extendido {$request->days} días hasta {$newTrialEnd->format('d/m/Y')}");
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error al extender período de prueba', [
+                    'tenant_id' => $tenant->id ?? null,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return back()->withErrors(['error' => 'Error al extender período de prueba: ' . $e->getMessage()]);
+            }
+        })->name('extend-trial');
+
         Route::post('/{tenant}/suspend', [\App\Http\Controllers\Admin\TenantsController::class, 'suspend'])->name('suspend');
-        Route::post('/{tenant}/reactivate', [\App\Http\Controllers\Admin\TenantsController::class, 'reactivate'])->name('reactivate');
+
+        // TEMPORAL: Ruta inline mientras OPcache actualiza el controlador
+        Route::post('/{tenant}/reactivate', function(\Illuminate\Http\Request $request, \App\Models\Tenant $tenant) {
+            try {
+                // Verificar permisos
+                if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+                    abort(403);
+                }
+
+                $request->validate([
+                    'trial_days' => 'required|integer|min:1|max:365',
+                ]);
+
+                $tenant->update([
+                    'trial_ends_at' => now()->addDays($request->trial_days),
+                ]);
+
+                \Illuminate\Support\Facades\Log::info('Cuenta reactivada', [
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->name,
+                    'trial_days' => $request->trial_days,
+                ]);
+
+                return back()->with('success', "Cuenta reactivada con {$request->trial_days} días de prueba");
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error al reactivar cuenta', [
+                    'tenant_id' => $tenant->id ?? null,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return back()->withErrors(['error' => 'Error al reactivar cuenta: ' . $e->getMessage()]);
+            }
+        })->name('reactivate');
     });
 });
