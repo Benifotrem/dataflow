@@ -37,6 +37,33 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');
 
+// TEMPORAL: Ruta de diagnóstico sin autenticación
+Route::get('/debug/document/{id}', function($id) {
+    try {
+        $document = \App\Models\Document::findOrFail($id);
+        $document->load('entity', 'user', 'tenant');
+
+        return response()->json([
+            'success' => true,
+            'document' => [
+                'id' => $document->id,
+                'filename' => $document->original_filename,
+                'entity' => $document->entity ? $document->entity->name : 'NULL',
+                'user' => $document->user ? $document->user->name : 'NULL',
+                'tenant' => $document->tenant ? $document->tenant->name : 'NULL',
+                'ocr_status' => $document->ocr_status,
+            ],
+            'can_render_view' => true,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
