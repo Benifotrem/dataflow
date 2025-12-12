@@ -87,6 +87,15 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
         Route::patch('/{fiscalEvent}/toggle-active', [\App\Http\Controllers\Dashboard\FiscalEventController::class, 'toggleActive'])->name('toggle-active');
     });
 
+    // Perfil de Usuario
+    Route::get('/profile', [\App\Http\Controllers\Dashboard\ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [\App\Http\Controllers\Dashboard\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [\App\Http\Controllers\Dashboard\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    // Configuración
+    Route::get('/settings', [\App\Http\Controllers\Dashboard\SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\Dashboard\SettingsController::class, 'update'])->name('settings.update');
+
     // Transacciones
     Route::prefix('transactions')->name('transactions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\TransactionController::class, 'index'])->name('index');
