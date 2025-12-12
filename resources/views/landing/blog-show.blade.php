@@ -179,6 +179,24 @@
     .article-content a:hover {
         color: #6d28d9;
     }
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+        margin: 2rem auto;
+        display: block;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .article-content figure {
+        margin: 2rem 0;
+    }
+    .article-content figcaption {
+        text-align: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
 </style>
 
 @endsection
