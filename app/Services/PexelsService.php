@@ -81,8 +81,17 @@ class PexelsService
         $imageContent = Http::get($imageUrl)->body();
 
         // Guardar en public/uploads/blog
-        $uploadPath = base_path("uploads/blog/{$filename}");
-        file_put_contents($uploadPath, $imageContent); $path = "blog/{$filename}";
+        $directory = public_path("uploads/blog");
+
+        // Crear directorio si no existe
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $uploadPath = "{$directory}/{$filename}";
+        file_put_contents($uploadPath, $imageContent);
+
+        $path = "blog/{$filename}";
 
         return $path;
     }
