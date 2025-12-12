@@ -1,4 +1,5 @@
 <?php
+// Última actualización: 2025-12-12 - Fix validación facturas electrónicas con advertencias
 
 namespace App\Services;
 
@@ -396,9 +397,17 @@ PROMPT;
         if (!$isElectronica && isset($data['timbrado'])) {
             $timbrado = preg_replace('/[^0-9]/', '', $data['timbrado']);
 
-            // Si tiene más de 10 dígitos, es probablemente factura electrónica (no validar)
-            if (strlen($timbrado) <= 10 && strlen($timbrado) !== 8) {
-                $errors[] = 'Formato de Timbrado inválido (debe tener 8 dígitos)';
+            // Si tiene más de 10 dígitos, es probablemente factura electrónica (ADVERTENCIA, no error)
+            if (strlen($timbrado) > 10) {
+                $warnings[] = '⚠️ Posible factura electrónica detectada por longitud de timbrado (' . strlen($timbrado) . ' dígitos) - requiere revisión manual';
+                Log::warning('🔍 Factura con timbrado largo detectada', [
+                    'timbrado_original' => $data['timbrado'],
+                    'timbrado_digitos' => strlen($timbrado),
+                    'tipo_factura' => $data['tipo_factura'] ?? 'NO DEFINIDO',
+                ]);
+            } elseif (strlen($timbrado) !== 8) {
+                // Timbrado tradicional con formato incorrecto
+                $errors[] = 'Formato de Timbrado inválido (debe tener 8 dígitos, tiene ' . strlen($timbrado) . ')';
             }
         }
 
