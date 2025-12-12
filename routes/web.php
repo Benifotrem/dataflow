@@ -129,40 +129,8 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     });
 });
 
-// Rutas de Administración (solo para admin)
-Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('settings.update');
-
-    // Blog Management
-    Route::prefix('blog')->name('blog.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\BlogController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\Admin\BlogController::class, 'create'])->name('create');
-        Route::post('/generate', [\App\Http\Controllers\Admin\BlogController::class, 'generate'])->name('generate');
-        Route::get('/{post}/edit', [\App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('edit');
-        Route::put('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'update'])->name('update');
-        Route::post('/{post}/publish', [\App\Http\Controllers\Admin\BlogController::class, 'publish'])->name('publish');
-        Route::post('/{post}/archive', [\App\Http\Controllers\Admin\BlogController::class, 'archive'])->name('archive');
-        Route::delete('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'destroy'])->name('destroy');
-    });
-
-    // Settings - Blog Configuration
-    Route::get('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'blog'])->name('settings.blog');
-    Route::put('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'updateBlog'])->name('settings.blog.update');
-
-    // Settings - Company Configuration
-    Route::get('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'index'])->name('settings.company');
-    Route::put('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'update'])->name('settings.company.update');
-
-    // Settings - Tenant Profile Configuration
-    Route::get('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'index'])->name('settings.tenant-profile');
-    Route::put('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'update'])->name('settings.tenant-profile.update');
-
-    // Settings - Email Configuration (Brevo)
-    Route::get('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'email'])->name('settings.email');
-    Route::put('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'updateEmail'])->name('settings.email.update');
-
+// Rutas de Gestión de Tenants (solo auth, SIN tenant.active para poder gestionar tenants suspendidos)
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Tenants Management
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\TenantsController::class, 'index'])->name('index');
@@ -242,4 +210,39 @@ Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->g
             }
         })->name('reactivate');
     });
+});
+
+// Rutas de Administración (requieren tenant activo)
+Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('settings.update');
+
+    // Blog Management
+    Route::prefix('blog')->name('blog.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BlogController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\BlogController::class, 'create'])->name('create');
+        Route::post('/generate', [\App\Http\Controllers\Admin\BlogController::class, 'generate'])->name('generate');
+        Route::get('/{post}/edit', [\App\Http\Controllers\Admin\BlogController::class, 'edit'])->name('edit');
+        Route::put('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'update'])->name('update');
+        Route::post('/{post}/publish', [\App\Http\Controllers\Admin\BlogController::class, 'publish'])->name('publish');
+        Route::post('/{post}/archive', [\App\Http\Controllers\Admin\BlogController::class, 'archive'])->name('archive');
+        Route::delete('/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'destroy'])->name('destroy');
+    });
+
+    // Settings - Blog Configuration
+    Route::get('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'blog'])->name('settings.blog');
+    Route::put('/settings/blog', [\App\Http\Controllers\Admin\SettingsController::class, 'updateBlog'])->name('settings.blog.update');
+
+    // Settings - Company Configuration
+    Route::get('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'index'])->name('settings.company');
+    Route::put('/settings/company', [\App\Http\Controllers\Admin\CompanySettingsController::class, 'update'])->name('settings.company.update');
+
+    // Settings - Tenant Profile Configuration
+    Route::get('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'index'])->name('settings.tenant-profile');
+    Route::put('/settings/tenant-profile', [\App\Http\Controllers\Admin\TenantProfileController::class, 'update'])->name('settings.tenant-profile.update');
+
+    // Settings - Email Configuration (Brevo)
+    Route::get('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'email'])->name('settings.email');
+    Route::put('/settings/email', [\App\Http\Controllers\Admin\SettingsController::class, 'updateEmail'])->name('settings.email.update');
 });
