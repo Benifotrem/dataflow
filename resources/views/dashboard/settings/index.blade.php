@@ -48,38 +48,51 @@
                 <h2 class="text-2xl font-bold text-gray-900">Bot de Telegram</h2>
                 <p class="text-sm text-gray-600 mt-1">Gestiona la integración con Telegram para recibir facturas</p>
             </div>
-            @if($tenant->telegram_bot_active ?? false)
+            @if($user->hasTelegramLinked())
                 <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    ✓ Activo
+                    ✓ Vinculado
                 </span>
             @else
                 <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                    Inactivo
+                    No vinculado
                 </span>
             @endif
         </div>
 
         <div class="space-y-4">
             <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h3 class="font-semibold text-purple-900 mb-2">📱 Cómo usar el Bot de Telegram</h3>
+                <h3 class="font-semibold text-purple-900 mb-2">📱 Cómo vincular el Bot de Telegram</h3>
                 <ol class="list-decimal list-inside space-y-2 text-sm text-purple-800">
-                    <li>Abre Telegram y busca el bot: <code class="bg-purple-100 px-2 py-1 rounded">@ArandukaBot</code></li>
-                    <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/start</code></li>
-                    <li>Envía tu código de activación: <code class="bg-purple-100 px-2 py-1 rounded font-mono">{{ $tenant->telegram_activation_code ?? 'No disponible' }}</code></li>
-                    <li>Una vez activado, envía fotos o PDFs de tus facturas y el sistema las procesará automáticamente</li>
+                    <li>Abre Telegram y busca el bot: <code class="bg-purple-100 px-2 py-1 rounded">{{ config('services.telegram.bot_username', '@DataflowBot') }}</code></li>
+                    <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/start</code> al bot</li>
+                    <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/link</code> para iniciar la vinculación</li>
+                    <li>El bot te proporcionará tu Telegram ID. Contáctalo con el administrador para completar la vinculación</li>
+                    <li>Una vez vinculado, envía fotos o PDFs de tus facturas y el sistema las procesará automáticamente</li>
                 </ol>
             </div>
 
-            @if($tenant->telegram_chat_id)
+            @if($user->hasTelegramLinked())
                 <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p class="text-sm text-green-800">
-                        ✓ Bot conectado correctamente. Chat ID: <code class="bg-green-100 px-2 py-1 rounded">{{ $tenant->telegram_chat_id }}</code>
-                    </p>
+                    <h3 class="font-semibold text-green-900 mb-2">✅ Cuenta vinculada correctamente</h3>
+                    <div class="space-y-1 text-sm text-green-800">
+                        <p>📱 <b>Telegram ID:</b> <code class="bg-green-100 px-2 py-1 rounded">{{ $user->telegram_id }}</code></p>
+                        @if($user->telegram_username)
+                            <p>👤 <b>Username:</b> <code class="bg-green-100 px-2 py-1 rounded">@{{ $user->telegram_username }}</code></p>
+                        @endif
+                        @if($user->telegram_linked_at)
+                            <p>📅 <b>Vinculado desde:</b> {{ $user->telegram_linked_at->format('d/m/Y H:i') }}</p>
+                        @endif
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-sm text-green-800">
+                            💬 Ahora puedes enviar facturas directamente al bot y se procesarán automáticamente.
+                        </p>
+                    </div>
                 </div>
             @else
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p class="text-sm text-yellow-800">
-                        ⚠️ Bot no conectado. Sigue los pasos anteriores para activarlo.
+                        ⚠️ <b>Bot no vinculado.</b> Sigue los pasos anteriores para vincular tu cuenta de Telegram.
                     </p>
                 </div>
             @endif
