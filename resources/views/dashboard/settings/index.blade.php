@@ -61,13 +61,13 @@
 
         <div class="space-y-4">
             <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h3 class="font-semibold text-purple-900 mb-2">📱 Cómo vincular el Bot de Telegram</h3>
+                <h3 class="font-semibold text-purple-900 mb-2">📱 Cómo obtener tu Telegram ID</h3>
                 <ol class="list-decimal list-inside space-y-2 text-sm text-purple-800">
                     <li>Abre Telegram y busca el bot: <code class="bg-purple-100 px-2 py-1 rounded">{{ config('services.telegram.bot_username', '@DataflowBot') }}</code></li>
                     <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/start</code> al bot</li>
-                    <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/link</code> para iniciar la vinculación</li>
-                    <li>El bot te proporcionará tu Telegram ID. Contáctalo con el administrador para completar la vinculación</li>
-                    <li>Una vez vinculado, envía fotos o PDFs de tus facturas y el sistema las procesará automáticamente</li>
+                    <li>Envía el comando <code class="bg-purple-100 px-2 py-1 rounded">/link</code> - el bot te mostrará tu Telegram ID</li>
+                    <li>Copia el número y pégalo en el formulario de abajo</li>
+                    <li><b>Alternativa:</b> Busca <code class="bg-purple-100 px-2 py-1 rounded">@userinfobot</code> en Telegram y envía cualquier mensaje para obtener tu ID</li>
                 </ol>
             </div>
 
