@@ -83,17 +83,60 @@
                             <p>📅 <b>Vinculado desde:</b> {{ $user->telegram_linked_at->format('d/m/Y H:i') }}</p>
                         @endif
                     </div>
-                    <div class="mt-3">
+                    <div class="mt-4 pt-4 border-t border-green-200 flex items-center justify-between">
                         <p class="text-sm text-green-800">
                             💬 Ahora puedes enviar facturas directamente al bot y se procesarán automáticamente.
                         </p>
+                        <form action="{{ route('settings.telegram.unlink') }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas desvincular tu cuenta de Telegram?');">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition text-sm font-medium"
+                            >
+                                Desvincular
+                            </button>
+                        </form>
                     </div>
                 </div>
             @else
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p class="text-sm text-yellow-800">
-                        ⚠️ <b>Bot no vinculado.</b> Sigue los pasos anteriores para vincular tu cuenta de Telegram.
+                    <h3 class="font-semibold text-yellow-900 mb-3">⚠️ Bot no vinculado</h3>
+                    <p class="text-sm text-yellow-800 mb-4">
+                        Sigue los pasos anteriores para obtener tu Telegram ID, luego ingrésalo aquí:
                     </p>
+
+                    <form action="{{ route('settings.telegram.link') }}" method="POST">
+                        @csrf
+                        <div class="space-y-3">
+                            <div>
+                                <label for="telegram_id" class="block text-sm font-medium text-yellow-900 mb-2">
+                                    Tu Telegram ID
+                                </label>
+                                <div class="flex gap-2">
+                                    <input
+                                        type="text"
+                                        name="telegram_id"
+                                        id="telegram_id"
+                                        placeholder="Ejemplo: 123456789"
+                                        class="flex-1 px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                                        required
+                                    >
+                                    <button
+                                        type="submit"
+                                        class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition whitespace-nowrap"
+                                    >
+                                        Vincular
+                                    </button>
+                                </div>
+                                @error('telegram_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <p class="text-xs text-yellow-700">
+                                💡 El bot te proporcionará este ID cuando envíes /link. También puedes usar @userinfobot en Telegram para obtenerlo.
+                            </p>
+                        </div>
+                    </form>
                 </div>
             @endif
 
