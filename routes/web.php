@@ -148,8 +148,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
                     'days' => 'required|integer|min:1|max:365',
                 ]);
 
+                $days = (int) $request->days;
                 $currentTrialEnd = $tenant->trial_ends_at ? \Carbon\Carbon::parse($tenant->trial_ends_at) : now();
-                $newTrialEnd = $currentTrialEnd->addDays($request->days);
+                $newTrialEnd = $currentTrialEnd->addDays($days);
 
                 $tenant->update([
                     'trial_ends_at' => $newTrialEnd,
@@ -158,11 +159,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
                 \Illuminate\Support\Facades\Log::info('Período de prueba extendido', [
                     'tenant_id' => $tenant->id,
                     'tenant_name' => $tenant->name,
-                    'days' => $request->days,
+                    'days' => $days,
                     'new_trial_end' => $newTrialEnd->format('Y-m-d'),
                 ]);
 
-                return back()->with('success', "Período de prueba extendido {$request->days} días hasta {$newTrialEnd->format('d/m/Y')}");
+                return back()->with('success', "Período de prueba extendido {$days} días hasta {$newTrialEnd->format('d/m/Y')}");
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Error al extender período de prueba', [
                     'tenant_id' => $tenant->id ?? null,
@@ -188,17 +189,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
                     'trial_days' => 'required|integer|min:1|max:365',
                 ]);
 
+                $trialDays = (int) $request->trial_days;
+
                 $tenant->update([
-                    'trial_ends_at' => now()->addDays($request->trial_days),
+                    'trial_ends_at' => now()->addDays($trialDays),
                 ]);
 
                 \Illuminate\Support\Facades\Log::info('Cuenta reactivada', [
                     'tenant_id' => $tenant->id,
                     'tenant_name' => $tenant->name,
-                    'trial_days' => $request->trial_days,
+                    'trial_days' => $trialDays,
                 ]);
 
-                return back()->with('success', "Cuenta reactivada con {$request->trial_days} días de prueba");
+                return back()->with('success', "Cuenta reactivada con {$trialDays} días de prueba");
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Error al reactivar cuenta', [
                     'tenant_id' => $tenant->id ?? null,
