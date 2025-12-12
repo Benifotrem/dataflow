@@ -176,7 +176,24 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
         Route::get('/export', [\App\Http\Controllers\DocumentExportController::class, 'export'])->name('export');
         Route::get('/create', [\App\Http\Controllers\Dashboard\DocumentController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'store'])->name('store');
-        Route::get('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'show'])->name('show');
+
+        // TEMPORAL: Ruta inline mientras OPcache actualiza el controlador
+        // TODO: Restaurar cuando OPcache se actualice: Route::get('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'show'])->name('show');
+        Route::get('/{document}', function(\App\Models\Document $document) {
+            try {
+                Gate::authorize('view', $document);
+                $document->load('entity', 'user');
+                return view('dashboard.documents.show', compact('document'));
+            } catch (\Exception $e) {
+                logger()->error('Error showing document: ' . $e->getMessage(), [
+                    'document_id' => $document->id ?? null,
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                return redirect()->route('documents.index')
+                    ->withErrors(['error' => 'Error al mostrar el documento: ' . $e->getMessage()]);
+            }
+        })->name('show');
+
         Route::delete('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'destroy'])->name('destroy');
     });
 
