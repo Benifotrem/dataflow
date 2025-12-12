@@ -74,12 +74,22 @@ class DocumentController extends Controller
 
     public function show(Document $document)
     {
-        $this->authorize('view', $document);
+        try {
+            $this->authorize('view', $document);
 
-        // Eager load relationships
-        $document->load('entity', 'user');
+            // Eager load relationships
+            $document->load('entity', 'user');
 
-        return view('dashboard.documents.show', compact('document'));
+            return view('dashboard.documents.show', compact('document'));
+        } catch (\Exception $e) {
+            logger()->error('Error showing document: ' . $e->getMessage(), [
+                'document_id' => $document->id ?? null,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->route('documents.index')
+                ->withErrors(['error' => 'Error al mostrar el documento: ' . $e->getMessage()]);
+        }
     }
 
     public function destroy(Document $document)
