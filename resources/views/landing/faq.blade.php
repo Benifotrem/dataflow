@@ -78,7 +78,7 @@
                                 <p class="mb-2">Para procesar facturas desde tu celular:</p>
                                 <ol class="list-decimal list-inside space-y-2 ml-4">
                                     <li>Ve a <strong>Configuración → Bot de Telegram</strong></li>
-                                    <li>Busca <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_bot</code> en Telegram</li>
+                                    <li>Busca <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code> en Telegram</li>
                                     <li>Envía <code class="bg-gray-100 px-2 py-1 rounded">/start</code> al bot</li>
                                     <li>El bot te dará un código de 9 dígitos (ej: <code class="bg-gray-100 px-2 py-1 rounded">123456789</code>)</li>
                                     <li>Ingresa ese código en <strong>Configuración → Vincular Telegram</strong></li>
@@ -105,7 +105,7 @@
                             <div class="bg-white rounded p-4 shadow-sm">
                                 <h4 class="font-bold text-blue-600 mb-2">📱 Opción A: Vía Telegram (Más Rápida)</h4>
                                 <ol class="list-decimal list-inside space-y-2 ml-4 text-gray-700">
-                                    <li>Abre el bot de Telegram <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_bot</code></li>
+                                    <li>Abre el bot de Telegram <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code></li>
                                     <li>Toma una <strong>foto clara</strong> de la factura o envía el <strong>PDF</strong></li>
                                     <li>El bot procesa automáticamente:
                                         <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
