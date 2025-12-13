@@ -20,10 +20,13 @@ class Tenant extends Model
         'currency_code',
         'status',
         'trial_ends_at',
+        'subscription_ends_at',
+        'subscription_plan',
     ];
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
+        'subscription_ends_at' => 'datetime',
     ];
 
     // Boot method para generar slug automáticamente

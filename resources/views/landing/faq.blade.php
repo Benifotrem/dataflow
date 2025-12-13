@@ -13,7 +13,447 @@
             </p>
         </div>
 
+        {{-- GUÍA COMPLETA - DESTACADA --}}
+        <div class="mb-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl p-8 text-white shadow-2xl">
+            <h2 class="text-3xl font-bold mb-4 flex items-center">
+                <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Guía Completa: Flujo de Trabajo Ideal
+            </h2>
+            <p class="text-purple-100 mb-6">
+                Paso a paso de cómo usar Dataflow en tu estudio de contabilidad o empresa
+            </p>
+            <a href="#guia-completa" class="inline-block bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:bg-purple-50 transition">
+                Ver Guía Paso a Paso
+            </a>
+        </div>
+
         <div class="space-y-6">
+
+            {{-- GUÍA COMPLETA --}}
+            <div id="guia-completa" class="bg-white rounded-lg shadow-lg p-8 border-l-4 border-purple-600">
+                <h2 class="text-3xl font-bold mb-6 text-purple-600">📘 Guía Completa de Uso</h2>
+
+                <div class="prose prose-lg max-w-none">
+                    <p class="text-gray-700 text-lg mb-8">
+                        Sigue esta guía paso a paso para aprovechar al máximo Dataflow. Hemos diseñado el flujo para que sea <strong>simple, rápido e intuitivo</strong> tanto para contadores profesionales como para emprendedores.
+                    </p>
+
+                    {{-- PASO 1 --}}
+                    <div class="mb-10 bg-purple-50 rounded-lg p-6 border-l-4 border-purple-500">
+                        <h3 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                            <span class="bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl">1</span>
+                            Configuración Inicial (5 minutos)
+                        </h3>
+
+                        <div class="space-y-4 text-gray-700">
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-purple-600 mb-2">1.1. Crear tu cuenta</h4>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Regístrate en <a href="{{ route('register') }}" class="text-purple-600 underline">dataflow.guaraniappstore.com/register</a></li>
+                                    <li>Confirma tu email</li>
+                                    <li>14 días de prueba gratuita, sin tarjeta de crédito</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-purple-600 mb-2">1.2. Crear tu primera Entidad Fiscal</h4>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Ve a <strong>Dashboard → Entidades Fiscales → Crear Nueva</strong></li>
+                                    <li>Ingresa los datos:
+                                        <ul class="list-circle list-inside ml-6 mt-2 space-y-1">
+                                            <li><strong>Nombre:</strong> El nombre de tu empresa/cliente</li>
+                                            <li><strong>RUC/RFC/NIT:</strong> Tu identificación fiscal</li>
+                                            <li><strong>País:</strong> Selecciona Paraguay (o tu país)</li>
+                                            <li><strong>Moneda:</strong> PYG (Guaraníes) o tu moneda local</li>
+                                        </ul>
+                                    </li>
+                                    <li>Guarda y ¡listo! Tu entidad está creada</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-purple-600 mb-2">1.3. Vincular Bot de Telegram (Recomendado)</h4>
+                                <p class="mb-2">Para procesar facturas desde tu celular:</p>
+                                <ol class="list-decimal list-inside space-y-2 ml-4">
+                                    <li>Ve a <strong>Configuración → Bot de Telegram</strong></li>
+                                    <li>Busca <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_bot</code> en Telegram</li>
+                                    <li>Envía <code class="bg-gray-100 px-2 py-1 rounded">/start</code> al bot</li>
+                                    <li>El bot te dará un código de 9 dígitos (ej: <code class="bg-gray-100 px-2 py-1 rounded">123456789</code>)</li>
+                                    <li>Ingresa ese código en <strong>Configuración → Vincular Telegram</strong></li>
+                                    <li>¡Listo! Ahora puedes enviar facturas desde tu celular</li>
+                                </ol>
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Con Telegram puedes tomar una foto de la factura y enviarla directamente. El OCR procesará automáticamente los datos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PASO 2 --}}
+                    <div class="mb-10 bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+                        <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                            <span class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl">2</span>
+                            Procesar Facturas
+                        </h3>
+
+                        <p class="text-gray-700 mb-4">Tienes <strong>4 formas</strong> de procesar facturas. Elige la que prefieras según el tipo de factura:</p>
+
+                        <div class="space-y-4">
+                            {{-- Opción A: Telegram --}}
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-blue-600 mb-2">📱 Opción A: Vía Telegram (Más Rápida)</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4 text-gray-700">
+                                    <li>Abre el bot de Telegram <code class="bg-gray-100 px-2 py-1 rounded">@dataflow_bot</code></li>
+                                    <li>Toma una <strong>foto clara</strong> de la factura o envía el <strong>PDF</strong></li>
+                                    <li>El bot procesa automáticamente:
+                                        <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                                            <li>Extrae datos con OCR (RUC, número, fecha, montos)</li>
+                                            <li>Detecta IVA 10%, IVA 5%, Exentas automáticamente</li>
+                                            <li>Valida con la SET (DNIT) en Paraguay</li>
+                                        </ul>
+                                    </li>
+                                    <li>En <strong>10-15 segundos</strong> recibes confirmación:
+                                        <div class="mt-2 p-3 bg-green-50 rounded border border-green-200">
+                                            <p class="text-sm font-mono">✅ <strong>¡Factura procesada y validada con la SET!</strong></p>
+                                            <p class="text-sm font-mono">📄 Nº: 001-001-0012345</p>
+                                            <p class="text-sm font-mono">🏢 RUC: 80012345-6</p>
+                                            <p class="text-sm font-mono">💰 Base 10%: ₲ 81.819 | IVA 10%: ₲ 8.181</p>
+                                            <p class="text-sm font-mono">💰 <strong>TOTAL: ₲ 90.000</strong></p>
+                                        </div>
+                                    </li>
+                                </ol>
+                                <div class="mt-3 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                                    <p class="text-sm"><strong>✨ Ventaja:</strong> Ideal para facturas en papel. Tomas foto con el celular y ¡listo!</p>
+                                </div>
+                            </div>
+
+                            {{-- Opción B: Web Upload --}}
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-blue-600 mb-2">💻 Opción B: Subida Web</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4 text-gray-700">
+                                    <li>Ve a <strong>Dashboard → Documentos → Subir Documento</strong></li>
+                                    <li>Arrastra el archivo (PDF, JPG, PNG) o haz clic para seleccionar</li>
+                                    <li>Selecciona la <strong>Entidad Fiscal</strong> correspondiente</li>
+                                    <li>Haz clic en <strong>Procesar con OCR</strong></li>
+                                    <li>Espera 10-15 segundos mientras se procesa</li>
+                                </ol>
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Puedes subir múltiples archivos a la vez. Ideal para procesar lotes de facturas.</p>
+                                </div>
+                            </div>
+
+                            {{-- Opción C: Factura Electrónica (API SET) --}}
+                            <div class="bg-white rounded p-4 shadow-sm border-2 border-green-300">
+                                <h4 class="font-bold text-green-600 mb-2">🔌 Opción C: Factura Electrónica (API SET/Ekuatia) ⭐</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4 text-gray-700">
+                                    <li>Ve a <strong>Dashboard → Documentos → Consultar Factura Electrónica</strong></li>
+                                    <li>Ingresa el <strong>CDC</strong> (Código de Control) de 44 dígitos o escanea el QR de la factura</li>
+                                    <li>El sistema consulta automáticamente a la API pública de <strong>ekuatia.set.gov.py</strong></li>
+                                    <li>Los datos se importan <strong>directamente desde la SET</strong>:
+                                        <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                                            <li>RUC y Razón Social del Emisor</li>
+                                            <li>Número de Factura (Timbrado electrónico)</li>
+                                            <li>Fecha de emisión</li>
+                                            <li>Montos desglosados: Base 10%, IVA 10%, Base 5%, IVA 5%, Exentas</li>
+                                            <li>Estado de la factura (Aprobada, Anulada, etc.)</li>
+                                        </ul>
+                                    </li>
+                                    <li>La factura se registra automáticamente <strong>sin necesidad de OCR</strong></li>
+                                </ol>
+                                <div class="mt-3 p-3 bg-green-50 border-l-4 border-green-600 rounded">
+                                    <p class="text-sm"><strong>✨ Ventajas:</strong></p>
+                                    <ul class="list-disc list-inside text-sm ml-4 space-y-1">
+                                        <li><strong>100% de precisión</strong>: Datos oficiales de la SET, sin errores de OCR</li>
+                                        <li><strong>Cero trabajo manual</strong>: No necesitas contrastar con Marangatu</li>
+                                        <li><strong>Validación instantánea</strong>: Verificas que la factura existe y está aprobada</li>
+                                        <li><strong>Ideal para facturas recibidas</strong>: Tus proveedores te pasan el CDC o QR</li>
+                                    </ul>
+                                </div>
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Para facturas en papel usa Telegram/Web (OCR). Para facturas electrónicas, usa esta opción que consulta directamente la API de la SET. ¡Es mucho más rápido y preciso!</p>
+                                </div>
+                            </div>
+
+                            {{-- Opción D: Email (Futuro) --}}
+                            <div class="bg-white rounded p-4 shadow-sm opacity-75">
+                                <h4 class="font-bold text-gray-600 mb-2">📧 Opción D: Por Email (Próximamente)</h4>
+                                <p class="text-gray-600 text-sm">Envía facturas a <code class="bg-gray-100 px-2 py-1 rounded">facturas@dataflow.com</code> y se procesarán automáticamente.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PASO 3 --}}
+                    <div class="mb-10 bg-yellow-50 rounded-lg p-6 border-l-4 border-yellow-500">
+                        <h3 class="text-2xl font-bold text-yellow-700 mb-4 flex items-center">
+                            <span class="bg-yellow-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl">3</span>
+                            Revisar y Corregir (si es necesario)
+                        </h3>
+
+                        <div class="space-y-4 text-gray-700">
+                            <p>El OCR tiene <strong>95-98% de precisión</strong>, pero siempre debes revisar los datos extraídos:</p>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-yellow-600 mb-2">3.1. Ver todas las facturas</h4>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>Ve a <strong>Dashboard → Documentos</strong></li>
+                                    <li>Verás una lista con todas tus facturas procesadas</li>
+                                    <li>Estado:
+                                        <ul class="list-circle list-inside ml-6 mt-2">
+                                            <li><span class="text-green-600">✅ Validado</span>: Factura validada con la SET</li>
+                                            <li><span class="text-yellow-600">⚠️ Revisar</span>: Requiere revisión manual</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-yellow-600 mb-2">3.2. Corregir datos (si es necesario)</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4">
+                                    <li>Haz clic en cualquier factura para ver detalles</li>
+                                    <li>Verás:
+                                        <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                                            <li>Vista previa del documento original</li>
+                                            <li>Datos extraídos por el OCR</li>
+                                            <li>Estado de validación con la SET</li>
+                                        </ul>
+                                    </li>
+                                    <li>Si hay errores, edita directamente los campos</li>
+                                    <li>Guarda y la factura queda lista</li>
+                                </ol>
+                            </div>
+
+                            <div class="mt-3 p-3 bg-yellow-100 border-l-4 border-yellow-600 rounded">
+                                <p class="text-sm"><strong>⚠️ Importante:</strong> Las facturas marcadas como "Revisar" generalmente tienen datos incompletos (imagen borrosa, timbrado ilegible, etc.). Revísalas antes de exportar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PASO 4 --}}
+                    <div class="mb-10 bg-green-50 rounded-lg p-6 border-l-4 border-green-500">
+                        <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                            <span class="bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl">4</span>
+                            Exportar para Declaraciones de IVA
+                        </h3>
+
+                        <div class="space-y-4 text-gray-700">
+                            <p>Llegó el momento de exportar para presentar ante la SET (DNIT) en Paraguay:</p>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-green-600 mb-2">4.1. Exportar Liquidación de IVA</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4">
+                                    <li>Ve a <strong>Dashboard → Liquidación de IVA</strong></li>
+                                    <li>Selecciona:
+                                        <ul class="list-disc list-inside ml-6 mt-2">
+                                            <li><strong>Entidad Fiscal:</strong> Tu empresa/cliente</li>
+                                            <li><strong>Período:</strong> Mes actual, rango de fechas, etc.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Haz clic en <strong>Exportar a Excel</strong></li>
+                                    <li>Se descarga un archivo <code class="bg-gray-100 px-2 py-1 rounded">.xlsx</code> con esta estructura:</li>
+                                </ol>
+
+                                <div class="mt-4 overflow-x-auto">
+                                    <table class="min-w-full border border-gray-300 text-sm">
+                                        <thead class="bg-purple-600 text-white">
+                                            <tr>
+                                                <th class="border px-2 py-1">Fecha</th>
+                                                <th class="border px-2 py-1">Tipo</th>
+                                                <th class="border px-2 py-1">Nº Factura</th>
+                                                <th class="border px-2 py-1">RUC</th>
+                                                <th class="border px-2 py-1">Razón Social</th>
+                                                <th class="border px-2 py-1 bg-purple-700">Base 10%</th>
+                                                <th class="border px-2 py-1 bg-purple-700">IVA 10%</th>
+                                                <th class="border px-2 py-1 bg-blue-700">Base 5%</th>
+                                                <th class="border px-2 py-1 bg-blue-700">IVA 5%</th>
+                                                <th class="border px-2 py-1 bg-gray-700">Exentas</th>
+                                                <th class="border px-2 py-1">Total IVA</th>
+                                                <th class="border px-2 py-1">Monto Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white">
+                                            <tr class="text-xs">
+                                                <td class="border px-2 py-1">01/12/2025</td>
+                                                <td class="border px-2 py-1">FACTURA</td>
+                                                <td class="border px-2 py-1">001-001-123</td>
+                                                <td class="border px-2 py-1">80012345-6</td>
+                                                <td class="border px-2 py-1">Proveedor SA</td>
+                                                <td class="border px-2 py-1 font-mono">81.819</td>
+                                                <td class="border px-2 py-1 font-mono">8.181</td>
+                                                <td class="border px-2 py-1 font-mono">-</td>
+                                                <td class="border px-2 py-1 font-mono">-</td>
+                                                <td class="border px-2 py-1 font-mono">-</td>
+                                                <td class="border px-2 py-1 font-mono">8.181</td>
+                                                <td class="border px-2 py-1 font-mono">90.000</td>
+                                            </tr>
+                                            <tr class="text-xs">
+                                                <td class="border px-2 py-1">05/12/2025</td>
+                                                <td class="border px-2 py-1">FACTURA</td>
+                                                <td class="border px-2 py-1">002-001-456</td>
+                                                <td class="border px-2 py-1">80098765-4</td>
+                                                <td class="border px-2 py-1">Otro Proveedor</td>
+                                                <td class="border px-2 py-1 font-mono">50.000</td>
+                                                <td class="border px-2 py-1 font-mono">5.000</td>
+                                                <td class="border px-2 py-1 font-mono">20.000</td>
+                                                <td class="border px-2 py-1 font-mono">1.000</td>
+                                                <td class="border px-2 py-1 font-mono">10.000</td>
+                                                <td class="border px-2 py-1 font-mono">6.000</td>
+                                                <td class="border px-2 py-1 font-mono">86.000</td>
+                                            </tr>
+                                            <tr class="bg-green-600 text-white font-bold text-xs">
+                                                <td class="border px-2 py-1" colspan="5">TOTAL GENERAL</td>
+                                                <td class="border px-2 py-1 font-mono">131.819</td>
+                                                <td class="border px-2 py-1 font-mono">13.181</td>
+                                                <td class="border px-2 py-1 font-mono">20.000</td>
+                                                <td class="border px-2 py-1 font-mono">1.000</td>
+                                                <td class="border px-2 py-1 font-mono">10.000</td>
+                                                <td class="border px-2 py-1 font-mono">14.181</td>
+                                                <td class="border px-2 py-1 font-mono">176.000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-green-600 mb-2">4.2. Cumplimiento con normativa RG-90</h4>
+                                <p class="mb-2">El Excel generado cumple con los requisitos de la DNIT (SET Paraguay):</p>
+                                <ul class="list-disc list-inside space-y-1 ml-4">
+                                    <li>✅ Desglose por tipo de IVA (10%, 5%, Exentas)</li>
+                                    <li>✅ Una factura con múltiples IVAs se muestra correctamente</li>
+                                    <li>✅ Formato paraguayo (sin decimales, punto como separador de miles)</li>
+                                    <li>✅ Totales calculados automáticamente</li>
+                                    <li>✅ Listo para cargar en el sistema de la SET</li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-3 p-3 bg-green-100 border-l-4 border-green-600 rounded">
+                                <p class="text-sm"><strong>🎯 Ahorra tiempo:</strong> Lo que antes tomaba <strong>2-3 horas</strong> de trabajo manual, ahora se hace en <strong>2 minutos</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- PASO 5 --}}
+                    <div class="mb-10 bg-indigo-50 rounded-lg p-6 border-l-4 border-indigo-500">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+                            <span class="bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl">5</span>
+                            Casos Especiales
+                        </h3>
+
+                        <div class="space-y-4 text-gray-700">
+                            {{-- Facturas con múltiples IVAs --}}
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-indigo-600 mb-2">📊 Facturas con múltiples tipos de IVA</h4>
+                                <p class="mb-2">Ejemplo: Una factura que tiene productos al 10%, 5% y exentos en la misma compra:</p>
+                                <div class="bg-gray-50 p-3 rounded border border-gray-200 font-mono text-sm">
+                                    <p>Producto A (IVA 10%): ₲ 90.000</p>
+                                    <p>Producto B (IVA 5%): ₲ 21.000</p>
+                                    <p>Producto C (Exento): ₲ 10.000</p>
+                                    <p class="mt-2 font-bold">Total Factura: ₲ 121.000</p>
+                                </div>
+                                <p class="mt-3"><strong>El sistema detecta automáticamente:</strong></p>
+                                <ul class="list-disc list-inside ml-4 space-y-1 mt-2">
+                                    <li>Base 10%: ₲ 81.819 | IVA 10%: ₲ 8.181</li>
+                                    <li>Base 5%: ₲ 20.000 | IVA 5%: ₲ 1.000</li>
+                                    <li>Exentas: ₲ 10.000</li>
+                                </ul>
+                                <p class="mt-3 text-sm text-green-600 font-bold">✅ Una sola línea en el Excel con todos los desgloses correctos</p>
+                            </div>
+
+                            {{-- Facturas electrónicas --}}
+                            <div class="bg-white rounded p-4 shadow-sm border-2 border-green-300">
+                                <h4 class="font-bold text-green-600 mb-2">🔐 Facturas Electrónicas (e-Kuatia) - Método Recomendado ⭐</h4>
+                                <p class="mb-3">Para facturas electrónicas, <strong>usa la Opción C (Consulta directa por CDC)</strong> en lugar de OCR:</p>
+
+                                <div class="bg-green-50 p-3 rounded mb-3">
+                                    <p class="font-bold text-green-700 mb-2">✅ Ventajas de consultar por CDC:</p>
+                                    <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                        <li><strong>100% precisión</strong>: Datos oficiales de ekuatia.set.gov.py</li>
+                                        <li><strong>Sin OCR</strong>: No hay errores de lectura</li>
+                                        <li><strong>Sin contrastar con Marangatu</strong>: Los datos ya vienen validados</li>
+                                        <li><strong>Más rápido</strong>: Solo ingresas el CDC o escaneas el QR</li>
+                                        <li><strong>Estado en tiempo real</strong>: Sabes si fue aprobada o anulada</li>
+                                    </ul>
+                                </div>
+
+                                <p class="mb-2"><strong>Cómo funciona:</strong></p>
+                                <ol class="list-decimal list-inside ml-4 space-y-1 text-sm">
+                                    <li>Pide a tu proveedor el <strong>CDC</strong> (44 dígitos) o el <strong>código QR</strong></li>
+                                    <li>Ingresa el CDC en <strong>Dashboard → Consultar Factura Electrónica</strong></li>
+                                    <li>El sistema consulta la API pública de la SET</li>
+                                    <li>Todos los datos se importan automáticamente con validación oficial</li>
+                                </ol>
+
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Si también procesaste la factura con OCR (Telegram/Web), el sistema puede detectar automáticamente el CDC del QR y validar con la SET. Pero lo más eficiente es usar directamente la Opción C.</p>
+                                </div>
+                            </div>
+
+                            {{-- Facturas rechazadas --}}
+                            <div class="bg-white rounded p-4 shadow-sm">
+                                <h4 class="font-bold text-indigo-600 mb-2">⚠️ Facturas que requieren revisión</h4>
+                                <p>Algunas facturas pueden requerir revisión manual por:</p>
+                                <ul class="list-disc list-inside ml-4 space-y-1 mt-2">
+                                    <li><strong>Imagen borrosa:</strong> El OCR no puede leer bien los datos</li>
+                                    <li><strong>Timbrado inválido:</strong> El timbrado no existe en la SET</li>
+                                    <li><strong>RUC inválido:</strong> El RUC no está registrado</li>
+                                    <li><strong>Datos incompletos:</strong> Falta información crítica</li>
+                                </ul>
+                                <p class="mt-3"><strong>Qué hacer:</strong></p>
+                                <ol class="list-decimal list-inside ml-4 space-y-1 mt-2">
+                                    <li>Ve a la factura marcada como "Revisar"</li>
+                                    <li>Corrige manualmente los datos incorrectos</li>
+                                    <li>Guarda y la factura queda validada</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- CONSEJOS FINALES --}}
+                    <div class="bg-gray-800 text-white rounded-lg p-6">
+                        <h3 class="text-2xl font-bold mb-4 flex items-center">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                            Consejos para Aprovechar al Máximo Dataflow
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <svg class="w-6 h-6 mr-2 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span><strong>Procesa diariamente:</strong> No esperes a fin de mes. Procesa facturas conforme las recibes para mantener tu contabilidad al día.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-6 h-6 mr-2 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span><strong>Usa Telegram:</strong> Es la forma más rápida. Toma foto con tu celular y listo.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-6 h-6 mr-2 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span><strong>Revisa antes de exportar:</strong> Siempre verifica que los datos estén correctos antes de generar el Excel para la SET.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-6 h-6 mr-2 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span><strong>Aprovecha la validación automática:</strong> Las facturas validadas con la SET (✅) no necesitan revisión adicional.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-6 h-6 mr-2 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span><strong>Plan Avanzado para despachos:</strong> Si gestionas múltiples clientes, el Plan Avanzado te permite crear entidades ilimitadas.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             {{-- Funcionalidad --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona el OCR inteligente?</h3>

@@ -31,7 +31,7 @@
         <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <dt class="text-sm font-medium text-gray-600">Entidad</dt>
-                <dd class="mt-1 text-lg text-gray-900">{{ $document->entity->name ?? 'Sin entidad asignada' }}</dd>
+                <dd class="mt-1 text-lg text-gray-900">{{ $document->entity->name ?? 'No asignada' }}</dd>
             </div>
             <div>
                 <dt class="text-sm font-medium text-gray-600">Tamaño</dt>

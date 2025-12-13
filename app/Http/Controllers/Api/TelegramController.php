@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessTelegramDocument;
+use App\Jobs\OcrInvoiceProcessingJob;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\PagoParService;
@@ -342,7 +342,7 @@ class TelegramController extends Controller
         );
 
         // Encolar el trabajo de procesamiento
-        ProcessTelegramDocument::dispatch($user, $fileId, $fileName, $mimeType, $chatId);
+        OcrInvoiceProcessingJob::dispatch($user, $fileId, $fileName, $mimeType, $chatId);
 
         Log::info('Documento de Telegram encolado para procesamiento', [
             'user_id' => $user->id,

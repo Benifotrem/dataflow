@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class TenantsController extends Controller
@@ -52,23 +53,40 @@ class TenantsController extends Controller
      */
     public function extendTrial(Request $request, Tenant $tenant)
     {
-        // Verificar permisos
-        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
-            abort(403);
+        try {
+            // Verificar permisos
+            if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+                abort(403);
+            }
+
+            $request->validate([
+                'days' => 'required|integer|min:1|max:365',
+            ]);
+
+            $currentTrialEnd = $tenant->trial_ends_at ? Carbon::parse($tenant->trial_ends_at) : now();
+            $newTrialEnd = $currentTrialEnd->addDays($request->days);
+
+            $tenant->update([
+                'trial_ends_at' => $newTrialEnd,
+            ]);
+
+            Log::info('Período de prueba extendido', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'days' => $request->days,
+                'new_trial_end' => $newTrialEnd->format('Y-m-d'),
+            ]);
+
+            return back()->with('success', "Período de prueba extendido {$request->days} días hasta {$newTrialEnd->format('d/m/Y')}");
+        } catch (\Exception $e) {
+            Log::error('Error al extender período de prueba', [
+                'tenant_id' => $tenant->id ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors(['error' => 'Error al extender período de prueba: ' . $e->getMessage()]);
         }
-
-        $request->validate([
-            'days' => 'required|integer|min:1|max:365',
-        ]);
-
-        $currentTrialEnd = $tenant->trial_ends_at ? Carbon::parse($tenant->trial_ends_at) : now();
-        $newTrialEnd = $currentTrialEnd->addDays($request->days);
-
-        $tenant->update([
-            'trial_ends_at' => $newTrialEnd,
-        ]);
-
-        return back()->with('success', "Período de prueba extendido {$request->days} días hasta {$newTrialEnd->format('d/m/Y')}");
     }
 
     /**
@@ -76,17 +94,32 @@ class TenantsController extends Controller
      */
     public function suspend(Tenant $tenant)
     {
-        // Verificar permisos
-        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
-            abort(403);
+        try {
+            // Verificar permisos
+            if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+                abort(403);
+            }
+
+            $tenant->update([
+                'trial_ends_at' => now()->subDay(),
+                'subscription_ends_at' => null,
+            ]);
+
+            Log::info('Cuenta suspendida', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+            ]);
+
+            return back()->with('success', 'Cuenta suspendida exitosamente');
+        } catch (\Exception $e) {
+            Log::error('Error al suspender cuenta', [
+                'tenant_id' => $tenant->id ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors(['error' => 'Error al suspender cuenta: ' . $e->getMessage()]);
         }
-
-        $tenant->update([
-            'trial_ends_at' => now()->subDay(),
-            'subscription_ends_at' => null,
-        ]);
-
-        return back()->with('success', 'Cuenta suspendida exitosamente');
     }
 
     /**
@@ -94,20 +127,36 @@ class TenantsController extends Controller
      */
     public function reactivate(Request $request, Tenant $tenant)
     {
-        // Verificar permisos
-        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
-            abort(403);
+        try {
+            // Verificar permisos
+            if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'owner') {
+                abort(403);
+            }
+
+            $request->validate([
+                'trial_days' => 'required|integer|min:1|max:365',
+            ]);
+
+            $tenant->update([
+                'trial_ends_at' => now()->addDays($request->trial_days),
+            ]);
+
+            Log::info('Cuenta reactivada', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'trial_days' => $request->trial_days,
+            ]);
+
+            return back()->with('success', "Cuenta reactivada con {$request->trial_days} días de prueba");
+        } catch (\Exception $e) {
+            Log::error('Error al reactivar cuenta', [
+                'tenant_id' => $tenant->id ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors(['error' => 'Error al reactivar cuenta: ' . $e->getMessage()]);
         }
-
-        $request->validate([
-            'trial_days' => 'required|integer|min:1|max:365',
-        ]);
-
-        $tenant->update([
-            'trial_ends_at' => now()->addDays($request->trial_days),
-        ]);
-
-        return back()->with('success', "Cuenta reactivada con {$request->trial_days} días de prueba");
     }
 
     /**
