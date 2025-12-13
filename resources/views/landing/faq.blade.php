@@ -98,7 +98,7 @@
                             Procesar Facturas
                         </h3>
 
-                        <p class="text-gray-700 mb-4">Tienes <strong>3 formas</strong> de procesar facturas. Elige la que prefieras:</p>
+                        <p class="text-gray-700 mb-4">Tienes <strong>4 formas</strong> de procesar facturas. Elige la que prefieras según el tipo de factura:</p>
 
                         <div class="space-y-4">
                             {{-- Opción A: Telegram --}}
@@ -144,9 +144,41 @@
                                 </div>
                             </div>
 
-                            {{-- Opción C: Email (Futuro) --}}
+                            {{-- Opción C: Factura Electrónica (API SET) --}}
+                            <div class="bg-white rounded p-4 shadow-sm border-2 border-green-300">
+                                <h4 class="font-bold text-green-600 mb-2">🔌 Opción C: Factura Electrónica (API SET/Ekuatia) ⭐</h4>
+                                <ol class="list-decimal list-inside space-y-2 ml-4 text-gray-700">
+                                    <li>Ve a <strong>Dashboard → Documentos → Consultar Factura Electrónica</strong></li>
+                                    <li>Ingresa el <strong>CDC</strong> (Código de Control) de 44 dígitos o escanea el QR de la factura</li>
+                                    <li>El sistema consulta automáticamente a la API pública de <strong>ekuatia.set.gov.py</strong></li>
+                                    <li>Los datos se importan <strong>directamente desde la SET</strong>:
+                                        <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                                            <li>RUC y Razón Social del Emisor</li>
+                                            <li>Número de Factura (Timbrado electrónico)</li>
+                                            <li>Fecha de emisión</li>
+                                            <li>Montos desglosados: Base 10%, IVA 10%, Base 5%, IVA 5%, Exentas</li>
+                                            <li>Estado de la factura (Aprobada, Anulada, etc.)</li>
+                                        </ul>
+                                    </li>
+                                    <li>La factura se registra automáticamente <strong>sin necesidad de OCR</strong></li>
+                                </ol>
+                                <div class="mt-3 p-3 bg-green-50 border-l-4 border-green-600 rounded">
+                                    <p class="text-sm"><strong>✨ Ventajas:</strong></p>
+                                    <ul class="list-disc list-inside text-sm ml-4 space-y-1">
+                                        <li><strong>100% de precisión</strong>: Datos oficiales de la SET, sin errores de OCR</li>
+                                        <li><strong>Cero trabajo manual</strong>: No necesitas contrastar con Marangatu</li>
+                                        <li><strong>Validación instantánea</strong>: Verificas que la factura existe y está aprobada</li>
+                                        <li><strong>Ideal para facturas recibidas</strong>: Tus proveedores te pasan el CDC o QR</li>
+                                    </ul>
+                                </div>
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Para facturas en papel usa Telegram/Web (OCR). Para facturas electrónicas, usa esta opción que consulta directamente la API de la SET. ¡Es mucho más rápido y preciso!</p>
+                                </div>
+                            </div>
+
+                            {{-- Opción D: Email (Futuro) --}}
                             <div class="bg-white rounded p-4 shadow-sm opacity-75">
-                                <h4 class="font-bold text-gray-600 mb-2">📧 Opción C: Por Email (Próximamente)</h4>
+                                <h4 class="font-bold text-gray-600 mb-2">📧 Opción D: Por Email (Próximamente)</h4>
                                 <p class="text-gray-600 text-sm">Envía facturas a <code class="bg-gray-100 px-2 py-1 rounded">facturas@dataflow.com</code> y se procesarán automáticamente.</p>
                             </div>
                         </div>
@@ -330,15 +362,32 @@
                             </div>
 
                             {{-- Facturas electrónicas --}}
-                            <div class="bg-white rounded p-4 shadow-sm">
-                                <h4 class="font-bold text-indigo-600 mb-2">🔐 Facturas Electrónicas (e-Kuatia)</h4>
-                                <p>El sistema detecta automáticamente si es factura electrónica y:</p>
-                                <ul class="list-disc list-inside ml-4 space-y-1 mt-2">
-                                    <li>Valida el CDC (Código de Control)</li>
-                                    <li>Consulta el estado en la SET</li>
-                                    <li>Extrae todos los datos del XML si está disponible</li>
-                                    <li>Muestra advertencias si hay inconsistencias</li>
-                                </ul>
+                            <div class="bg-white rounded p-4 shadow-sm border-2 border-green-300">
+                                <h4 class="font-bold text-green-600 mb-2">🔐 Facturas Electrónicas (e-Kuatia) - Método Recomendado ⭐</h4>
+                                <p class="mb-3">Para facturas electrónicas, <strong>usa la Opción C (Consulta directa por CDC)</strong> en lugar de OCR:</p>
+
+                                <div class="bg-green-50 p-3 rounded mb-3">
+                                    <p class="font-bold text-green-700 mb-2">✅ Ventajas de consultar por CDC:</p>
+                                    <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                        <li><strong>100% precisión</strong>: Datos oficiales de ekuatia.set.gov.py</li>
+                                        <li><strong>Sin OCR</strong>: No hay errores de lectura</li>
+                                        <li><strong>Sin contrastar con Marangatu</strong>: Los datos ya vienen validados</li>
+                                        <li><strong>Más rápido</strong>: Solo ingresas el CDC o escaneas el QR</li>
+                                        <li><strong>Estado en tiempo real</strong>: Sabes si fue aprobada o anulada</li>
+                                    </ul>
+                                </div>
+
+                                <p class="mb-2"><strong>Cómo funciona:</strong></p>
+                                <ol class="list-decimal list-inside ml-4 space-y-1 text-sm">
+                                    <li>Pide a tu proveedor el <strong>CDC</strong> (44 dígitos) o el <strong>código QR</strong></li>
+                                    <li>Ingresa el CDC en <strong>Dashboard → Consultar Factura Electrónica</strong></li>
+                                    <li>El sistema consulta la API pública de la SET</li>
+                                    <li>Todos los datos se importan automáticamente con validación oficial</li>
+                                </ol>
+
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                    <p class="text-sm"><strong>💡 Tip:</strong> Si también procesaste la factura con OCR (Telegram/Web), el sistema puede detectar automáticamente el CDC del QR y validar con la SET. Pero lo más eficiente es usar directamente la Opción C.</p>
+                                </div>
                             </div>
 
                             {{-- Facturas rechazadas --}}
