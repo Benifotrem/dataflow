@@ -155,6 +155,10 @@ class TelegramController extends Controller
                 $this->commandSuscripcion($chatId, $telegramId);
                 break;
 
+            case '/app':
+                $this->commandApp($chatId);
+                break;
+
             default:
                 $this->telegramService->sendMessage(
                     $chatId,
@@ -193,6 +197,7 @@ class TelegramController extends Controller
             "<b>📱 General:</b>\n" .
             "/start - Iniciar el bot\n" .
             "/help - Ver esta ayuda\n" .
+            "/app - 📱 Abrir Mini App de Dataflow\n" .
             "/link - Vincular tu cuenta de Dataflow\n" .
             "/unlink - Desvincular tu cuenta\n" .
             "/status - Ver el estado de tu cuenta\n\n" .
@@ -612,6 +617,33 @@ class TelegramController extends Controller
         }
 
         $this->telegramService->sendMessage($chatId, $message);
+    }
+
+    /**
+     * Comando /app - Abrir Mini App
+     */
+    protected function commandApp(int $chatId)
+    {
+        $keyboard = [[
+            'text' => '🚀 Abrir Dataflow',
+            'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
+        ]];
+
+        $this->telegramService->sendMessage(
+            $chatId,
+            "📱 <b>Dataflow Mini App</b>\n\n" .
+            "Presiona el botón de abajo para abrir la aplicación móvil completa\\.\n\n" .
+            "✨ <b>Podrás:</b>\n" .
+            "• Ver dashboard con métricas en tiempo real\n" .
+            "• Consultar facturas electrónicas en la SET\n" .
+            "• Escanear códigos QR de facturas\n" .
+            "• Exportar reportes fiscales en Excel\n" .
+            "• Gestionar todas tus facturas desde el móvil\n\n" .
+            "🎯 Todo esto sin salir de Telegram\\!",
+            'MarkdownV2',
+            null,
+            $keyboard
+        );
     }
 
     /**
