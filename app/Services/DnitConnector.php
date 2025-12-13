@@ -499,4 +499,161 @@ class DnitConnector
 
         Log::info('Caché de Timbrado eliminado', ['timbrado' => $timbrado, 'ruc' => $ruc]);
     }
+
+    /**
+     * Consultar factura electrónica por CDC
+     * CDC (Código de Control) tiene 44 dígitos
+     *
+     * @param string $cdc Código de control de 44 dígitos
+     * @return array ['valid' => bool, 'data' => array, 'error' => string|null]
+     */
+    public function consultarCDC(string $cdc): array
+    {
+        // Limpiar CDC (solo números)
+        $cdc = preg_replace('/[^0-9]/', '', $cdc);
+
+        // Validar formato (44 dígitos)
+        if (strlen($cdc) !== 44) {
+            return [
+                'valid' => false,
+                'data' => null,
+                'error' => 'El CDC debe tener exactamente 44 dígitos',
+            ];
+        }
+
+        // Verificar en caché
+        $cacheKey = "dnit:cdc:{$cdc}";
+        if (Cache::has($cacheKey)) {
+            Log::info('CDC obtenido desde caché', ['cdc' => $cdc]);
+            return Cache::get($cacheKey);
+        }
+
+        try {
+            // Llamar al servicio de la SET con reintentos
+            $response = $this->callWithRetry(function () use ($cdc) {
+                return $this->queryCdcApi($cdc);
+            });
+
+            $result = [
+                'valid' => $response['valid'] ?? false,
+                'data' => $response['data'] ?? null,
+                'error' => $response['error'] ?? null,
+            ];
+
+            // Cachear solo respuestas exitosas
+            if ($result['valid']) {
+                Cache::put($cacheKey, $result, $this->cacheTime);
+                Log::info('CDC validado exitosamente', ['cdc' => $cdc]);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            Log::error('Error al consultar CDC', [
+                'cdc' => $cdc,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'valid' => false,
+                'data' => null,
+                'error' => 'Error de conexión con la SET: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Consultar API de CDC de la SET (eKuatia)
+     * Endpoint: https://ekuatia.set.gov.py/consultas/qr?nVersion=150&Id={CDC}
+     */
+    protected function queryCdcApi(string $cdc): array
+    {
+        // Para ambiente de desarrollo/testing
+        if (config('app.env') === 'local' && config('services.dnit.simulate', false)) {
+            Log::warning('Modo de desarrollo: validación CDC simulada', ['cdc' => $cdc]);
+
+            return [
+                'valid' => true,
+                'data' => [
+                    'cdc' => $cdc,
+                    'estado' => 'Aprobado',
+                    'ruc_emisor' => '80012345-6',
+                    'razon_social_emisor' => 'EMPRESA DE PRUEBA S.A.',
+                    'numero_factura' => '001-001-0001234',
+                    'fecha_emision' => now()->format('Y-m-d'),
+                    'tipo_documento' => 'Factura Electrónica',
+                    'moneda' => 'PYG',
+                    'subtotal_gravado_10' => 909091,
+                    'iva_10' => 90909,
+                    'subtotal_gravado_5' => 476191,
+                    'iva_5' => 23810,
+                    'subtotal_exentas' => 100000,
+                    'monto_total' => 1600000,
+                    'total_iva' => 114719,
+                    'simulated' => true,
+                ],
+                'error' => null,
+            ];
+        }
+
+        // Implementación real con API de la SET
+        $url = "https://ekuatia.set.gov.py/consultas/qr";
+
+        $response = Http::timeout($this->timeout)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'User-Agent' => 'Dataflow-Paraguay/1.0',
+            ])
+            ->get($url, [
+                'nVersion' => '150',
+                'Id' => $cdc,
+            ]);
+
+        if (!$response->successful()) {
+            // Si falla, intentar endpoint alternativo
+            if ($response->status() === 404) {
+                return [
+                    'valid' => false,
+                    'data' => null,
+                    'error' => 'CDC no encontrado en la SET. Verifica que sea correcto.',
+                ];
+            }
+
+            throw new \Exception('Error al consultar CDC: HTTP ' . $response->status());
+        }
+
+        $data = $response->json();
+
+        // Parsear respuesta de la SET
+        if (isset($data['estado']) && strtolower($data['estado']) === 'aprobado') {
+            return [
+                'valid' => true,
+                'data' => [
+                    'cdc' => $cdc,
+                    'estado' => $data['estado'] ?? 'Aprobado',
+                    'ruc_emisor' => $data['rucEmisor'] ?? $data['ruc_emisor'] ?? null,
+                    'razon_social_emisor' => $data['razonSocialEmisor'] ?? $data['razon_social'] ?? null,
+                    'numero_factura' => $data['numeroDocumento'] ?? $data['numero_factura'] ?? null,
+                    'fecha_emision' => $data['fechaEmision'] ?? $data['fecha_emision'] ?? null,
+                    'tipo_documento' => $data['tipoDocumento'] ?? 'Factura Electrónica',
+                    'moneda' => $data['moneda'] ?? 'PYG',
+                    // Montos desglosados
+                    'subtotal_gravado_10' => $data['subtotalGravado10'] ?? $data['gravado_10'] ?? 0,
+                    'iva_10' => $data['iva10'] ?? $data['iva_10'] ?? 0,
+                    'subtotal_gravado_5' => $data['subtotalGravado5'] ?? $data['gravado_5'] ?? 0,
+                    'iva_5' => $data['iva5'] ?? $data['iva_5'] ?? 0,
+                    'subtotal_exentas' => $data['subtotalExentas'] ?? $data['exentas'] ?? 0,
+                    'monto_total' => $data['montoTotal'] ?? $data['total'] ?? 0,
+                    'total_iva' => ($data['iva10'] ?? 0) + ($data['iva5'] ?? 0),
+                ],
+                'error' => null,
+            ];
+        }
+
+        return [
+            'valid' => false,
+            'data' => null,
+            'error' => 'Factura electrónica no aprobada o estado inválido: ' . ($data['estado'] ?? 'desconocido'),
+        ];
+    }
 }

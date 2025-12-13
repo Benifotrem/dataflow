@@ -182,6 +182,67 @@
                                 <p class="text-gray-600 text-sm">Envía facturas a <code class="bg-gray-100 px-2 py-1 rounded">facturas@dataflow.com</code> y se procesarán automáticamente.</p>
                             </div>
                         </div>
+
+                        {{-- MINI APP DE TELEGRAM --}}
+                        <div class="mt-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
+                            <h4 class="font-bold text-2xl mb-3 flex items-center">
+                                <span class="text-3xl mr-3">📱</span>
+                                ¡NUEVO! Mini App de Telegram
+                            </h4>
+                            <p class="mb-4 text-blue-50">Ahora puedes gestionar todo desde una aplicación dentro de Telegram, sin salir del chat:</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <div class="font-bold mb-2">📊 Dashboard Móvil</div>
+                                    <ul class="text-sm space-y-1 text-blue-50">
+                                        <li>• Métricas en tiempo real</li>
+                                        <li>• Gráficos interactivos</li>
+                                        <li>• Alertas de vencimientos</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <div class="font-bold mb-2">📷 Escaneo de QR</div>
+                                    <ul class="text-sm space-y-1 text-blue-50">
+                                        <li>• Consulta facturas electrónicas</li>
+                                        <li>• Importación desde API SET</li>
+                                        <li>• 100% precisión oficial</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <div class="font-bold mb-2">✏️ Edición Rápida</div>
+                                    <ul class="text-sm space-y-1 text-blue-50">
+                                        <li>• Corrige datos desde el móvil</li>
+                                        <li>• Sin abrir dashboard web</li>
+                                        <li>• Recálculo automático de IVAs</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                                    <div class="font-bold mb-2">📊 Exportación Excel</div>
+                                    <ul class="text-sm space-y-1 text-blue-50">
+                                        <li>• Genera Excel desde Telegram</li>
+                                        <li>• Comparte directamente</li>
+                                        <li>• Formato RG-90 listo</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-yellow-400 bg-opacity-30 rounded-lg p-4 mb-4">
+                                <p class="font-bold mb-2">🎯 Cómo Acceder:</p>
+                                <ol class="text-sm space-y-2 text-blue-50">
+                                    <li><strong>1.</strong> Abre <code class="bg-black bg-opacity-30 px-2 py-1 rounded">@dataflow_guaraniappstore_bot</code> en Telegram</li>
+                                    <li><strong>2.</strong> Envía el comando <code class="bg-black bg-opacity-30 px-2 py-1 rounded">/app</code></li>
+                                    <li><strong>3.</strong> Presiona el botón <strong>"🚀 Abrir Dataflow"</strong></li>
+                                    <li><strong>4.</strong> ¡Listo! Toda la funcionalidad en tu móvil</li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-green-400 bg-opacity-20 rounded-lg p-3">
+                                <p class="text-sm"><strong>💡 Ventaja:</strong> Trabajas desde donde estés, sin abrir laptop. Ideal para contadores en movimiento que necesitan consultar o corregir datos rápidamente.</p>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- PASO 3 --}}
