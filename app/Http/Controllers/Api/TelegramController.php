@@ -8,7 +8,6 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Services\PagoParService;
 use App\Services\TelegramService;
-use App\Services\TelegramConversationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
@@ -16,14 +15,10 @@ use Telegram\Bot\Api;
 class TelegramController extends Controller
 {
     protected TelegramService $telegramService;
-    protected TelegramConversationService $conversationService;
 
-    public function __construct(
-        TelegramService $telegramService,
-        TelegramConversationService $conversationService
-    ) {
+    public function __construct(TelegramService $telegramService)
+    {
         $this->telegramService = $telegramService;
-        $this->conversationService = $conversationService;
     }
 
     /**
@@ -76,28 +71,13 @@ class TelegramController extends Controller
         $user = $this->telegramService->findUserByTelegramId($telegramId);
 
         if (!$user) {
-            // MODO PRUEBA TEMPORAL: Asignar usuario admin automáticamente
-            $user = User::where('is_admin', true)->first();
-            if (!$user) {
-                $user = User::first(); // Fallback a cualquier usuario
-            }
-
-            if (!$user) {
-                $this->telegramService->sendMessage(
-                    $chatId,
-                    "❌ Error: No hay usuarios en el sistema. Contacta al administrador."
-                );
-                return;
-            }
-
-            // Notificar modo prueba
             $this->telegramService->sendMessage(
                 $chatId,
-                "⚠️ <b>MODO PRUEBA</b>\n\n" .
-                "Procesando como: <b>{$user->name}</b>\n" .
-                "Email: {$user->email}\n\n" .
-                "Para vincular tu cuenta, usa /link después."
+                "⚠️ <b>Cuenta no vinculada</b>\n\n" .
+                "Para usar este bot, primero debes vincular tu cuenta de Dataflow.\n\n" .
+                "Usa el comando /link para obtener instrucciones."
             );
+            return;
         }
 
         // Manejar documentos (PDF o imágenes)
@@ -114,8 +94,15 @@ class TelegramController extends Controller
                 return;
             }
 
-            // Procesar conversación con IA
-            $this->handleConversation($message['text'], $chatId, $user);
+            $this->telegramService->sendMessage(
+                $chatId,
+                "ℹ️ Envíame un documento (PDF o imagen) de una factura para procesarlo.\n\n" .
+                "Comandos disponibles:\n" .
+                "/start - Iniciar el bot\n" .
+                "/help - Ver ayuda\n" .
+                "/link - Vincular cuenta\n" .
+                "/status - Ver estado de tu cuenta"
+            );
         }
     }
 
@@ -300,36 +287,6 @@ class TelegramController extends Controller
     }
 
     /**
-     * Manejar conversación con el usuario
-     */
-    protected function handleConversation(string $text, int $chatId, User $user)
-    {
-        try {
-            // Mostrar acción de "escribiendo"
-            $this->telegramService->sendChatAction($chatId, 'typing');
-
-            // Procesar mensaje y obtener respuesta
-            $response = $this->conversationService->processMessage($user, $text, $chatId);
-
-            // Enviar respuesta
-            $this->telegramService->sendMessage($chatId, $response);
-
-        } catch (\Exception $e) {
-            Log::error('Error en conversación Telegram', [
-                'user_id' => $user->id,
-                'chat_id' => $chatId,
-                'error' => $e->getMessage(),
-            ]);
-
-            $this->telegramService->sendMessage(
-                $chatId,
-                "❌ Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo.\n\n" .
-                "💡 <b>Tip:</b> También puedes enviarme una factura (PDF o imagen) para procesarla automáticamente."
-            );
-        }
-    }
-
-    /**
      * Manejar documentos recibidos
      */
     protected function handleDocument(array $message, User $user)
@@ -384,7 +341,7 @@ class TelegramController extends Controller
             "Te notificaré cuando el procesamiento termine."
         );
 
-        // Encolar el trabajo de procesamiento con OpenAI Vision + DNIT
+        // Encolar el trabajo de procesamiento
         OcrInvoiceProcessingJob::dispatch($user, $fileId, $fileName, $mimeType, $chatId);
 
         Log::info('Documento de Telegram encolado para procesamiento', [
