@@ -8,7 +8,7 @@
             <h1 class="text-3xl sm:text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Preguntas Frecuentes
             </h1>
-            <p class="text-base sm:text-lg md:text-xl text-gray-600">
+            <p class="text-base sm:text-lg leading-relaxed md:text-xl text-gray-600">
                 Encuentra respuestas a las preguntas más comunes sobre Dataflow
             </p>
         </div>
@@ -36,7 +36,7 @@
                 <h2 class="text-3xl font-bold mb-6 text-purple-600">📘 Guía Completa de Uso</h2>
 
                 <div class="prose prose-lg max-w-none">
-                    <p class="text-gray-700 text-base sm:text-lg mb-6 sm:mb-8">
+                    <p class="text-gray-700 leading-relaxed text-base sm:text-lg mb-6 sm:mb-8">
                         Sigue esta guía paso a paso para aprovechar al máximo Dataflow. Hemos diseñado el flujo para que sea <strong>simple, rápido e intuitivo</strong> tanto para contadores profesionales como para emprendedores.
                     </p>
 
@@ -98,7 +98,7 @@
                             Procesar Facturas
                         </h3>
 
-                        <p class="text-gray-700 mb-4">Tienes <strong>3 formas</strong> de procesar facturas. Elige la que prefieras:</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">Tienes <strong>3 formas</strong> de procesar facturas. Elige la que prefieras:</p>
 
                         <div class="space-y-4">
                             {{-- Opción A: Telegram --}}
@@ -223,7 +223,7 @@
                                 </ol>
 
                                 <div class="mt-4 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-                                    <table class="min-w-full border border-gray-300 text-sm">
+                                    <table class="min-w-[800px] md:min-w-full border border-gray-300 text-xs md:text-sm">
                                         <thead class="bg-purple-600 text-white">
                                             <tr>
                                                 <th class="border px-2 py-1">Fecha</th>
@@ -280,7 +280,7 @@
                                                 <td class="border px-2 py-1 font-mono">176.000</td>
                                             </tr>
                                         </tbody>
-                                    </table>
+                                    </table></div><p class="text-xs text-gray-500 mt-2 px-4 md:hidden flex items-center justify-center"><svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg><span>Desliza para ver más columnas</span></p>
                                 </div>
                             </div>
 
@@ -408,21 +408,21 @@
             {{-- Funcionalidad --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona el OCR inteligente?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Nuestro sistema utiliza inteligencia artificial avanzada (OpenAI) para extraer automáticamente todos los datos relevantes de tus facturas y recibos: importes, IVA, fechas, emisor, receptor, etc. Simplemente subes el documento en PDF, imagen o Excel y en segundos está procesado.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Qué formatos de archivo puedo subir?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Aceptamos PDF, Excel (XLS, XLSX), CSV, y imágenes (JPG, PNG). Para extractos bancarios también puedes usar estos formatos.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona la conciliación bancaria?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Importas manualmente tu extracto bancario, y Dataflow compara automáticamente las transacciones del extracto con las facturas y recibos que has subido. Las coincidencias se marcan automáticamente como conciliadas.
                 </p>
             </div>
@@ -430,21 +430,21 @@
             {{-- Seguridad --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Por qué no se conectan directamente con mi banco?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Por política de seguridad, NO nos conectamos directamente con APIs bancarias. Creemos que es más seguro que tú controles qué información compartes. Los extractos bancarios solo se retienen por 60 días desde fin de mes y luego se eliminan automáticamente.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Qué pasa con mis extractos bancarios después de 60 días?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Los extractos bancarios se eliminan física y lógicamente de nuestros servidores tras 60 días desde el fin del mes en curso. Esta es una medida de seguridad para proteger tus datos sensibles. Las transacciones extraídas se conservan, pero no el documento original.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Mis datos están seguros?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Absolutamente. Usamos encriptación de grado bancario, aislamiento total entre tenants (arquitectura multi-tenant), y cumplimos con GDPR y normativas de protección de datos de cada jurisdicción.
                 </p>
             </div>
@@ -452,14 +452,14 @@
             {{-- Límites y Monetización --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Qué pasa si excedo los 500 documentos mensuales?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Al alcanzar el límite de 500 documentos, recibirás una notificación con la opción de comprar un addon de 500 documentos adicionales por $9.99. Puedes comprar tantos addons como necesites. Los addons son válidos solo para el mes en curso.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Los 500 documentos se acumulan si no los uso?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     No, el límite de 500 documentos se renueva cada mes y no se acumula. Cada mes comienzas con 500 documentos disponibles.
                 </p>
             </div>
@@ -467,14 +467,14 @@
             {{-- Multi-jurisdicción --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Qué países soportan?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Actualmente soportamos España y todos los países de Hispanoamérica (México, Argentina, Colombia, Chile, Perú, Venezuela, Ecuador, Guatemala, Cuba, Bolivia, República Dominicana, Honduras, Paraguay, El Salvador, Nicaragua, Costa Rica, Panamá, Puerto Rico, Uruguay, y más). Cada país tiene su configuración fiscal específica.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo gestionan el IVA y los impuestos de diferentes países?</h3>
-                <p class="text-gray-700 mb-3">
+                <p class="text-gray-700 leading-relaxed mb-3">
                     Dataflow reconoce y procesa automáticamente los distintos tipos de impuestos según el país configurado en tu entidad fiscal. Cada país tiene sus propias denominaciones y tipos:
                 </p>
                 <div class="text-gray-700 space-y-2 text-sm">
@@ -489,7 +489,7 @@
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo configuro los tipos de IVA para mi país?</h3>
-                <p class="text-gray-700 mb-3">
+                <p class="text-gray-700 leading-relaxed mb-3">
                     Durante la configuración inicial de tu entidad fiscal, podrás definir los tipos de IVA que aplican en tu país. Por ejemplo:
                 </p>
                 <ul class="text-gray-700 text-sm list-disc list-inside space-y-1 mb-3">
@@ -498,7 +498,7 @@
                     <li>IVA Exento: 0%</li>
                     <li>Retenciones (IRPF, Ganancias, etc.)</li>
                 </ul>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     El sistema OCR detectará automáticamente estos tipos en tus facturas y los clasificará correctamente. Si los tipos de IVA cambian en tu país por reforma fiscal, simplemente actualizas la configuración y el sistema seguirá procesando correctamente las nuevas facturas, mientras mantiene el histórico con los tipos anteriores.
                 </p>
             </div>
@@ -506,14 +506,14 @@
             {{-- CSV e iCalendar --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona la importación/exportación CSV?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Ofrecemos un mapeador visual de columnas que te permite importar datos desde cualquier CSV (Excel, Google Sheets, Apple Numbers). Seleccionas qué columna corresponde a cada campo (fecha, importe, descripción, etc.) y guardas el mapeo para futuras importaciones.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo sincronizo los plazos fiscales con mi calendario?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Cada entidad fiscal genera automáticamente una URL de feed iCalendar (.ics) que puedes suscribir en Google Calendar, Apple Calendar, Outlook o cualquier aplicación compatible. Los plazos se sincronizan automáticamente y recibes recordatorios.
                 </p>
             </div>
@@ -521,14 +521,14 @@
             {{-- Colaboración B2B --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cómo funciona la colaboración para despachos (Plan Avanzado)?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Con el Plan Avanzado, puedes gestionar múltiples clientes (entidades ilimitadas). Cada cliente puede tener dos roles: Propietario (quien sube documentos) y Asesor (contador que valida y clasifica). Ambos pueden trabajar en tiempo real con cambios síncronos.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Cuál es la diferencia entre Plan Básico y Avanzado?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     El Plan Básico ($19.99/mes) es para una sola entidad fiscal (ideal para PyMEs y autónomos). El Plan Avanzado ($49.99/mes) permite gestionar clientes ilimitados con colaboración en tiempo real (ideal para despachos y contadores que gestionan múltiples empresas).
                 </p>
             </div>
@@ -536,21 +536,21 @@
             {{-- Otros --}}
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Ofrecen período de prueba?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Sí, ofrecemos 14 días de prueba gratuita sin necesidad de tarjeta de crédito. Puedes cancelar en cualquier momento durante la prueba sin cargo alguno.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Puedo cancelar mi suscripción en cualquier momento?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Sí, puedes cancelar en cualquier momento desde tu panel de control. No hay contratos ni penalizaciones. Si cancelas, tendrás acceso hasta el final del período de facturación.
                 </p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold mb-2 text-purple-600">¿Ofrecen soporte en español?</h3>
-                <p class="text-gray-700">
+                <p class="text-gray-700 leading-relaxed">
                     Sí, todo nuestro soporte está disponible en español (España y Latinoamérica). El Plan Básico incluye soporte por email, y el Plan Avanzado incluye soporte prioritario.
                 </p>
             </div>
@@ -558,7 +558,7 @@
 
         <div class="mt-12 text-center bg-purple-50 rounded-lg p-8">
             <h3 class="text-xl sm:text-2xl font-bold mb-4">¿No encuentras tu respuesta?</h3>
-            <p class="text-gray-700 mb-6">Nuestro equipo está listo para ayudarte</p>
+            <p class="text-gray-700 leading-relaxed mb-6">Nuestro equipo está listo para ayudarte</p>
             <a href="mailto:soporte@dataflow.com" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-bold transition">
                 Contactar Soporte
             </a>
@@ -566,4 +566,38 @@
     </div>
 </section>
 
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span class="ml-1">¡Copiado!</span>';
+        btn.classList.add('text-green-600');
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('text-green-600');
+        }, 2000);
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+    });
+}
+</script>
+
 @endsection
+
+<!-- Botón Volver Arriba -->
+<button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+        class="fixed bottom-6 right-4 md:bottom-8 md:right-8 
+               bg-purple-600 hover:bg-purple-700 text-white 
+               w-12 h-12 md:w-14 md:h-14 
+               rounded-full shadow-lg 
+               flex items-center justify-center 
+               transition-all duration-300 
+               hover:scale-110 
+               z-50"
+        aria-label="Volver arriba">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+    </svg>
+</button>
