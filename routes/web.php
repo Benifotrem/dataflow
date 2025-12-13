@@ -21,6 +21,11 @@ Route::get('/terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('/privacy', [LandingController::class, 'privacy'])->name('privacy');
 Route::get('/sitemap.xml', [LandingController::class, 'sitemap'])->name('sitemap');
 
+// Telegram Mini App
+Route::get('/miniapp', function () {
+    return response()->file(public_path('miniapp/index.html'));
+})->name('miniapp');
+
 // Rutas de Autenticación
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
