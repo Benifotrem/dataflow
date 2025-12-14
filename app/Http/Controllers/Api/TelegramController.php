@@ -245,7 +245,7 @@ class TelegramController extends Controller
             "• Notificación cuando esté lista\n\n" .
             "<b>📱 Comandos:</b>\n" .
             "/start - Información inicial\n" .
-            "/app - 📷 Abrir cámara para escanear documentos\n" .
+            "/app - 📊 Ver dashboard y guía de uso\n" .
             "/link - Vincular tu cuenta\n" .
             "/status - Estado de tu cuenta\n" .
             "/pagar - Pago de suscripción\n" .
@@ -474,7 +474,7 @@ class TelegramController extends Controller
                     "El sistema no pudo encolar tu documento para procesamiento.\n\n" .
                     "💡 <b>Qué puedes hacer:</b>\n" .
                     "1. Intenta enviar el documento de nuevo en unos minutos\n" .
-                    "2. Usa /app para subir documentos desde la miniapp\n" .
+                    "2. Usa /app para ver el dashboard y seguir la guía de uso\n" .
                     "3. Sube el documento manualmente en https://dataflow.guaraniappstore.com\n\n" .
                     "Mientras tanto, puedo ayudarte con consultas sobre fiscalidad. Pregúntame lo que necesites."
                 );
@@ -732,20 +732,21 @@ class TelegramController extends Controller
      */
     protected function commandApp(int $chatId)
     {
-        $this->telegramService->sendMessage($chatId, 
-            "📷 <b>Escáner de Documentos</b>\n\n" .
-            "Presiona el botón para abrir el escáner móvil.\n\n" .
-            "✨ <b>Funcionalidades:</b>\n" .
-            "• 📸 Fotografiar facturas con tu cámara\n" .
-            "• 🗜️ Compresión automática sin pérdida de calidad\n" .
-            "• 📤 Subida rápida de múltiples documentos\n" .
-            "• ⚡ Procesamiento inmediato con IA\n\n" .
-            "💡 <b>Tip:</b> También puedes enviar documentos directamente al chat.",
+        $this->telegramService->sendMessage($chatId,
+            "📊 <b>Dashboard IVA en Tiempo Real</b>\n\n" .
+            "Presiona el botón para ver tus datos del mes:\n\n" .
+            "✨ <b>Qué verás:</b>\n" .
+            "• 📈 Resumen del mes actual\n" .
+            "• 💰 Totales de IVA 10% y 5%\n" .
+            "• 📅 Próximo vencimiento de declaración\n" .
+            "• 📱 Guía paso a paso de cómo subir facturas\n" .
+            "• ⚠️ Documentos pendientes de revisión\n\n" .
+            "💡 <b>Importante:</b> Para subir facturas, envía las fotos directamente al chat (es más rápido y confiable que usar la cámara de la miniapp).",
             [
                 'reply_markup' => json_encode([
                     'inline_keyboard' => [[
                         [
-                            'text' => '📷 Abrir Escáner de Documentos',
+                            'text' => '📊 Ver Dashboard IVA',
                             'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
                         ]
                     ]]
