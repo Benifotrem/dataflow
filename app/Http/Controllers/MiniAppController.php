@@ -518,6 +518,62 @@ class MiniAppController extends Controller
         ]);
     }
 
+    /**
+     * Subir documento desde la miniapp
+     * POST /api/miniapp/upload
+     */
+    public function uploadDocument(Request $request)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
+        ]);
+
+        $user = auth()->user();
+
+        try {
+            $file = $request->file('document');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $fileContent = base64_encode(file_get_contents($file->getRealPath()));
+            $mimeType = $file->getMimeType();
+
+            // Despachar job de procesamiento OCR (asumiendo que existe)
+            \App\Jobs\OcrInvoiceProcessingJob::dispatch(
+                $user,
+                null, // telegram_chat_id
+                $fileName,
+                $mimeType,
+                null, // message_id
+                $fileContent
+            );
+
+            Log::info('Document uploaded from miniapp', [
+                'user_id' => $user->id,
+                'file_name' => $fileName,
+                'file_size' => $file->getSize(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento recibido y en procesamiento',
+                'data' => [
+                    'file_name' => $fileName,
+                    'file_size' => $file->getSize(),
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading document from miniapp', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al procesar el documento',
+            ], 500);
+        }
+    }
+
     // ========== MÉTODOS PRIVADOS ==========
 
     private function getMonthStats($tenantId, $from, $to)

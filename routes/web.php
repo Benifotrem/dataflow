@@ -23,7 +23,11 @@ Route::get('/sitemap.xml', [LandingController::class, 'sitemap'])->name('sitemap
 
 // Telegram Mini App
 Route::get('/miniapp', function () {
-    return response()->file(public_path('miniapp/index.html'));
+    return response()->file(public_path('miniapp/index.html'), [
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => '0'
+    ]);
 })->name('miniapp');
 
 // Rutas de Autenticación

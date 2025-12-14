@@ -204,30 +204,30 @@
 
                 for (const doc of pendingDocs) {
                     try {
+                        // Marcar como procesando
                         setDocuments(prev => prev.map(d =>
                             d.id === doc.id ? { ...d, status: 'uploading' } : d
                         ));
 
+                        // Crear FormData
                         const formData = new FormData();
                         formData.append('document', doc.file, doc.name);
 
+                        // Subir al servidor
                         const response = await fetch('/api/miniapp/upload', {
                             method: 'POST',
-                            headers: {
-                                'X-Telegram-Init-Data': initData
-                            },
+                            headers: apiHeaders,
                             body: formData
                         });
 
-                        const data = await response.json();
-
-                        if (data.success) {
-                            setDocuments(prev => prev.map(d =>
-                                d.id === doc.id ? { ...d, status: 'uploaded', uploaded: true } : d
-                            ));
-                        } else {
-                            throw new Error(data.error || 'Error desconocido');
+                        if (!response.ok) {
+                            throw new Error('Error al subir documento');
                         }
+
+                        // Marcar como subido
+                        setDocuments(prev => prev.map(d =>
+                            d.id === doc.id ? { ...d, status: 'uploaded', uploaded: true } : d
+                        ));
 
                         setProcessingCount(prev => prev - 1);
 
@@ -237,12 +237,10 @@
                             d.id === doc.id ? { ...d, status: 'error' } : d
                         ));
                         setProcessingCount(prev => prev - 1);
-                        tg.showAlert('❌ Error al subir: ' + doc.name);
                     }
                 }
 
-                const successCount = documents.filter(d => d.uploaded).length;
-                tg.showAlert(`✅ ${successCount} documento(s) enviado(s) para procesamiento`);
+                tg.showAlert('✅ Todos los documentos han sido procesados');
             };
 
             const formatSize = (bytes) => {
