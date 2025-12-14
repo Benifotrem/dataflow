@@ -159,6 +159,77 @@
         </div>
     </div>
 
+    {{-- Fiscal Assistant Chatbot Widget --}}
+    <div id="fiscal-chatbot" class="fixed bottom-6 right-6 z-50">
+        <!-- Botón flotante -->
+        <button id="chatbot-toggle" onclick="toggleChatbot()" class="bg-purple-600 hover:bg-purple-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="chatbot-badge" style="display: none;">1</span>
+        </button>
+
+        <!-- Ventana del chat -->
+        <div id="chatbot-window" class="hidden absolute bottom-16 right-0 w-96 h-[32rem] bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200">
+            <!-- Header -->
+            <div class="bg-purple-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                        🤖
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Asistente Fiscal</h3>
+                        <p class="text-xs text-purple-200">Especialista en Paraguay</p>
+                    </div>
+                </div>
+                <button onclick="toggleChatbot()" class="hover:bg-purple-700 rounded p-1 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                <!-- Mensaje de bienvenida -->
+                <div class="flex gap-2">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        🤖
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm max-w-xs">
+                        <p class="text-sm text-gray-800">¡Hola! Soy tu asistente fiscal experto en Paraguay. Puedo ayudarte con:</p>
+                        <ul class="text-xs text-gray-600 mt-2 space-y-1">
+                            <li>• Normativas de la SET</li>
+                            <li>• Resolución RG-90</li>
+                            <li>• Validación de comprobantes</li>
+                            <li>• IVA y facturación</li>
+                        </ul>
+                        <p class="text-sm text-gray-800 mt-2">¿En qué puedo asistirte?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="p-4 border-t border-gray-200 bg-white rounded-b-lg">
+                <form id="chatbot-form" onsubmit="sendMessage(event)" class="flex gap-2">
+                    <input
+                        type="text"
+                        id="chatbot-input"
+                        placeholder="Escribe tu pregunta..."
+                        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 transition" id="chatbot-send">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 mt-2 text-center">Respuestas generadas por IA</p>
+            </div>
+        </div>
+    </div>
+
     {{-- JavaScript --}}
     <script>
         function toggleSidebar() {
@@ -180,7 +251,145 @@
                 userMenu.classList.add('hidden');
             }
         });
+
+        // Chatbot functionality
+        function toggleChatbot() {
+            const window = document.getElementById('chatbot-window');
+            const badge = document.getElementById('chatbot-badge');
+            window.classList.toggle('hidden');
+            badge.style.display = 'none';
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+
+            const input = document.getElementById('chatbot-input');
+            const messages = document.getElementById('chatbot-messages');
+            const sendButton = document.getElementById('chatbot-send');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Agregar mensaje del usuario
+            appendMessage(message, 'user');
+            input.value = '';
+            sendButton.disabled = true;
+
+            // Mostrar indicador de escritura
+            const typingId = appendTypingIndicator();
+
+            try {
+                const response = await fetch('/api/chatbot/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                // Remover indicador de escritura
+                removeTypingIndicator(typingId);
+
+                if (data.success) {
+                    appendMessage(data.response, 'bot');
+                } else {
+                    appendMessage('Lo siento, hubo un error. Por favor intenta de nuevo.', 'bot');
+                }
+            } catch (error) {
+                removeTypingIndicator(typingId);
+                appendMessage('Error de conexión. Por favor verifica tu internet e intenta de nuevo.', 'bot');
+            } finally {
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+
+        function appendMessage(text, type) {
+            const messages = document.getElementById('chatbot-messages');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 fade-in';
+
+            if (type === 'user') {
+                div.innerHTML = `
+                    <div class="flex-1"></div>
+                    <div class="bg-purple-600 text-white rounded-lg p-3 shadow-sm max-w-xs">
+                        <p class="text-sm">${escapeHtml(text)}</p>
+                    </div>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        🤖
+                    </div>
+                    <div class="bg-white rounded-lg p-3 shadow-sm max-w-xs">
+                        <p class="text-sm text-gray-800">${formatBotMessage(text)}</p>
+                    </div>
+                `;
+            }
+
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function appendTypingIndicator() {
+            const messages = document.getElementById('chatbot-messages');
+            const div = document.createElement('div');
+            const id = 'typing-' + Date.now();
+            div.id = id;
+            div.className = 'flex gap-2';
+            div.innerHTML = `
+                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                    🤖
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                </div>
+            `;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const indicator = document.getElementById(id);
+            if (indicator) indicator.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatBotMessage(text) {
+            // Convertir markdown básico a HTML
+            text = escapeHtml(text);
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            text = text.replace(/\n/g, '<br>');
+            return text;
+        }
     </script>
+
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 
     @stack('scripts')
 </body>

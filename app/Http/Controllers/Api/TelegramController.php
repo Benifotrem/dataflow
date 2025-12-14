@@ -172,18 +172,20 @@ class TelegramController extends Controller
      */
     protected function commandStart(int $chatId)
     {
-        $message = "🤖 <b>¡Bienvenido al Bot de Dataflow!</b>\n\n" .
-            "Soy tu asistente para la gestión automática de facturas.\n\n" .
-            "<b>¿Qué puedo hacer?</b>\n" .
-            "✅ Recibir facturas en PDF o imagen\n" .
-            "✅ Extraer datos automáticamente con IA\n" .
-            "✅ Organizar facturas por emisor, año y mes\n" .
-            "✅ Notificarte cuando el procesamiento termine\n\n" .
-            "<b>Para empezar:</b>\n" .
-            "1. Vincula tu cuenta con /link\n" .
-            "2. Envía tus facturas\n" .
-            "3. ¡Listo! Recibirás una notificación cuando estén procesadas\n\n" .
-            "Usa /help para ver todos los comandos disponibles.";
+        $message = "🤖 <b>¡Bienvenido al Asistente Fiscal de Dataflow!</b>\n\n" .
+            "Soy tu asistente experto en contabilidad paraguaya y gestión de facturas.\n\n" .
+            "<b>💬 Puedes conversar conmigo:</b>\n" .
+            "• Pregúntame sobre fiscalidad paraguaya (RG-90, SET, IVA)\n" .
+            "• Consulta sobre comprobantes y requisitos fiscales\n" .
+            "• Pide ayuda con normativas contables\n\n" .
+            "<b>📄 Envía tus facturas directamente:</b>\n" .
+            "• Solo envía el PDF o foto de la factura\n" .
+            "• La proceso automáticamente con IA\n" .
+            "• Te notifico cuando esté lista\n\n" .
+            "<b>📱 Usa /app para:</b>\n" .
+            "• Fotografiar documentos con compresión automática\n" .
+            "• Subir múltiples facturas de forma rápida\n\n" .
+            "Escríbeme directamente o usa /help para ver más opciones.";
 
         $this->telegramService->sendMessage($chatId, $message);
     }
@@ -193,22 +195,25 @@ class TelegramController extends Controller
      */
     protected function commandHelp(int $chatId)
     {
-        $message = "📚 <b>Comandos disponibles:</b>\n\n" .
-            "<b>📱 General:</b>\n" .
-            "/start - Iniciar el bot\n" .
-            "/help - Ver esta ayuda\n" .
-            "/app - 📱 Abrir Mini App de Dataflow\n" .
-            "/link - Vincular tu cuenta de Dataflow\n" .
-            "/unlink - Desvincular tu cuenta\n" .
-            "/status - Ver el estado de tu cuenta\n\n" .
-            "<b>💳 Pagos:</b>\n" .
-            "/pagar - Generar enlace de pago de suscripción\n" .
-            "/suscripcion - Ver estado de tu suscripción\n\n" .
-            "<b>📄 Para enviar facturas:</b>\n" .
-            "Simplemente envía el archivo PDF o una foto de la factura.\n\n" .
-            "<b>⚠️ Importante:</b>\n" .
-            "Solo se procesan facturas y recibos de proveedores.\n" .
-            "Los extractos bancarios deben cargarse desde la plataforma web.";
+        $message = "📚 <b>¿Cómo puedo ayudarte?</b>\n\n" .
+            "<b>💬 Conversación:</b>\n" .
+            "Escríbeme directamente para:\n" .
+            "• Consultas sobre fiscalidad paraguaya\n" .
+            "• Interpretación de normativas SET\n" .
+            "• Validación de comprobantes\n" .
+            "• Requisitos de facturación\n\n" .
+            "<b>📄 Procesar Facturas:</b>\n" .
+            "• Envía el PDF o foto directamente\n" .
+            "• Procesamiento automático con IA\n" .
+            "• Notificación cuando esté lista\n\n" .
+            "<b>📱 Comandos:</b>\n" .
+            "/start - Información inicial\n" .
+            "/app - 📷 Abrir cámara para escanear documentos\n" .
+            "/link - Vincular tu cuenta\n" .
+            "/status - Estado de tu cuenta\n" .
+            "/pagar - Pago de suscripción\n" .
+            "/suscripcion - Ver suscripción\n\n" .
+            "💡 <b>Tip:</b> No necesitas comandos para hablar conmigo o enviar facturas, solo escribe o envía el documento.";
 
         $this->telegramService->sendMessage($chatId, $message);
     }
@@ -625,25 +630,20 @@ class TelegramController extends Controller
     protected function commandApp(int $chatId)
     {
         $keyboard = [[
-            'text' => '🚀 Abrir Dataflow',
+            'text' => '📷 Abrir Escáner de Documentos',
             'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
         ]];
 
-        $this->telegramService->sendMessage(
-            $chatId,
-            "📱 <b>Dataflow Mini App</b>\n\n" .
-            "Presiona el botón de abajo para abrir la aplicación móvil completa\\.\n\n" .
-            "✨ <b>Podrás:</b>\n" .
-            "• Ver dashboard con métricas en tiempo real\n" .
-            "• Consultar facturas electrónicas en la SET\n" .
-            "• Escanear códigos QR de facturas\n" .
-            "• Exportar reportes fiscales en Excel\n" .
-            "• Gestionar todas tus facturas desde el móvil\n\n" .
-            "🎯 Todo esto sin salir de Telegram\\!",
-            'MarkdownV2',
-            null,
-            $keyboard
-        );
+        $message = "📷 <b>Escáner de Documentos</b>\n\n" .
+            "Presiona el botón para abrir el escáner móvil.\n\n" .
+            "✨ <b>Funcionalidades:</b>\n" .
+            "• 📸 Fotografiar facturas con tu cámara\n" .
+            "• 🗜️ Compresión automática sin pérdida de calidad\n" .
+            "• 📤 Subida rápida de múltiples documentos\n" .
+            "• ⚡ Procesamiento inmediato con IA\n\n" .
+            "💡 <b>Tip:</b> También puedes enviar documentos directamente al chat.";
+
+        $this->telegramService->sendMessageWithKeyboard($chatId, $message, $keyboard);
     }
 
     /**

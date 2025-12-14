@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\PagoParController;
 use App\Http\Controllers\Api\TelegramController;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,8 @@ Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('
 
 // PagoPar Webhook
 Route::post('/pagopar/webhook', [PagoParController::class, 'webhook'])->name('pagopar.webhook');
+
+// Chatbot Web (requiere autenticación web)
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('/chatbot/message', [ChatbotController::class, 'sendMessage'])->name('chatbot.message');
+});
