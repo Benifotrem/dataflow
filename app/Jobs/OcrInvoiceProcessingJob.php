@@ -30,19 +30,19 @@ class OcrInvoiceProcessingJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Número de reintentos
+     * Número de reintentos (0 para evitar bucles)
      */
-    public $tries = 3;
+    public $tries = 1;
 
     /**
      * Timeout en segundos (más largo para OCR + validación)
      */
-    public $timeout = 600;
+    public $timeout = 120;
 
     /**
      * Delay entre reintentos (en segundos)
      */
-    public $backoff = [30, 60, 120];
+    public $backoff = [];
 
     protected User $user;
     protected ?string $fileId;
@@ -414,25 +414,43 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('❌ Error crítico en procesamiento de factura', [
                 'user_id' => $this->user->id,
-                'file_id' => $this->fileId,
+                'file_id' => $this->fileId ?? 'miniapp',
+                'source' => $this->fileId ? 'telegram' : 'miniapp',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             // Marcar documento como fallido si existe
             if (isset($document)) {
-                $document->update([
-                    'ocr_status' => 'failed',
-                    'rejection_reason' => $e->getMessage(),
-                ]);
+                try {
+                    $document->update([
+                        'ocr_status' => 'failed',
+                        'rejection_reason' => substr($e->getMessage(), 0, 500),
+                    ]);
+                } catch (\Exception $updateError) {
+                    Log::error('No se pudo actualizar documento fallido', [
+                        'error' => $updateError->getMessage(),
+                    ]);
+                }
             }
 
             // Enviar notificación de error (solo si viene de Telegram)
             if ($this->chatId) {
-                $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+                try {
+                    $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+                } catch (\Exception $notifError) {
+                    Log::error('No se pudo enviar notificación de error', [
+                        'error' => $notifError->getMessage(),
+                    ]);
+                }
             }
 
-            throw $e;
+            // NO relanzar la excepción para evitar reintentos infinitos
+            // El job se marcará como completado aunque haya fallado
+            Log::info('Job finalizado con errores (no se reintentará)', [
+                'user_id' => $this->user->id,
+                'file_id' => $this->fileId ?? 'miniapp',
+            ]);
         }
     }
 

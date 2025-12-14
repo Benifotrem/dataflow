@@ -28,32 +28,69 @@ class TelegramController extends Controller
 
     /**
      * Manejar webhook de Telegram
+     * SIEMPRE retorna 200 OK para evitar reenvíos de Telegram
      */
     public function webhook(Request $request)
     {
         try {
             $update = $request->all();
 
-            Log::info('Webhook de Telegram recibido', ['update' => $update]);
+            Log::info('📥 Webhook de Telegram recibido', [
+                'update_id' => $update['update_id'] ?? null,
+                'has_message' => isset($update['message']),
+                'has_callback' => isset($update['callback_query']),
+            ]);
 
             // Procesar mensaje
             if (isset($update['message'])) {
-                $this->handleMessage($update['message']);
+                try {
+                    $this->handleMessage($update['message']);
+                } catch (\Exception $e) {
+                    Log::error('❌ Error procesando mensaje', [
+                        'error' => $e->getMessage(),
+                        'message' => $update['message'],
+                    ]);
+
+                    // Intentar notificar al usuario del error
+                    try {
+                        if (isset($update['message']['chat']['id'])) {
+                            $this->telegramService->sendMessage(
+                                $update['message']['chat']['id'],
+                                "❌ Hubo un error al procesar tu mensaje.\n\n" .
+                                "El sistema sigue funcionando. Intenta de nuevo o usa /help para más opciones."
+                            );
+                        }
+                    } catch (\Exception $notifyError) {
+                        Log::error('No se pudo notificar error al usuario', [
+                            'error' => $notifyError->getMessage(),
+                        ]);
+                    }
+                }
             }
 
             // Procesar callback query
             if (isset($update['callback_query'])) {
-                $this->handleCallbackQuery($update['callback_query']);
+                try {
+                    $this->handleCallbackQuery($update['callback_query']);
+                } catch (\Exception $e) {
+                    Log::error('❌ Error procesando callback', [
+                        'error' => $e->getMessage(),
+                        'callback' => $update['callback_query'],
+                    ]);
+                }
             }
 
-            return response()->json(['status' => 'ok']);
+            // SIEMPRE retornar 200 OK para que Telegram no reenvíe
+            return response()->json(['status' => 'ok'], 200);
+
         } catch (\Exception $e) {
-            Log::error('Error en webhook de Telegram', [
+            Log::error('❌ Error crítico en webhook', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            // SIEMPRE retornar 200 OK para que Telegram no reenvíe
+            return response()->json(['status' => 'ok'], 200);
         }
     }
 
@@ -341,68 +378,134 @@ class TelegramController extends Controller
 
     /**
      * Manejar documentos recibidos
+     * Aislado para que errores NO afecten la conversacionalidad
      */
     protected function handleDocument(array $message, User $user)
     {
         $chatId = $message['chat']['id'];
 
-        // Enviar acción de "subiendo documento"
-        $this->telegramService->sendChatAction($chatId, 'upload_document');
+        try {
+            // Enviar acción de "subiendo documento"
+            $this->telegramService->sendChatAction($chatId, 'upload_document');
 
-        // Obtener información del archivo
-        $fileId = null;
-        $fileName = null;
-        $mimeType = null;
+            // Obtener información del archivo
+            $fileId = null;
+            $fileName = null;
+            $mimeType = null;
 
-        if (isset($message['document'])) {
-            $fileId = $message['document']['file_id'];
-            $fileName = $message['document']['file_name'] ?? 'documento.pdf';
-            $mimeType = $message['document']['mime_type'] ?? 'application/pdf';
-        } elseif (isset($message['photo'])) {
-            // Telegram envía múltiples tamaños, tomamos el más grande
-            $photos = $message['photo'];
-            $largestPhoto = end($photos);
-            $fileId = $largestPhoto['file_id'];
-            $fileName = 'imagen_' . time() . '.jpg';
-            $mimeType = 'image/jpeg';
-        }
+            if (isset($message['document'])) {
+                $fileId = $message['document']['file_id'];
+                $fileName = $message['document']['file_name'] ?? 'documento.pdf';
+                $mimeType = $message['document']['mime_type'] ?? 'application/pdf';
+            } elseif (isset($message['photo'])) {
+                // Telegram envía múltiples tamaños, tomamos el más grande
+                $photos = $message['photo'];
+                $largestPhoto = end($photos);
+                $fileId = $largestPhoto['file_id'];
+                $fileName = 'imagen_' . time() . '.jpg';
+                $mimeType = 'image/jpeg';
+            }
 
-        if (!$fileId) {
+            if (!$fileId) {
+                $this->telegramService->sendMessage(
+                    $chatId,
+                    "❌ No se pudo obtener el archivo.\n\n" .
+                    "💡 <b>Soluciones:</b>\n" .
+                    "• Intenta enviar el archivo de nuevo\n" .
+                    "• Verifica que sea PDF o imagen (JPG/PNG)\n" .
+                    "• Si el problema persiste, puedes preguntarme sobre fiscalidad"
+                );
+                return;
+            }
+
+            // Validar tipo de archivo
+            if (!$this->telegramService->isAllowedFileType($mimeType)) {
+                $this->telegramService->sendMessage(
+                    $chatId,
+                    "❌ <b>Tipo de archivo no permitido</b>\n\n" .
+                    "📄 Formatos aceptados:\n" .
+                    "• PDF (.pdf)\n" .
+                    "• Imágenes JPG (.jpg, .jpeg)\n" .
+                    "• Imágenes PNG (.png)\n\n" .
+                    "Tipo recibido: {$mimeType}\n\n" .
+                    "💡 <b>Tip:</b> Si tienes dudas sobre documentos, pregúntame directamente."
+                );
+                return;
+            }
+
+            // Enviar confirmación de recepción
             $this->telegramService->sendMessage(
                 $chatId,
-                "❌ No se pudo obtener el archivo. Por favor, intenta nuevamente."
+                "✅ <b>Documento recibido</b>\n\n" .
+                "📄 Archivo: {$fileName}\n" .
+                "⏳ Procesando con IA...\n\n" .
+                "Te notificaré cuando termine. Mientras tanto, puedes seguir conversando conmigo."
             );
-            return;
+
+            // Encolar el trabajo de procesamiento con OpenAI Vision + DNIT
+            try {
+                OcrInvoiceProcessingJob::dispatch(
+                    $user,
+                    $fileId,          // fileId
+                    $fileName,        // fileName
+                    $mimeType,        // mimeType
+                    $chatId,          // chatId
+                    null,             // promptContext
+                    null              // fileContent (se descargará de Telegram)
+                );
+
+                Log::info('✅ Documento de Telegram encolado para procesamiento', [
+                    'user_id' => $user->id,
+                    'file_id' => $fileId,
+                    'file_name' => $fileName,
+                    'mime_type' => $mimeType,
+                ]);
+
+            } catch (\Exception $dispatchError) {
+                Log::error('❌ Error al encolar job de procesamiento', [
+                    'user_id' => $user->id,
+                    'file_id' => $fileId,
+                    'error' => $dispatchError->getMessage(),
+                ]);
+
+                $this->telegramService->sendMessage(
+                    $chatId,
+                    "❌ <b>Error al procesar documento</b>\n\n" .
+                    "El sistema no pudo encolar tu documento para procesamiento.\n\n" .
+                    "💡 <b>Qué puedes hacer:</b>\n" .
+                    "1. Intenta enviar el documento de nuevo en unos minutos\n" .
+                    "2. Usa /app para subir documentos desde la miniapp\n" .
+                    "3. Sube el documento manualmente en https://dataflow.guaraniappstore.com\n\n" .
+                    "Mientras tanto, puedo ayudarte con consultas sobre fiscalidad. Pregúntame lo que necesites."
+                );
+            }
+
+        } catch (\Exception $e) {
+            Log::error('❌ Error general en handleDocument', [
+                'user_id' => $user->id,
+                'chat_id' => $chatId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Notificar al usuario con mensaje útil
+            try {
+                $this->telegramService->sendMessage(
+                    $chatId,
+                    "❌ <b>Error inesperado al procesar documento</b>\n\n" .
+                    "Error: " . substr($e->getMessage(), 0, 200) . "\n\n" .
+                    "💡 <b>Opciones:</b>\n" .
+                    "• Intenta de nuevo en unos minutos\n" .
+                    "• Usa la plataforma web: https://dataflow.guaraniappstore.com\n" .
+                    "• Pregúntame sobre fiscalidad mientras tanto\n\n" .
+                    "El bot sigue funcionando normalmente para consultas."
+                );
+            } catch (\Exception $notifyError) {
+                Log::error('No se pudo notificar error de documento al usuario', [
+                    'error' => $notifyError->getMessage(),
+                ]);
+            }
         }
-
-        // Validar tipo de archivo
-        if (!$this->telegramService->isAllowedFileType($mimeType)) {
-            $this->telegramService->sendMessage(
-                $chatId,
-                "❌ <b>Tipo de archivo no permitido</b>\n\n" .
-                "Solo se aceptan archivos PDF o imágenes (JPG, PNG)."
-            );
-            return;
-        }
-
-        // Enviar confirmación de recepción
-        $this->telegramService->sendMessage(
-            $chatId,
-            "✅ <b>Documento recibido</b>\n\n" .
-            "📄 Archivo: {$fileName}\n" .
-            "⏳ Procesando con IA...\n\n" .
-            "Te notificaré cuando el procesamiento termine."
-        );
-
-        // Encolar el trabajo de procesamiento con OpenAI Vision + DNIT
-        OcrInvoiceProcessingJob::dispatch($user, $fileId, $fileName, $mimeType, $chatId);
-
-        Log::info('Documento de Telegram encolado para procesamiento', [
-            'user_id' => $user->id,
-            'file_id' => $fileId,
-            'file_name' => $fileName,
-            'mime_type' => $mimeType,
-        ]);
     }
 
     /**
