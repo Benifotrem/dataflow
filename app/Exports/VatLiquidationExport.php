@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Document;
+use App\Services\FiscalValidationService;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -142,6 +143,7 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
             'Total IVA',
             'Monto Total',
             'Moneda',
+            'Validación',
             'Observaciones',
         ];
     }
@@ -168,17 +170,45 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
                 number_format($document->total_total_iva, 0, ',', '.'),
                 number_format($document->total_amount, 0, ',', '.'),
                 '',
+                '',
                 $document->total_count . ' facturas',
             ];
         }
 
         // Filas vacías
         if (!isset($document->id)) {
-            return ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+            return ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
         }
 
         // Datos normales de factura desde ocr_data
         $ocrData = $document->ocr_data ?? [];
+
+        // Validar coherencia matemática
+        $fiscalValidation = app(FiscalValidationService::class);
+        $mathValidation = $fiscalValidation->validateInvoiceAmounts([
+            'total_amount' => $ocrData['monto_total'] ?? 0,
+            'iva_10_base' => $ocrData['subtotal_gravado_10'] ?? 0,
+            'iva_10' => $ocrData['iva_10'] ?? 0,
+            'iva_5_base' => $ocrData['subtotal_gravado_5'] ?? 0,
+            'iva_5' => $ocrData['iva_5'] ?? 0,
+            'exentas' => $ocrData['subtotal_exentas'] ?? 0,
+        ]);
+
+        // Determinar estado de validación
+        $validationStatus = '✅ OK';
+        $observations = $document->validated ? 'Validado' : 'Revisar';
+
+        if (!$mathValidation['valid']) {
+            $validationStatus = '⚠️ REVISAR';
+            $errorsSummary = implode('; ', array_map(function($error) {
+                // Abreviar errores para Excel
+                if (str_contains($error, 'IVA 10%')) return 'Error IVA 10%';
+                if (str_contains($error, 'IVA 5%')) return 'Error IVA 5%';
+                if (str_contains($error, 'Total incoherente')) return 'Total incoherente';
+                return 'Error matemático';
+            }, $mathValidation['errors']));
+            $observations = $errorsSummary;
+        }
 
         return [
             $document->document_date ? $document->document_date->format('d/m/Y') : '',
@@ -195,7 +225,8 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
             isset($ocrData['total_iva']) ? number_format($ocrData['total_iva'], 0, ',', '.') : '',
             isset($ocrData['monto_total']) ? number_format($ocrData['monto_total'], 0, ',', '.') : '',
             $ocrData['moneda'] ?? 'PYG',
-            $document->validated ? 'Validado' : 'Revisar',
+            $validationStatus,
+            $observations,
         ];
     }
 
@@ -232,14 +263,14 @@ class VatLiquidationExport implements FromCollection, WithHeadings, WithMapping,
                 $lastRow = $sheet->getHighestRow();
                 $dataRows = $this->documents->count();
 
-                // Aplicar bordes a toda la tabla de datos (hasta la columna O = 15)
-                $sheet->getStyle("A1:O{$dataRows}")
+                // Aplicar bordes a toda la tabla de datos (hasta la columna P = 16)
+                $sheet->getStyle("A1:P{$dataRows}")
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
 
                 // Aplicar bordes a la fila de total
-                $sheet->getStyle("A{$lastRow}:O{$lastRow}")
+                $sheet->getStyle("A{$lastRow}:P{$lastRow}")
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_MEDIUM);

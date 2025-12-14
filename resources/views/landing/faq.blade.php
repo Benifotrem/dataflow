@@ -285,8 +285,39 @@
                                 </ol>
                             </div>
 
+                            <div class="bg-white rounded p-4 shadow-sm border-2 border-purple-300">
+                                <h4 class="font-bold text-purple-600 mb-2">🔢 3.3. Validación Matemática Automática</h4>
+                                <p class="mb-3">El sistema valida automáticamente que los importes sean coherentes según las reglas fiscales de Paraguay:</p>
+                                <ul class="list-disc list-inside space-y-2 ml-4">
+                                    <li><strong>IVA 10%:</strong> Verifica que IVA = Base × 0.10
+                                        <div class="text-sm text-gray-600 ml-6 mt-1">
+                                            Ejemplo: Si Base = ₲100,000, el IVA debe ser ₲10,000
+                                        </div>
+                                    </li>
+                                    <li><strong>IVA 5%:</strong> Verifica que IVA = Base × 0.05
+                                        <div class="text-sm text-gray-600 ml-6 mt-1">
+                                            Ejemplo: Si Base = ₲100,000, el IVA debe ser ₲5,000
+                                        </div>
+                                    </li>
+                                    <li><strong>Total:</strong> Verifica que Total = (Base 10% + IVA 10%) + (Base 5% + IVA 5%) + Exentas
+                                        <div class="text-sm text-gray-600 ml-6 mt-1">
+                                            Ejemplo: Si tienes ₲100,000 gravado 10% (₲10,000 IVA), el total debe ser ₲110,000
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="mt-3 p-3 bg-purple-50 rounded">
+                                    <p class="text-sm"><strong>✨ Auto-corrección:</strong> Si detecta errores menores (redondeo), el sistema intenta corregirlos automáticamente. Si no puede, marca la factura como "⚠️ Revisar" con el detalle del error matemático.</p>
+                                </div>
+                            </div>
+
                             <div class="mt-3 p-3 bg-yellow-100 border-l-4 border-yellow-600 rounded">
-                                <p class="text-sm"><strong>⚠️ Importante:</strong> Las facturas marcadas como "Revisar" generalmente tienen datos incompletos (imagen borrosa, timbrado ilegible, etc.). Revísalas antes de exportar.</p>
+                                <p class="text-sm"><strong>⚠️ Importante:</strong> Las facturas marcadas como "Revisar" pueden tener:</p>
+                                <ul class="list-disc list-inside text-sm ml-4 mt-2 space-y-1">
+                                    <li>Datos incompletos (imagen borrosa, timbrado ilegible)</li>
+                                    <li>Errores matemáticos en los importes (IVA no coincide con la base)</li>
+                                    <li>Total incoherente con la suma de componentes</li>
+                                </ul>
+                                <p class="text-sm mt-2"><strong>Revísalas antes de exportar para asegurar la precisión contable.</strong></p>
                             </div>
                         </div>
                     </div>

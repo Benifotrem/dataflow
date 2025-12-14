@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\OcrVisionService;
 use App\Services\DnitConnector;
 use App\Services\TelegramService;
+use App\Services\FiscalValidationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -82,7 +83,8 @@ class OcrInvoiceProcessingJob implements ShouldQueue
     public function handle(
         TelegramService $telegramService,
         OcrVisionService $ocrVisionService,
-        DnitConnector $dnitConnector
+        DnitConnector $dnitConnector,
+        FiscalValidationService $fiscalValidation
     ): void {
         try {
             Log::info('🚀 Iniciando procesamiento de factura con validación fiscal', [
@@ -207,6 +209,82 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 'tax_amount' => $extractedData['total_iva'] ?? null,
                 'tax_base' => $extractedData['subtotal'] ?? null,
             ]);
+
+            // PASO 4.5: Validación Matemática Fiscal
+            Log::info('🔢 Validando coherencia matemática de importes', ['document_id' => $document->id]);
+
+            $fiscalValidationResult = $fiscalValidation->validateInvoiceAmounts([
+                'total_amount' => $extractedData['monto_total'] ?? 0,
+                'iva_10_base' => $extractedData['subtotal_gravado_10'] ?? 0,
+                'iva_10' => $extractedData['iva_10'] ?? 0,
+                'iva_5_base' => $extractedData['subtotal_gravado_5'] ?? 0,
+                'iva_5' => $extractedData['iva_5'] ?? 0,
+                'exentas' => $extractedData['subtotal_exentas'] ?? 0,
+            ]);
+
+            // Si hay errores matemáticos, intentar auto-corregir
+            if (!$fiscalValidationResult['valid']) {
+                Log::warning('⚠️ Errores matemáticos detectados, intentando auto-corrección', [
+                    'document_id' => $document->id,
+                    'errors' => $fiscalValidationResult['errors'],
+                ]);
+
+                $correctedData = $fiscalValidation->autoCorrectAmounts([
+                    'total_amount' => $extractedData['monto_total'] ?? 0,
+                    'iva_10_base' => $extractedData['subtotal_gravado_10'] ?? 0,
+                    'iva_10' => $extractedData['iva_10'] ?? 0,
+                    'iva_5_base' => $extractedData['subtotal_gravado_5'] ?? 0,
+                    'iva_5' => $extractedData['iva_5'] ?? 0,
+                    'exentas' => $extractedData['subtotal_exentas'] ?? 0,
+                ]);
+
+                // Si se pudo auto-corregir, actualizar extractedData
+                if ($correctedData['corrected']) {
+                    $extractedData['subtotal_gravado_10'] = $correctedData['iva_10_base'];
+                    $extractedData['iva_10'] = $correctedData['iva_10'];
+                    $extractedData['subtotal_gravado_5'] = $correctedData['iva_5_base'];
+                    $extractedData['iva_5'] = $correctedData['iva_5'];
+                    $extractedData['subtotal_exentas'] = $correctedData['exentas'];
+
+                    // Re-calcular total IVA
+                    $extractedData['total_iva'] = $fiscalValidation->calculateTotalIvaCredito($correctedData);
+
+                    // Actualizar documento con datos corregidos
+                    $document->update([
+                        'ocr_data' => $extractedData,
+                        'tax_amount' => $extractedData['total_iva'],
+                    ]);
+
+                    Log::info('✅ Importes auto-corregidos exitosamente', ['document_id' => $document->id]);
+
+                    // Re-validar después de corrección
+                    $fiscalValidationResult = $fiscalValidation->validateInvoiceAmounts([
+                        'total_amount' => $extractedData['monto_total'] ?? 0,
+                        'iva_10_base' => $extractedData['subtotal_gravado_10'] ?? 0,
+                        'iva_10' => $extractedData['iva_10'] ?? 0,
+                        'iva_5_base' => $extractedData['subtotal_gravado_5'] ?? 0,
+                        'iva_5' => $extractedData['iva_5'] ?? 0,
+                        'exentas' => $extractedData['subtotal_exentas'] ?? 0,
+                    ]);
+                }
+            }
+
+            // Agregar errores de validación fiscal a los errores de validación general
+            if (!$fiscalValidationResult['valid']) {
+                $validation['errors'] = array_merge(
+                    $validation['errors'] ?? [],
+                    $fiscalValidationResult['errors']
+                );
+                $validation['valid'] = false;
+            }
+
+            // Agregar warnings de validación fiscal
+            if (!empty($fiscalValidationResult['warnings'])) {
+                $validation['warnings'] = array_merge(
+                    $validation['warnings'] ?? [],
+                    $fiscalValidationResult['warnings']
+                );
+            }
 
             // PASO 5: Validar con DNIT si tenemos los datos necesarios
             $dnitValidation = null;

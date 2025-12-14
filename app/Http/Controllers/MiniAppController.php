@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Entity;
 use App\Services\DnitConnector;
+use App\Services\FiscalValidationService;
 use App\Exports\VatLiquidationExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -284,6 +285,34 @@ class MiniAppController extends Controller
         $ocrData['total_iva'] = $totalIva;
         $ocrData['monto_total'] = $totalAmount;
 
+        // Validar coherencia matemática después de la actualización
+        $fiscalValidation = app(FiscalValidationService::class);
+        $mathValidation = $fiscalValidation->validateInvoiceAmounts([
+            'total_amount' => $totalAmount,
+            'iva_10_base' => $ocrData['subtotal_gravado_10'] ?? 0,
+            'iva_10' => $ocrData['iva_10'] ?? 0,
+            'iva_5_base' => $ocrData['subtotal_gravado_5'] ?? 0,
+            'iva_5' => $ocrData['iva_5'] ?? 0,
+            'exentas' => $ocrData['subtotal_exentas'] ?? 0,
+        ]);
+
+        // Si hay errores matemáticos, marcar documento para revisión
+        if (!$mathValidation['valid']) {
+            $validationSummary = $fiscalValidation->getValidationSummary($mathValidation);
+            $document->rejection_reason = $validationSummary;
+            $document->validated = false;
+
+            Log::warning('Document has mathematical errors after manual update', [
+                'document_id' => $document->id,
+                'errors' => $mathValidation['errors'],
+            ]);
+        } else {
+            // Si la validación es correcta, limpiar rejection_reason si existía
+            if ($document->rejection_reason && str_contains($document->rejection_reason, 'incoherente')) {
+                $document->rejection_reason = null;
+            }
+        }
+
         $document->ocr_data = $ocrData;
         $document->amount = $totalAmount;
         $document->save();
@@ -334,6 +363,48 @@ class MiniAppController extends Controller
         }
 
         $cdcData = $result['data'];
+
+        // Validar coherencia matemática de los datos recibidos
+        $fiscalValidation = app(FiscalValidationService::class);
+        $mathValidation = $fiscalValidation->validateInvoiceAmounts([
+            'total_amount' => $cdcData['monto_total'] ?? 0,
+            'iva_10_base' => $cdcData['subtotal_gravado_10'] ?? 0,
+            'iva_10' => $cdcData['iva_10'] ?? 0,
+            'iva_5_base' => $cdcData['subtotal_gravado_5'] ?? 0,
+            'iva_5' => $cdcData['iva_5'] ?? 0,
+            'exentas' => $cdcData['subtotal_exentas'] ?? 0,
+        ]);
+
+        // Agregar resultado de validación matemática a la respuesta
+        $cdcData['math_validation'] = [
+            'valid' => $mathValidation['valid'],
+            'errors' => $mathValidation['errors'],
+            'warnings' => $mathValidation['warnings'],
+        ];
+
+        // Si hay errores matemáticos, intentar auto-corrección
+        if (!$mathValidation['valid']) {
+            $correctedData = $fiscalValidation->autoCorrectAmounts([
+                'total_amount' => $cdcData['monto_total'] ?? 0,
+                'iva_10_base' => $cdcData['subtotal_gravado_10'] ?? 0,
+                'iva_10' => $cdcData['iva_10'] ?? 0,
+                'iva_5_base' => $cdcData['subtotal_gravado_5'] ?? 0,
+                'iva_5' => $cdcData['iva_5'] ?? 0,
+                'exentas' => $cdcData['subtotal_exentas'] ?? 0,
+            ]);
+
+            if ($correctedData['corrected']) {
+                // Actualizar con datos corregidos
+                $cdcData['subtotal_gravado_10'] = $correctedData['iva_10_base'];
+                $cdcData['iva_10'] = $correctedData['iva_10'];
+                $cdcData['subtotal_gravado_5'] = $correctedData['iva_5_base'];
+                $cdcData['iva_5'] = $correctedData['iva_5'];
+                $cdcData['subtotal_exentas'] = $correctedData['exentas'];
+                $cdcData['total_iva'] = $fiscalValidation->calculateTotalIvaCredito($correctedData);
+
+                $cdcData['math_validation']['auto_corrected'] = true;
+            }
+        }
 
         // Guardar automáticamente si el usuario lo solicita
         if ($request->boolean('auto_save', false)) {
