@@ -154,17 +154,27 @@
                 );
             }
 
-            const stats = dashboardData?.stats || {};
-            const vatSummary = dashboardData?.vat_summary || {};
-            const nextDeadline = dashboardData?.next_vat_deadline;
-            const currentMonth = new Date().toLocaleDateString('es-PY', { month: 'long', year: 'numeric' });
+            const currentMonth = dashboardData?.current_month || {};
+            const stats = {
+                documents_current_month: currentMonth.total_invoices || 0,
+                pending_review: currentMonth.pending_validation || 0
+            };
+            const vatSummary = {
+                total_iva_10: currentMonth.breakdown?.iva_10?.iva || 0,
+                total_iva_5: currentMonth.breakdown?.iva_5?.iva || 0
+            };
+            // Calcular próximo vencimiento (día 15 del mes siguiente)
+            const today = new Date();
+            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 15);
+            const nextDeadline = nextMonth.toISOString();
+            const currentMonthName = currentMonth.name || new Date().toLocaleDateString('es-PY', { month: 'long', year: 'numeric' });
 
             return (
                 <div className="min-h-screen p-4 pb-8">
                     {/* Header */}
                     <div className="mb-6 fade-in">
                         <h1 className="text-2xl font-bold text-purple-700 mb-1">📊 Dashboard IVA</h1>
-                        <p className="text-gray-600 text-sm capitalize">{currentMonth}</p>
+                        <p className="text-gray-600 text-sm capitalize">{currentMonthName}</p>
                     </div>
 
                     {/* Resumen del Mes */}
