@@ -288,25 +288,39 @@
                             <div class="bg-white rounded p-4 shadow-sm border-2 border-purple-300">
                                 <h4 class="font-bold text-purple-600 mb-2">🔢 3.3. Validación Matemática Automática</h4>
                                 <p class="mb-3">El sistema valida automáticamente que los importes sean coherentes según las reglas fiscales de Paraguay:</p>
+
+                                <div class="bg-blue-50 p-3 rounded mb-3">
+                                    <p class="text-sm font-bold text-blue-800">💡 Importante: En Paraguay, el precio final SIEMPRE incluye el IVA</p>
+                                    <p class="text-sm text-blue-700 mt-1">El cálculo es inverso (del total hacia la base sin IVA)</p>
+                                </div>
+
                                 <ul class="list-disc list-inside space-y-2 ml-4">
-                                    <li><strong>IVA 10%:</strong> Verifica que IVA = Base × 0.10
+                                    <li><strong>IVA 10%:</strong> El subtotal incluye IVA → Base = Subtotal ÷ 1.10 → IVA = Subtotal - Base
                                         <div class="text-sm text-gray-600 ml-6 mt-1">
-                                            Ejemplo: Si Base = ₲100,000, el IVA debe ser ₲10,000
+                                            <strong>Ejemplo:</strong> Compras por ₲110,000 (incluye IVA 10%)<br>
+                                            • Base sin IVA: ₲110,000 ÷ 1.10 = ₲100,000<br>
+                                            • IVA 10%: ₲110,000 - ₲100,000 = ₲10,000
                                         </div>
                                     </li>
-                                    <li><strong>IVA 5%:</strong> Verifica que IVA = Base × 0.05
+                                    <li><strong>IVA 5%:</strong> El subtotal incluye IVA → Base = Subtotal ÷ 1.05 → IVA = Subtotal - Base
                                         <div class="text-sm text-gray-600 ml-6 mt-1">
-                                            Ejemplo: Si Base = ₲100,000, el IVA debe ser ₲5,000
+                                            <strong>Ejemplo:</strong> Compras por ₲105,000 (incluye IVA 5%)<br>
+                                            • Base sin IVA: ₲105,000 ÷ 1.05 = ₲100,000<br>
+                                            • IVA 5%: ₲105,000 - ₲100,000 = ₲5,000
                                         </div>
                                     </li>
-                                    <li><strong>Total:</strong> Verifica que Total = (Base 10% + IVA 10%) + (Base 5% + IVA 5%) + Exentas
+                                    <li><strong>Total:</strong> Verifica que Total = Subtotal 10% + Subtotal 5% + Exentas
                                         <div class="text-sm text-gray-600 ml-6 mt-1">
-                                            Ejemplo: Si tienes ₲100,000 gravado 10% (₲10,000 IVA), el total debe ser ₲110,000
+                                            <strong>Ejemplo:</strong> Factura mixta<br>
+                                            • Subtotal gravado 10%: ₲110,000 (ya incluye IVA)<br>
+                                            • Subtotal gravado 5%: ₲105,000 (ya incluye IVA)<br>
+                                            • Exentas: ₲50,000<br>
+                                            • <strong>Total: ₲265,000</strong>
                                         </div>
                                     </li>
                                 </ul>
                                 <div class="mt-3 p-3 bg-purple-50 rounded">
-                                    <p class="text-sm"><strong>✨ Auto-corrección:</strong> Si detecta errores menores (redondeo), el sistema intenta corregirlos automáticamente. Si no puede, marca la factura como "⚠️ Revisar" con el detalle del error matemático.</p>
+                                    <p class="text-sm"><strong>✨ Auto-corrección:</strong> Si detecta errores menores (redondeo ±10 guaraníes), el sistema intenta corregirlos automáticamente usando el cálculo inverso. Si no puede, marca la factura como "⚠️ Revisar" con el detalle del error matemático.</p>
                                 </div>
                             </div>
 
