@@ -16,8 +16,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Telegram Webhook
-Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('telegram.webhook');
+// Telegram Webhook - DESACTIVADO TEMPORALMENTE PARA DETENER BUCLE
+Route::post('/telegram/webhook', function() {
+    \Illuminate\Support\Facades\Log::info('🚫 Webhook recibido pero desactivado temporalmente');
+    return response()->json(['status' => 'ok'], 200);
+})->name('telegram.webhook');
+
+// WEBHOOK ORIGINAL COMENTADO:
+// Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('telegram.webhook');
 
 // PagoPar Webhook
 Route::post('/pagopar/webhook', [PagoParController::class, 'webhook'])->name('pagopar.webhook');
