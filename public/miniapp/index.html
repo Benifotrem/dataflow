@@ -93,23 +93,32 @@
             'X-Telegram-Init-Data': initData
         };
 
-        // Servicio de compresión de imágenes (estilo WhatsApp)
+        // Servicio de compresión de imágenes (estilo WhatsApp agresivo)
         const compressImage = async (file) => {
+            // Configuración WhatsApp-style: imágenes pequeñas pero legibles
             const options = {
-                maxSizeMB: 0.5,              // Máximo 500KB
-                maxWidthOrHeight: 1920,      // Máximo 1920px
+                maxSizeMB: 0.2,              // Máximo 200KB (WhatsApp típico)
+                maxWidthOrHeight: 1600,      // Suficiente para documentos
                 useWebWorker: true,
                 fileType: 'image/jpeg',
-                initialQuality: 0.85,        // Alta calidad inicial
+                initialQuality: 0.75,        // Calidad media-alta (balance)
                 alwaysKeepResolution: false
             };
 
             try {
                 const compressedFile = await imageCompression(file, options);
-                console.log(`Original: ${(file.size / 1024 / 1024).toFixed(2)}MB → Comprimido: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+                const reduction = ((1 - compressedFile.size / file.size) * 100).toFixed(0);
+                console.log(`📸 Compresión WhatsApp: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (-${reduction}%)`);
+
+                // Mostrar notificación si comprimió mucho
+                if (reduction > 50) {
+                    tg.showAlert(`✅ Imagen optimizada: -${reduction}% de tamaño`);
+                }
+
                 return compressedFile;
             } catch (error) {
-                console.error('Error al comprimir:', error);
+                console.error('❌ Error al comprimir:', error);
+                tg.showAlert('⚠️ No se pudo comprimir, usando imagen original');
                 return file;
             }
         };
@@ -273,13 +282,12 @@
                         <p className="text-gray-600 text-sm">Fotografía, comprime y envía tus facturas</p>
                     </div>
 
-                    {/* Botón principal de captura */}
+                    {/* Botón principal de captura - SOLO CÁMARA */}
                     <div className="mb-6 fade-in">
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*,application/pdf"
-                            multiple
+                            accept="image/*"
                             capture="environment"
                             onChange={handleFileChange}
                             className="hidden"
@@ -291,8 +299,11 @@
                             className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                         >
                             <span className="text-2xl">📸</span>
-                            <span>{uploading ? 'Procesando...' : 'Fotografiar Documento'}</span>
+                            <span>{uploading ? 'Procesando...' : 'Tomar Foto'}</span>
                         </button>
+                        <p className="text-center text-xs text-gray-500 mt-2">
+                            La cámara se abrirá automáticamente
+                        </p>
                     </div>
 
                     {/* Barra de progreso */}

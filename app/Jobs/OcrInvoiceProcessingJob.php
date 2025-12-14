@@ -8,6 +8,7 @@ use App\Services\OcrVisionService;
 use App\Services\DnitConnector;
 use App\Services\TelegramService;
 use App\Services\FiscalValidationService;
+use App\Services\DocumentDiagnosticService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -434,10 +435,19 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 }
             }
 
-            // Enviar notificación de error (solo si viene de Telegram)
+            // Enviar notificación de error con diagnóstico inteligente (solo si viene de Telegram)
             if ($this->chatId) {
                 try {
-                    $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+                    if (isset($document)) {
+                        // Usar diagnóstico inteligente
+                        $diagnosticService = app(DocumentDiagnosticService::class);
+                        $diagnostic = $diagnosticService->diagnoseDocumentError($document);
+                        $message = $diagnosticService->formatDiagnosticMessage($diagnostic, $document);
+                        $telegramService->sendMessage($this->chatId, $message);
+                    } else {
+                        // Fallback si no hay documento
+                        $this->sendErrorNotification($telegramService, $e->getMessage(), null);
+                    }
                 } catch (\Exception $notifError) {
                     Log::error('No se pudo enviar notificación de error', [
                         'error' => $notifError->getMessage(),
