@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use IlluminateSupportFacadesStorage;
+use IlluminateSupportFacadesLog;
+use AppJobsOcrInvoiceProcessingJob;
+
 use App\Models\Document;
 use App\Models\Entity;
 use App\Services\DnitConnector;
@@ -661,4 +665,56 @@ class MiniAppController extends Controller
 
         return $alerts;
     }
+    /**
+     * Subir documento desde la miniapp
+     */
+    public function uploadDocument(Request $request)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
+        ]);
+
+        try {
+            $user = auth()->user();
+            $file = $request->file('document');
+            
+            // Guardar archivo temporalmente
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('temp', $fileName, 'local');
+            
+            // Obtener contenido del archivo
+            $fileContent = Storage::disk('local')->get($filePath);
+            $mimeType = $file->getMimeType();
+            
+            // Procesar como si viniera de Telegram
+            OcrInvoiceProcessingJob::dispatch(
+                $user,
+                null, // No hay file_id de Telegram
+                $fileName,
+                $mimeType,
+                null, // No hay chat_id
+                $fileContent // Pasar contenido directamente
+            );
+            
+            // Limpiar archivo temporal
+            Storage::disk('local')->delete($filePath);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento encolado para procesamiento'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al subir documento desde miniapp', [
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al procesar el documento'
+            ], 500);
+        }
+    }
+
 }

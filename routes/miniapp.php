@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function () {
+    Route::post('/upload', [MiniAppController::class, 'uploadDocument'])->name('miniapp.upload');
 
     // Dashboard
     Route::get('/dashboard', [MiniAppController::class, 'dashboard']);

@@ -629,21 +629,26 @@ class TelegramController extends Controller
      */
     protected function commandApp(int $chatId)
     {
-        $keyboard = [[
-            'text' => '📷 Abrir Escáner de Documentos',
-            'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
-        ]];
-
-        $message = "📷 <b>Escáner de Documentos</b>\n\n" .
+        $this->telegramService->sendMessage($chatId, 
+            "📷 <b>Escáner de Documentos</b>\n\n" .
             "Presiona el botón para abrir el escáner móvil.\n\n" .
             "✨ <b>Funcionalidades:</b>\n" .
             "• 📸 Fotografiar facturas con tu cámara\n" .
             "• 🗜️ Compresión automática sin pérdida de calidad\n" .
             "• 📤 Subida rápida de múltiples documentos\n" .
             "• ⚡ Procesamiento inmediato con IA\n\n" .
-            "💡 <b>Tip:</b> También puedes enviar documentos directamente al chat.";
-
-        $this->telegramService->sendMessageWithKeyboard($chatId, $message, $keyboard);
+            "💡 <b>Tip:</b> También puedes enviar documentos directamente al chat.",
+            [
+                'reply_markup' => json_encode([
+                    'inline_keyboard' => [[
+                        [
+                            'text' => '📷 Abrir Escáner de Documentos',
+                            'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
+                        ]
+                    ]]
+                ])
+            ]
+        );
     }
 
     /**
