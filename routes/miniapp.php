@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function () {
-    Route::post('/upload', [MiniAppController::class, 'uploadDocument'])->name('miniapp.upload');
 
     // Dashboard
     Route::get('/dashboard', [MiniAppController::class, 'dashboard']);
@@ -26,7 +25,7 @@ Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function (
     Route::get('/documents', [MiniAppController::class, 'listDocuments']);
     Route::get('/documents/{id}', [MiniAppController::class, 'getDocument']);
     Route::patch('/documents/{id}', [MiniAppController::class, 'updateDocument']);
-    Route::post('/upload', [MiniAppController::class, 'uploadDocument']);
+    Route::post('/upload', [MiniAppController::class, 'uploadDocument'])->name('miniapp.upload');
 
     // CDC - Consulta de facturas electrónicas
     Route::post('/cdc/consult', [MiniAppController::class, 'consultCDC']);
