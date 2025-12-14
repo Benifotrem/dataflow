@@ -45,29 +45,32 @@ class OcrInvoiceProcessingJob implements ShouldQueue
     public $backoff = [30, 60, 120];
 
     protected User $user;
-    protected string $fileId;
+    protected ?string $fileId;
     protected string $fileName;
     protected string $mimeType;
-    protected int $chatId;
+    protected ?int $chatId;
     protected ?string $promptContext;
+    protected ?string $fileContent; // Contenido del archivo ya descargado (para miniapp)
 
     /**
      * Create a new job instance.
      *
      * @param User $user Usuario que envió el documento
-     * @param string $fileId ID del archivo en Telegram
+     * @param string|null $fileId ID del archivo en Telegram (null si viene de miniapp)
      * @param string $fileName Nombre del archivo
      * @param string $mimeType Tipo MIME
-     * @param int $chatId ID del chat de Telegram
+     * @param int|null $chatId ID del chat de Telegram (null si viene de miniapp)
      * @param string|null $promptContext Contexto adicional para el OCR
+     * @param string|null $fileContent Contenido del archivo en base64 (para miniapp)
      */
     public function __construct(
         User $user,
-        string $fileId,
+        ?string $fileId,
         string $fileName,
         string $mimeType,
-        int $chatId,
-        ?string $promptContext = null
+        ?int $chatId,
+        ?string $promptContext = null,
+        ?string $fileContent = null
     ) {
         $this->user = $user;
         $this->fileId = $fileId;
@@ -75,6 +78,7 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         $this->mimeType = $mimeType;
         $this->chatId = $chatId;
         $this->promptContext = $promptContext;
+        $this->fileContent = $fileContent;
     }
 
     /**
@@ -89,15 +93,28 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         try {
             Log::info('🚀 Iniciando procesamiento de factura con validación fiscal', [
                 'user_id' => $this->user->id,
-                'file_id' => $this->fileId,
+                'file_id' => $this->fileId ?? 'miniapp',
                 'file_name' => $this->fileName,
+                'source' => $this->fileId ? 'telegram' : 'miniapp',
             ]);
 
-            // PASO 1: Descargar archivo de Telegram
-            $fileData = $telegramService->downloadFile($this->fileId);
-
-            if (!$fileData) {
-                throw new \Exception('No se pudo descargar el archivo de Telegram');
+            // PASO 1: Obtener contenido del archivo
+            if ($this->fileContent) {
+                // Viene de miniapp con contenido ya descargado
+                $fileData = [
+                    'content' => base64_decode($this->fileContent),
+                    'size' => strlen(base64_decode($this->fileContent)),
+                ];
+                Log::info('📱 Archivo recibido desde miniapp', ['size' => $fileData['size']]);
+            } elseif ($this->fileId) {
+                // Viene de Telegram, necesita descargar
+                $fileData = $telegramService->downloadFile($this->fileId);
+                if (!$fileData) {
+                    throw new \Exception('No se pudo descargar el archivo de Telegram');
+                }
+                Log::info('📥 Archivo descargado desde Telegram', ['size' => $fileData['size']]);
+            } else {
+                throw new \Exception('No se proporcionó ni fileId ni fileContent');
             }
 
             // PASO 2: Crear registro de documento inicial
@@ -364,21 +381,28 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             // PASO 7: Actualizar estado final de OCR
             $document->update(['ocr_status' => 'completed']);
 
-            // PASO 8: Enviar notificación al usuario
-            if ($needsManualCheck) {
-                $this->sendManualCheckNotification(
-                    $telegramService,
-                    $document,
-                    $validation,
-                    $dnitValidation
-                );
+            // PASO 8: Enviar notificación al usuario (solo si viene de Telegram)
+            if ($this->chatId) {
+                if ($needsManualCheck) {
+                    $this->sendManualCheckNotification(
+                        $telegramService,
+                        $document,
+                        $validation,
+                        $dnitValidation
+                    );
+                } else {
+                    $this->sendSuccessNotification(
+                        $telegramService,
+                        $document,
+                        $validation,
+                        $dnitValidation
+                    );
+                }
             } else {
-                $this->sendSuccessNotification(
-                    $telegramService,
-                    $document,
-                    $validation,
-                    $dnitValidation
-                );
+                Log::info('📱 Notificación omitida (origen: miniapp)', [
+                    'document_id' => $document->id,
+                    'needs_manual_check' => $needsManualCheck,
+                ]);
             }
 
             Log::info('✨ Procesamiento de factura completado exitosamente', [
@@ -403,8 +427,10 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 ]);
             }
 
-            // Enviar notificación de error
-            $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+            // Enviar notificación de error (solo si viene de Telegram)
+            if ($this->chatId) {
+                $this->sendErrorNotification($telegramService, $e->getMessage(), $document ?? null);
+            }
 
             throw $e;
         }
@@ -676,21 +702,25 @@ class OcrInvoiceProcessingJob implements ShouldQueue
     {
         Log::error('Job OcrInvoiceProcessingJob falló definitivamente', [
             'user_id' => $this->user->id,
-            'file_id' => $this->fileId,
+            'file_id' => $this->fileId ?? 'miniapp',
+            'source' => $this->fileId ? 'telegram' : 'miniapp',
             'error' => $exception->getMessage(),
         ]);
 
-        try {
-            $telegramService = app(TelegramService::class);
-            $this->sendErrorNotification(
-                $telegramService,
-                'El documento no pudo ser procesado después de varios intentos.',
-                null
-            );
-        } catch (\Exception $e) {
-            Log::error('No se pudo enviar notificación de fallo', [
-                'error' => $e->getMessage(),
-            ]);
+        // Solo enviar notificación de Telegram si viene de Telegram
+        if ($this->chatId) {
+            try {
+                $telegramService = app(TelegramService::class);
+                $this->sendErrorNotification(
+                    $telegramService,
+                    'El documento no pudo ser procesado después de varios intentos.',
+                    null
+                );
+            } catch (\Exception $e) {
+                Log::error('No se pudo enviar notificación de fallo', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }
