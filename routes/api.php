@@ -19,6 +19,16 @@ use Illuminate\Support\Facades\Route;
 // Telegram Webhook - REACTIVADO con protecciones anti-bucle
 Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('telegram.webhook');
 
+// Endpoint de prueba para verificar accesibilidad
+Route::get('/telegram/test', function() {
+    \Illuminate\Support\Facades\Log::info('🧪 Test endpoint accessed');
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Telegram webhook endpoint is accessible',
+        'timestamp' => now()->toIso8601String()
+    ]);
+});
+
 // PagoPar Webhook
 Route::post('/pagopar/webhook', [PagoParController::class, 'webhook'])->name('pagopar.webhook');
 
