@@ -258,6 +258,10 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     'ocr_status' => 'completed', // ← Marcar como completado aquí
                 ]);
 
+                // Facturas extranjeras no requieren revisión manual
+                $needsManualCheck = false;
+                $dnitValidation = null;
+
                 // Saltar validaciones fiscales paraguayas
                 goto skipFiscalValidation;
             }
