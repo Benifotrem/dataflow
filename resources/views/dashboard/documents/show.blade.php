@@ -50,13 +50,110 @@
         @if($document->ocr_data)
         <div class="mt-8 pt-8 border-t border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Extraída (IA)</h3>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ json_encode($document->ocr_data, JSON_PRETTY_PRINT) }}</pre>
-            </div>
+
+            @php
+                $invoiceType = $document->ocr_data['invoice_type'] ?? null;
+                $ocrData = $document->ocr_data;
+            @endphp
+
+            @if($invoiceType === 'foreign')
+                <!-- Vista formateada para facturas extranjeras -->
+                <div class="bg-gray-50 rounded-lg p-6 space-y-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">📍 Proveedor</h4>
+                        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <dt class="text-sm text-gray-600">Nombre</dt>
+                                <dd class="text-base text-gray-900 font-medium">{{ $ocrData['vendor_name'] ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm text-gray-600">País</dt>
+                                <dd class="text-base text-gray-900">{{ $ocrData['vendor_country'] ?? 'N/A' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3">📄 Factura</h4>
+                        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <dt class="text-sm text-gray-600">Número</dt>
+                                <dd class="text-base text-gray-900 font-medium">{{ $ocrData['invoice_number'] ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm text-gray-600">Moneda</dt>
+                                <dd class="text-base text-gray-900 font-medium">{{ $ocrData['currency'] ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm text-gray-600">Fecha de Emisión</dt>
+                                <dd class="text-base text-gray-900">{{ $ocrData['invoice_date'] ?? 'N/A' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm text-gray-600">Vencimiento</dt>
+                                <dd class="text-base text-gray-900">{{ $ocrData['due_date'] ?? 'N/A' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3">💰 Montos</h4>
+                        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @if(isset($ocrData['subtotal']) && $ocrData['subtotal'])
+                            <div>
+                                <dt class="text-sm text-gray-600">Subtotal</dt>
+                                <dd class="text-base text-gray-900">{{ $ocrData['currency'] ?? '' }} {{ number_format($ocrData['subtotal'], 2) }}</dd>
+                            </div>
+                            @endif
+                            @if(isset($ocrData['tax_amount']) && $ocrData['tax_amount'])
+                            <div>
+                                <dt class="text-sm text-gray-600">Impuesto</dt>
+                                <dd class="text-base text-gray-900">{{ $ocrData['currency'] ?? '' }} {{ number_format($ocrData['tax_amount'], 2) }}</dd>
+                            </div>
+                            @endif
+                            <div>
+                                <dt class="text-sm text-gray-600">Monto Total</dt>
+                                <dd class="text-lg text-gray-900 font-bold">{{ $ocrData['currency'] ?? '' }} {{ number_format($ocrData['monto_total'] ?? 0, 2) }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    @if(isset($ocrData['service_description']) && $ocrData['service_description'])
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3">📝 Descripción</h4>
+                        <p class="text-gray-700">{{ $ocrData['service_description'] }}</p>
+                    </div>
+                    @endif
+
+                    @if(isset($ocrData['observations']) && $ocrData['observations'])
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3">💬 Observaciones</h4>
+                        <p class="text-gray-700">{{ $ocrData['observations'] }}</p>
+                    </div>
+                    @endif
+
+                    <!-- JSON crudo colapsable -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <details class="cursor-pointer">
+                            <summary class="text-sm text-gray-600 hover:text-gray-900">Ver JSON completo</summary>
+                            <pre class="mt-3 text-xs text-gray-700 whitespace-pre-wrap bg-white p-4 rounded border border-gray-200">{{ json_encode($ocrData, JSON_PRETTY_PRINT) }}</pre>
+                        </details>
+                    </div>
+                </div>
+            @else
+                <!-- Vista JSON para otros tipos de facturas -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ json_encode($document->ocr_data, JSON_PRETTY_PRINT) }}</pre>
+                </div>
+            @endif
         </div>
         @endif
 
         <div class="mt-8 flex gap-4">
+            @if(isset($document->ocr_data['invoice_type']) && $document->ocr_data['invoice_type'] === 'foreign')
+                <a href="{{ route('documents.edit', $document) }}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition inline-block">
+                    Editar Factura
+                </a>
+            @endif
             <form action="{{ route('documents.destroy', $document) }}" method="POST" onsubmit="return confirm('¿Eliminar este documento?');">
                 @csrf
                 @method('DELETE')

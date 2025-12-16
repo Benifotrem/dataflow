@@ -76,6 +76,8 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
             }
         })->name('show');
 
+        Route::get('/{document}/edit', [\App\Http\Controllers\Dashboard\DocumentController::class, 'edit'])->name('edit');
+        Route::put('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'update'])->name('update');
         Route::delete('/{document}', [\App\Http\Controllers\Dashboard\DocumentController::class, 'destroy'])->name('destroy');
     });
 

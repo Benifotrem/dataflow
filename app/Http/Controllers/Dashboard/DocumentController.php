@@ -92,6 +92,66 @@ class DocumentController extends Controller
         }
     }
 
+    public function edit(Document $document)
+    {
+        $this->authorize('update', $document);
+
+        $document->load('entity', 'user');
+
+        return view('dashboard.documents.edit', compact('document'));
+    }
+
+    public function update(Request $request, Document $document)
+    {
+        $this->authorize('update', $document);
+
+        // Validar según el tipo de factura
+        $invoiceType = $document->ocr_data['invoice_type'] ?? null;
+
+        if ($invoiceType === 'foreign') {
+            $validated = $request->validate([
+                'vendor_name' => 'required|string|max:255',
+                'vendor_country' => 'nullable|string|max:100',
+                'invoice_number' => 'required|string|max:100',
+                'invoice_date' => 'required|date',
+                'due_date' => 'nullable|date',
+                'currency' => 'required|string|max:10',
+                'subtotal' => 'nullable|numeric|min:0',
+                'tax_amount' => 'nullable|numeric|min:0',
+                'tax_percentage' => 'nullable|numeric|min:0|max:100',
+                'monto_total' => 'required|numeric|min:0',
+                'service_description' => 'nullable|string|max:500',
+                'payment_method' => 'nullable|string|max:100',
+                'observations' => 'nullable|string|max:1000',
+            ]);
+
+            // Actualizar ocr_data
+            $ocrData = $document->ocr_data;
+            $ocrData['vendor_name'] = $validated['vendor_name'];
+            $ocrData['vendor_country'] = $validated['vendor_country'] ?? null;
+            $ocrData['invoice_number'] = $validated['invoice_number'];
+            $ocrData['invoice_date'] = $validated['invoice_date'];
+            $ocrData['due_date'] = $validated['due_date'] ?? null;
+            $ocrData['currency'] = $validated['currency'];
+            $ocrData['subtotal'] = $validated['subtotal'] ?? null;
+            $ocrData['tax_amount'] = $validated['tax_amount'] ?? null;
+            $ocrData['tax_percentage'] = $validated['tax_percentage'] ?? null;
+            $ocrData['monto_total'] = $validated['monto_total'];
+            $ocrData['service_description'] = $validated['service_description'] ?? null;
+            $ocrData['payment_method'] = $validated['payment_method'] ?? null;
+            $ocrData['observations'] = $validated['observations'] ?? null;
+
+            $document->ocr_data = $ocrData;
+            $document->save();
+
+            return redirect()->route('documents.show', $document)
+                ->with('success', 'Factura actualizada exitosamente.');
+        }
+
+        // Si no es factura extranjera, por ahora no permitimos editar
+        return back()->withErrors(['error' => 'Solo se pueden editar facturas extranjeras por ahora.']);
+    }
+
     public function destroy(Document $document)
     {
         $this->authorize('delete', $document);
