@@ -327,11 +327,48 @@ Si la factura NO tiene RUC ni Timbrado (factura de otro país o de servicios int
 }
 
 REGLAS PARA FACTURAS EXTRANJERAS:
-1. Extrae TODOS los números sin símbolos monetarios ($, €, £, etc.)
-2. Respeta el formato de números del país (algunos usan coma como decimal: 1,234.56)
-3. Si la moneda no está explícita pero ves $, asume USD
-4. Si no puedes extraer un campo, usa null
-5. El service_description debe ser claro y conciso (máximo 200 caracteres)
+1. Extrae TODOS los números sin símbolos monetarios ($, €, £, R$, etc.)
+
+2. FORMATO DE NÚMEROS SEGÚN MONEDA (CRÍTICO - LEE CON ATENCIÓN):
+
+   USD (Dólar Estadounidense):
+   - PUNTO (.) = separador DECIMAL
+   - COMA (,) = separador de MILES
+   - Ejemplos: $1,234.56 = mil doscientos treinta y cuatro dólares con 56 centavos
+              $20.00 = veinte dólares (NO es veinte mil)
+              $5.99 = cinco dólares con 99 centavos
+   - Devuelve como número: 1234.56, 20.00, 5.99
+
+   EUR (Euro):
+   - COMA (,) = separador DECIMAL
+   - PUNTO (.) o ESPACIO = separador de MILES
+   - Ejemplos: €1.234,56 = mil doscientos treinta y cuatro euros con 56 céntimos
+              €1 234,56 = mil doscientos treinta y cuatro euros con 56 céntimos
+              €20,00 = veinte euros
+   - Devuelve como número: 1234.56, 1234.56, 20.00
+
+   BRL (Real Brasileño):
+   - COMA (,) = separador DECIMAL
+   - PUNTO (.) = separador de MILES
+   - Ejemplos: R$ 1.234,56 = mil doscientos treinta y cuatro reales con 56 centavos
+              R$ 20,00 = veinte reales
+   - Devuelve como número: 1234.56, 20.00
+
+   ARS (Peso Argentino):
+   - COMA (,) = separador DECIMAL
+   - PUNTO (.) = separador de MILES
+   - Ejemplos: $ 1.234,56 = mil doscientos treinta y cuatro pesos con 56 centavos
+              $ 20,00 = veinte pesos
+   - Devuelve como número: 1234.56, 20.00
+
+3. CONVERSIÓN IMPORTANTE: Siempre devuelve los números en formato internacional (punto como decimal):
+   - Si ves €1.234,56 → devuelve 1234.56
+   - Si ves $20.00 → devuelve 20.00 (NO 2000)
+   - Si ves R$ 50,75 → devuelve 50.75
+
+4. Si la moneda no está explícita pero ves $, asume USD
+5. Si no puedes extraer un campo, usa null
+6. El service_description debe ser claro y conciso (máximo 200 caracteres)
 
 ════════════════════════════════════════════════════════════════
 INSTRUCCIONES FINALES:
