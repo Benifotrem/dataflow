@@ -230,7 +230,41 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 'tax_base' => $extractedData['subtotal'] ?? null,
             ]);
 
-            // PASO 4.5: Validación Matemática Fiscal (solo para facturas paraguayas)
+            // PASO 4.5: Detectar facturas duplicadas
+            $duplicateDocument = $this->checkForDuplicates($document);
+            if ($duplicateDocument) {
+                $uploadedDate = $duplicateDocument->created_at->format('d/m/Y');
+                $uploadedTime = $duplicateDocument->created_at->format('H:i');
+                $isForeign = isset($extractedData['invoice_type']) && $extractedData['invoice_type'] === 'foreign';
+
+                $issuerName = $isForeign
+                    ? ($extractedData['vendor_name'] ?? 'proveedor')
+                    : ($extractedData['razon_social_emisor'] ?? 'emisor');
+                $invoiceNum = $extractedData['invoice_number'] ?? $extractedData['numero_factura'] ?? 'N/A';
+
+                $errorMessage = "⚠️ Esta factura ya fue registrada anteriormente.\n\n" .
+                    "📄 Factura: {$invoiceNum}\n" .
+                    "🏢 Emisor: {$issuerName}\n" .
+                    "📅 Registrada el: {$uploadedDate} a las {$uploadedTime}\n" .
+                    "🆔 ID del documento original: #{$duplicateDocument->id}\n\n" .
+                    "💡 Si necesitas actualizar los datos, puedes editar el documento desde la plataforma web.";
+
+                $document->update([
+                    'ocr_status' => 'failed',
+                    'rejection_reason' => $errorMessage,
+                ]);
+
+                Log::warning('🔁 Factura duplicada detectada', [
+                    'document_id' => $document->id,
+                    'duplicate_of' => $duplicateDocument->id,
+                    'issuer' => $issuerName,
+                    'invoice_number' => $invoiceNum,
+                ]);
+
+                throw new \Exception($errorMessage);
+            }
+
+            // PASO 4.6: Validación Matemática Fiscal (solo para facturas paraguayas)
             $isForeignInvoice = isset($extractedData['invoice_type']) && $extractedData['invoice_type'] === 'foreign';
 
             if ($isForeignInvoice) {
@@ -884,6 +918,130 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         }
 
         return $simplified;
+    }
+
+    /**
+     * Detectar facturas duplicadas
+     * Compara emisor, número de factura, monto y fecha para identificar duplicados
+     *
+     * @param Document $document El documento actual a verificar
+     * @return Document|null El documento duplicado si existe, null si no hay duplicado
+     */
+    protected function checkForDuplicates(Document $document): ?Document
+    {
+        $ocrData = $document->ocr_data ?? [];
+        $isForeign = isset($ocrData['invoice_type']) && $ocrData['invoice_type'] === 'foreign';
+
+        // Extraer datos clave según el tipo de factura
+        $issuer = $isForeign
+            ? ($ocrData['vendor_name'] ?? null)
+            : ($ocrData['razon_social_emisor'] ?? null);
+
+        $invoiceNumber = $isForeign
+            ? ($ocrData['invoice_number'] ?? null)
+            : ($ocrData['numero_factura'] ?? null);
+
+        $amount = $ocrData['monto_total'] ?? null;
+        $date = $isForeign
+            ? ($ocrData['invoice_date'] ?? null)
+            : ($ocrData['fecha_emision'] ?? null);
+
+        // Si no tenemos datos mínimos para comparar, no podemos detectar duplicados
+        if (empty($issuer) && empty($invoiceNumber)) {
+            return null;
+        }
+
+        // Buscar documentos completados del mismo tenant (excluir el actual)
+        $query = Document::where('tenant_id', $this->user->tenant_id)
+            ->where('id', '!=', $document->id)
+            ->where('ocr_status', 'completed');
+
+        // ESTRATEGIA 1: Coincidencia exacta de emisor + número de factura
+        if (!empty($issuer) && !empty($invoiceNumber)) {
+            $exactMatch = (clone $query)
+                ->where('issuer', $issuer)
+                ->where('invoice_number', $invoiceNumber)
+                ->first();
+
+            if ($exactMatch) {
+                Log::info('🎯 Duplicado encontrado: coincidencia exacta de emisor + número', [
+                    'original_id' => $exactMatch->id,
+                    'new_id' => $document->id,
+                ]);
+                return $exactMatch;
+            }
+        }
+
+        // ESTRATEGIA 2: Búsqueda por similaridad (para casos de mala lectura)
+        // Solo si tenemos emisor, número, monto y fecha
+        if (!empty($issuer) && !empty($invoiceNumber) && !empty($amount) && !empty($date)) {
+            // Buscar documentos con emisor similar (usando LIKE para tolerancia)
+            $similarIssuer = str_replace(['S.A.', 'SA', 'S.R.L.', 'SRL', '.', ','], '', strtoupper($issuer));
+            $similarIssuer = trim($similarIssuer);
+
+            $potentialDuplicates = (clone $query)
+                ->where(function ($q) use ($issuer, $similarIssuer) {
+                    $q->where('issuer', $issuer)
+                      ->orWhereRaw('UPPER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(issuer, ".", ""), ",", ""), "S.A.", ""), "S.R.L.", ""), " ", "")) LIKE ?', ["%{$similarIssuer}%"]);
+                })
+                ->get();
+
+            foreach ($potentialDuplicates as $potential) {
+                $potentialOcr = $potential->ocr_data ?? [];
+                $potentialIsForeign = isset($potentialOcr['invoice_type']) && $potentialOcr['invoice_type'] === 'foreign';
+
+                $potentialInvoiceNum = $potentialIsForeign
+                    ? ($potentialOcr['invoice_number'] ?? null)
+                    : ($potentialOcr['numero_factura'] ?? null);
+
+                $potentialAmount = $potentialOcr['monto_total'] ?? null;
+                $potentialDate = $potentialIsForeign
+                    ? ($potentialOcr['invoice_date'] ?? null)
+                    : ($potentialOcr['fecha_emision'] ?? null);
+
+                // Comparar número de factura (con tolerancia a espacios y guiones)
+                $cleanInvoiceNum = str_replace([' ', '-'], '', $invoiceNumber);
+                $cleanPotentialNum = str_replace([' ', '-'], '', $potentialInvoiceNum ?? '');
+
+                $invoiceNumMatch = $cleanInvoiceNum === $cleanPotentialNum;
+
+                // Comparar monto (tolerancia de ±1% para errores de OCR)
+                $amountMatch = false;
+                if ($potentialAmount && $amount) {
+                    $amountDiff = abs($potentialAmount - $amount);
+                    $amountTolerance = $amount * 0.01; // 1% de tolerancia
+                    $amountMatch = $amountDiff <= $amountTolerance;
+                }
+
+                // Comparar fecha (tolerancia de ±1 día)
+                $dateMatch = false;
+                if ($potentialDate && $date) {
+                    try {
+                        $date1 = \Carbon\Carbon::parse($date);
+                        $date2 = \Carbon\Carbon::parse($potentialDate);
+                        $daysDiff = abs($date1->diffInDays($date2));
+                        $dateMatch = $daysDiff <= 1;
+                    } catch (\Exception $e) {
+                        // Si no se puede parsear la fecha, ignorar este criterio
+                    }
+                }
+
+                // Si coinciden número de factura Y (monto O fecha), es muy probable que sea duplicado
+                if ($invoiceNumMatch && ($amountMatch || $dateMatch)) {
+                    Log::info('🎯 Duplicado encontrado: similaridad alta en emisor + número + monto/fecha', [
+                        'original_id' => $potential->id,
+                        'new_id' => $document->id,
+                        'invoice_match' => $invoiceNumMatch,
+                        'amount_match' => $amountMatch,
+                        'date_match' => $dateMatch,
+                    ]);
+                    return $potential;
+                }
+            }
+        }
+
+        // No se encontró duplicado
+        return null;
     }
 
     /**
