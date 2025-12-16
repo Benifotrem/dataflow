@@ -219,13 +219,32 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             ]);
 
             // Actualizar documento con datos de OCR
+            // Para facturas extranjeras, usar los campos correctos
+            $isForeignInvoice = isset($extractedData['invoice_type']) && $extractedData['invoice_type'] === 'foreign';
+
+            $issuerField = $isForeignInvoice
+                ? ($extractedData['vendor_name'] ?? null)
+                : ($extractedData['razon_social_emisor'] ?? null);
+
+            $invoiceNumberField = $isForeignInvoice
+                ? ($extractedData['invoice_number'] ?? null)
+                : ($extractedData['numero_factura'] ?? null);
+
+            $documentDate = $isForeignInvoice
+                ? $this->normalizeDate($extractedData['invoice_date'] ?? null)
+                : ($extractedData['fecha_emision'] ?? null);
+
+            $currency = $isForeignInvoice
+                ? ($extractedData['currency'] ?? 'USD')
+                : ($extractedData['moneda'] ?? 'PYG');
+
             $document->update([
                 'ocr_data' => $extractedData,
                 'amount' => $extractedData['monto_total'] ?? null,
-                'currency' => $extractedData['moneda'] ?? 'PYG',
-                'document_date' => $extractedData['fecha_emision'] ?? null,
-                'issuer' => $extractedData['razon_social_emisor'] ?? null,
-                'invoice_number' => $extractedData['numero_factura'] ?? null,
+                'currency' => $currency,
+                'document_date' => $documentDate,
+                'issuer' => $issuerField,
+                'invoice_number' => $invoiceNumberField,
                 'tax_amount' => $extractedData['total_iva'] ?? null,
                 'tax_base' => $extractedData['subtotal'] ?? null,
             ]);
@@ -274,18 +293,8 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     'currency' => $extractedData['currency'] ?? null,
                 ]);
 
-                // Para facturas extranjeras, actualizar campos con datos internacionales
-                // Normalizar fecha al formato Y-m-d si es necesario
-                $documentDate = $this->normalizeDate($extractedData['invoice_date'] ?? null);
-
-                $document->update([
-                    'issuer' => $extractedData['vendor_name'] ?? null,
-                    'invoice_number' => $extractedData['invoice_number'] ?? null,
-                    'document_date' => $documentDate,
-                    'currency' => $extractedData['currency'] ?? 'USD',
-                ]);
-
                 // Marcar como validada directamente (no requiere validación fiscal paraguaya)
+                // Los campos issuer, invoice_number, document_date ya fueron actualizados arriba
                 $document->update([
                     'validated' => true,
                     'validated_at' => now(),
