@@ -19,6 +19,14 @@ class DocumentDiagnosticService
         $error = $document->rejection_reason ?? 'Error desconocido';
         $ocrData = $document->ocr_data ?? [];
 
+        // Detectar si es factura extranjera
+        $isForeignInvoice = isset($ocrData['invoice_type']) && $ocrData['invoice_type'] === 'foreign';
+
+        // Si es factura extranjera con datos válidos, proporcionar mensaje específico
+        if ($isForeignInvoice && !empty($ocrData['vendor_name'])) {
+            return $this->diagnosticForeignInvoice($document, $ocrData);
+        }
+
         // Detectar tipo de error
         if (str_contains($error, 'No se pudo descargar')) {
             return $this->diagnosticDownloadError($document);
@@ -216,10 +224,49 @@ class DocumentDiagnosticService
     }
 
     /**
+     * Diagnóstico: Factura extranjera procesada correctamente
+     */
+    protected function diagnosticForeignInvoice(Document $document, array $ocrData): array
+    {
+        $vendorName = $ocrData['vendor_name'] ?? 'Proveedor extranjero';
+        $currency = $ocrData['currency'] ?? 'USD';
+        $amount = $ocrData['monto_total'] ?? 0;
+        $invoiceNumber = $ocrData['invoice_number'] ?? 'N/A';
+        $country = $ocrData['vendor_country'] ?? 'internacional';
+
+        // Formatear monto según moneda
+        $formattedAmount = $currency . ' ' . number_format($amount, 2, ',', '.');
+
+        return [
+            'type' => 'foreign_invoice_ok',
+            'severity' => 'low',
+            'message' => "✅ Factura internacional procesada correctamente",
+            'reason' => "Factura de {$vendorName} ({$country}) - {$formattedAmount}",
+            'solutions' => [
+                "✓ Proveedor: {$vendorName}",
+                "✓ Factura N°: {$invoiceNumber}",
+                "✓ Monto: {$formattedAmount}",
+                "✓ Tipo: Servicio internacional",
+                "",
+                "💡 Esta factura ha sido registrada como gasto de servicio extranjero.",
+                "Puedes revisar y editar los detalles desde la plataforma web si es necesario."
+            ],
+            'can_retry' => false,
+            'manual_upload_recommended' => false,
+        ];
+    }
+
+    /**
      * Detectar si la imagen está vacía (sin datos extraídos)
      */
     protected function isEmptyImage(array $ocrData): bool
     {
+        // Si es factura extranjera con datos, NO está vacía
+        if (isset($ocrData['invoice_type']) && $ocrData['invoice_type'] === 'foreign') {
+            return empty($ocrData['vendor_name']) && empty($ocrData['monto_total']);
+        }
+
+        // Para facturas paraguayas, verificar campos críticos
         $criticalFields = [
             'ruc_emisor',
             'razon_social_emisor',

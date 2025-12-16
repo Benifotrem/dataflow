@@ -1,5 +1,6 @@
 <?php
-// Última actualización: 2025-12-12 - Fix validación facturas electrónicas con advertencias
+// Última actualización: 2025-12-16 - Soporte para facturas extranjeras (foreign invoices)
+// 2025-12-12 - Fix validación facturas electrónicas con advertencias
 
 namespace App\Services;
 
@@ -9,7 +10,7 @@ use App\Models\SystemSetting;
 
 /**
  * Servicio especializado de OCR con OpenAI Vision API
- * para extracción de datos de facturas paraguayas según RG-90
+ * para extracción de datos de facturas paraguayas (RG-90) e internacionales
  */
 class OcrVisionService
 {
@@ -144,12 +145,26 @@ class OcrVisionService
     }
 
     /**
-     * Construir prompt específico para facturas paraguayas (RG-90)
+     * Construir prompt inteligente para facturas paraguayas e internacionales
      */
     protected function buildParaguayanInvoicePrompt(string $context = ''): string
     {
         $basePrompt = <<<'PROMPT'
-Eres un OCR especializado en facturas paraguayas. Tu trabajo es COPIAR números exactamente como aparecen.
+Eres un OCR experto en facturas internacionales. Tu trabajo es extraer información fiscal con alta precisión.
+
+🔍 PASO 1: DETECTAR TIPO DE FACTURA
+
+Analiza la factura y determina:
+- Si tiene RUC (Paraguay), Timbrado, IVA 10% o IVA 5% → tipo: "paraguayan_rg90"
+- Si es de otro país o no tiene esos campos → tipo: "foreign"
+
+📋 PASO 2: EXTRAER DATOS SEGÚN EL TIPO
+
+════════════════════════════════════════════════════════════════
+PARA FACTURAS PARAGUAYAS (RG-90):
+════════════════════════════════════════════════════════════════
+
+Tu trabajo es COPIAR números exactamente como aparecen.
 
 🚫 PROHIBIDO: Hacer cálculos, sumas, multiplicaciones o porcentajes
 ✅ PERMITIDO: Solo COPIAR los números que ves escritos
@@ -160,6 +175,8 @@ IMPORTANTE: En facturas paraguayas los números usan PUNTO como separador de mil
 - Si ves "8.181" significa 8181 (ocho mil ciento ochenta y uno)
 
 📋 ESTRUCTURA DE FACTURA RG-90 - Extrae estos campos:
+{
+  "invoice_type": "paraguayan_rg90",
 
 DATOS DEL EMISOR (parte superior):
 {
@@ -259,13 +276,71 @@ OTROS DATOS:
   "calidad_imagen": "ALTA, MEDIA o BAJA"
 }
 
-REGLAS FINALES:
+REGLAS FINALES PARA FACTURAS PARAGUAYAS:
 1. Quita los puntos de los números (90.000 → 90000)
 2. Quita símbolos monetarios (₲, Gs.)
 3. COPIA cada número de su etiqueta correspondiente
 4. NO calcules porcentajes ni hagas operaciones matemáticas
 
-Devuelve SOLO el objeto JSON con todos los campos. Sin texto adicional.
+════════════════════════════════════════════════════════════════
+PARA FACTURAS EXTRANJERAS (Foreign Invoices):
+════════════════════════════════════════════════════════════════
+
+Si la factura NO tiene RUC ni Timbrado (factura de otro país o de servicios internacionales):
+
+{
+  "invoice_type": "foreign",
+
+  DATOS DEL EMISOR (Vendor/Supplier):
+  "vendor_name": "Nombre completo de la empresa emisora",
+  "vendor_country": "País de origen (si está visible, sino null)",
+  "vendor_address": "Dirección completa si está visible",
+  "vendor_tax_id": "Número de identificación fiscal del país (VAT, EIN, Tax ID, etc.)",
+
+  DATOS DE LA FACTURA:
+  "invoice_number": "Número de factura completo (Invoice #, Invoice No., etc.)",
+  "invoice_date": "Fecha de emisión (formato: YYYY-MM-DD)",
+  "due_date": "Fecha de vencimiento si está visible (formato: YYYY-MM-DD)",
+  "currency": "Moneda (USD, EUR, BRL, etc.)",
+
+  MONTOS:
+  "subtotal": "Subtotal antes de impuestos (si está visible)",
+  "tax_amount": "Impuestos totales (VAT, Sales Tax, GST, etc.)",
+  "tax_percentage": "Porcentaje de impuesto si está visible (ej: 21, 19, 15)",
+  "monto_total": "MONTO TOTAL A PAGAR (el número más grande, Total, Amount Due, etc.)",
+
+  DESCRIPCIÓN DEL SERVICIO/PRODUCTO:
+  "service_description": "Descripción del servicio o producto (resumido)",
+  "items": [
+    {
+      "descripcion": "Descripción del ítem",
+      "cantidad": "Cantidad si está visible",
+      "precio_unitario": "Precio unitario si está visible",
+      "total": "Total del ítem"
+    }
+  ],
+
+  OTROS:
+  "payment_method": "Método de pago si está visible (Credit Card, Wire Transfer, etc.)",
+  "observations": "Cualquier nota o observación importante",
+  "calidad_imagen": "ALTA, MEDIA o BAJA"
+}
+
+REGLAS PARA FACTURAS EXTRANJERAS:
+1. Extrae TODOS los números sin símbolos monetarios ($, €, £, etc.)
+2. Respeta el formato de números del país (algunos usan coma como decimal: 1,234.56)
+3. Si la moneda no está explícita pero ves $, asume USD
+4. Si no puedes extraer un campo, usa null
+5. El service_description debe ser claro y conciso (máximo 200 caracteres)
+
+════════════════════════════════════════════════════════════════
+INSTRUCCIONES FINALES:
+════════════════════════════════════════════════════════════════
+
+1. Analiza la factura y determina el tipo (paraguayan_rg90 o foreign)
+2. Extrae TODOS los campos correspondientes a ese tipo
+3. Devuelve SOLO el objeto JSON con el campo "invoice_type" incluido
+4. Sin texto adicional, sin explicaciones, solo JSON válido
 
 PROMPT;
 
@@ -334,7 +409,7 @@ PROMPT;
     }
 
     /**
-     * Validar datos extraídos
+     * Validar datos extraídos (facturas paraguayas y extranjeras)
      */
     protected function validateExtractedData(?array $data): array
     {
@@ -353,6 +428,89 @@ PROMPT;
             ];
         }
 
+        // Determinar tipo de factura
+        $invoiceType = $data['invoice_type'] ?? 'paraguayan_rg90';
+
+        Log::info('🔍 Validando factura', [
+            'invoice_type' => $invoiceType,
+            'has_ruc' => isset($data['ruc_emisor']),
+            'has_vendor_name' => isset($data['vendor_name']),
+        ]);
+
+        // Validar según tipo de factura
+        if ($invoiceType === 'foreign') {
+            return $this->validateForeignInvoice($data);
+        }
+
+        // Validación de factura paraguaya (comportamiento original)
+        return $this->validateParaguayanInvoice($data);
+    }
+
+    /**
+     * Validar factura extranjera
+     */
+    protected function validateForeignInvoice(array $data): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        // Campos críticos para factura extranjera
+        $criticalFields = [
+            'vendor_name' => 'Nombre del proveedor',
+            'invoice_date' => 'Fecha de factura',
+            'monto_total' => 'Monto total',
+            'currency' => 'Moneda',
+        ];
+
+        foreach ($criticalFields as $field => $label) {
+            if (empty($data[$field]) || $data[$field] === null) {
+                $errors[] = "Campo obligatorio faltante: {$label}";
+            }
+        }
+
+        // Validar formato de fecha
+        if (isset($data['invoice_date'])) {
+            try {
+                \Carbon\Carbon::parse($data['invoice_date']);
+            } catch (\Exception $e) {
+                $errors[] = 'Formato de fecha inválido';
+            }
+        }
+
+        // Validar monto
+        if (isset($data['monto_total'])) {
+            if (!is_numeric($data['monto_total']) || $data['monto_total'] <= 0) {
+                $errors[] = 'Monto total inválido';
+            }
+        }
+
+        // Advertencias
+        if (!isset($data['invoice_number']) || empty($data['invoice_number'])) {
+            $warnings[] = 'Número de factura no detectado';
+        }
+
+        if (!isset($data['vendor_country']) || empty($data['vendor_country'])) {
+            $warnings[] = 'País del proveedor no detectado';
+        }
+
+        if (!isset($data['service_description']) || empty($data['service_description'])) {
+            $warnings[] = 'Descripción del servicio no detectada';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'warnings' => $warnings,
+            'completeness' => $this->calculateForeignCompleteness($data),
+            'invoice_type' => 'foreign',
+        ];
+    }
+
+    /**
+     * Validar factura paraguaya (lógica original)
+     */
+    protected function validateParaguayanInvoice(array $data): array
+    {
         $errors = [];
         $warnings = [];
 
@@ -446,6 +604,7 @@ PROMPT;
             'errors' => $errors,
             'warnings' => $warnings,
             'completeness' => $this->calculateCompleteness($data),
+            'invoice_type' => 'paraguayan_rg90',
         ];
     }
 
@@ -470,6 +629,36 @@ PROMPT;
             'monto_total',
             'moneda',
             'items',
+            'calidad_imagen',
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($data[$field]) && $data[$field] !== null && $data[$field] !== '') {
+                $filledFields++;
+            }
+        }
+
+        return (int) round(($filledFields / $totalFields) * 100);
+    }
+
+    /**
+     * Calcular porcentaje de completitud para facturas extranjeras
+     */
+    protected function calculateForeignCompleteness(array $data): int
+    {
+        $totalFields = 10; // Campos principales esperados para facturas extranjeras
+        $filledFields = 0;
+
+        $fields = [
+            'vendor_name',
+            'vendor_country',
+            'vendor_tax_id',
+            'invoice_number',
+            'invoice_date',
+            'currency',
+            'monto_total',
+            'service_description',
+            'tax_amount',
             'calidad_imagen',
         ];
 

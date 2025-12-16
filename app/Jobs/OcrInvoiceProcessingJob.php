@@ -230,7 +230,34 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 'tax_base' => $extractedData['subtotal'] ?? null,
             ]);
 
-            // PASO 4.5: Validación Matemática Fiscal
+            // PASO 4.5: Validación Matemática Fiscal (solo para facturas paraguayas)
+            $isForeignInvoice = isset($extractedData['invoice_type']) && $extractedData['invoice_type'] === 'foreign';
+
+            if ($isForeignInvoice) {
+                Log::info('🌎 Factura extranjera detectada, omitiendo validación fiscal paraguaya', [
+                    'document_id' => $document->id,
+                    'vendor_name' => $extractedData['vendor_name'] ?? null,
+                    'currency' => $extractedData['currency'] ?? null,
+                ]);
+
+                // Para facturas extranjeras, actualizar campos con datos internacionales
+                $document->update([
+                    'issuer' => $extractedData['vendor_name'] ?? null,
+                    'invoice_number' => $extractedData['invoice_number'] ?? null,
+                    'document_date' => $extractedData['invoice_date'] ?? null,
+                    'currency' => $extractedData['currency'] ?? 'USD',
+                ]);
+
+                // Marcar como validada directamente (no requiere validación fiscal paraguaya)
+                $document->update([
+                    'validated' => true,
+                    'validated_at' => now(),
+                ]);
+
+                // Saltar validaciones fiscales paraguayas
+                goto skipFiscalValidation;
+            }
+
             Log::info('🔢 Validando coherencia matemática de importes', ['document_id' => $document->id]);
 
             $fiscalValidationResult = $fiscalValidation->validateInvoiceAmounts([
@@ -367,6 +394,8 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     'rejection_reason' => "La foto no está suficientemente clara. {$missingFields}",
                 ]);
             }
+
+            skipFiscalValidation:
 
             // PASO 6: Reorganizar archivo en estructura de carpetas
             if ($document->issuer && $document->document_date) {
@@ -517,6 +546,43 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         array $validation,
         ?array $dnitValidation
     ): void {
+        $data = $document->ocr_data ?? [];
+        $isForeignInvoice = isset($data['invoice_type']) && $data['invoice_type'] === 'foreign';
+
+        // Notificación para factura extranjera
+        if ($isForeignInvoice) {
+            $message = "✅ <b>¡Factura internacional procesada!</b>\n\n";
+            $message .= "🆔 <b>ID:</b> #{$document->id}\n";
+            $message .= "📄 <b>Archivo:</b> {$document->original_filename}\n\n";
+
+            $message .= "🌎 <b>Proveedor:</b> " . ($data['vendor_name'] ?? 'N/A') . "\n";
+            if (isset($data['vendor_country'])) {
+                $message .= "🌍 <b>País:</b> {$data['vendor_country']}\n";
+            }
+            if (isset($data['invoice_number'])) {
+                $message .= "📑 <b>Nº Factura:</b> {$data['invoice_number']}\n";
+            }
+            if ($document->document_date) {
+                $message .= "📅 <b>Fecha:</b> {$document->document_date->format('d/m/Y')}\n";
+            }
+            if (isset($data['currency']) && isset($data['monto_total'])) {
+                $formatted = number_format($data['monto_total'], 2, ',', '.');
+                $message .= "💵 <b>Monto:</b> {$data['currency']} {$formatted}\n";
+            }
+            if (isset($data['service_description'])) {
+                $message .= "📝 <b>Servicio:</b> {$data['service_description']}\n";
+            }
+
+            $message .= "\n💡 <b>Tipo:</b> Servicio internacional\n";
+            $message .= "✓ No requiere validación fiscal paraguaya\n\n";
+            $message .= "🌐 Puedes revisar y editar desde la plataforma web:\n";
+            $message .= "https://dataflow.guaraniappstore.com/documents";
+
+            $telegramService->sendMessage($this->chatId, $message);
+            return;
+        }
+
+        // Notificación para factura paraguaya (código original)
         $message = "✅ <b>¡Factura procesada y validada con la SET!</b>\n\n";
 
         $message .= "🆔 <b>ID:</b> #{$document->id}\n";
