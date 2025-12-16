@@ -167,17 +167,48 @@ class DocumentDiagnosticService
      */
     protected function diagnosticEmptyImageError(Document $document): array
     {
+        $ocrData = $document->ocr_data ?? [];
+
+        // Verificar si hay ALGÚN texto extraído
+        $hasAnyText = false;
+        foreach ($ocrData as $key => $value) {
+            if (!empty($value) && is_string($value) && strlen(trim($value)) > 0) {
+                $hasAnyText = true;
+                break;
+            }
+        }
+
+        if ($hasAnyText) {
+            // Hay texto pero no es una factura paraguaya válida
+            return [
+                'type' => 'not_fiscal_document',
+                'severity' => 'medium',
+                'message' => "El documento no es una factura paraguaya válida",
+                'reason' => "Se detectó texto pero no se encontraron datos fiscales (RUC, Timbrado, montos IVA)",
+                'solutions' => [
+                    "1. Verifica que sea una factura de Paraguay",
+                    "2. Asegúrate de que tenga RUC y Timbrado visible",
+                    "3. Confirma que muestre IVA 10% o IVA 5%",
+                    "4. Si es de otro país, este sistema solo procesa facturas paraguayas",
+                    "5. Intenta con una factura que incluya todos los datos fiscales"
+                ],
+                'can_retry' => true,
+                'manual_upload_recommended' => false,
+            ];
+        }
+
+        // Realmente no hay texto legible
         return [
             'type' => 'empty_image',
-            'severity' => 'low',
-            'message' => "La imagen no contiene texto legible",
-            'reason' => "No se detectó información fiscal en la imagen",
+            'severity' => 'high',
+            'message' => "No se pudo leer texto en la imagen",
+            'reason' => "La imagen está muy oscura, borrosa o no contiene texto",
             'solutions' => [
                 "1. Verifica que enviaste la imagen correcta",
-                "2. Asegúrate de que la imagen tenga texto visible",
-                "3. Aumenta el brillo si la foto está oscura",
-                "4. Toma una nueva foto más clara",
-                "5. Si es una imagen de prueba, envía una factura real"
+                "2. Toma una foto con buena iluminación",
+                "3. Asegúrate de que la imagen esté enfocada",
+                "4. Evita fotos borrosas o con exceso de sombras",
+                "5. Si es PDF protegido, desprotégelo primero"
             ],
             'can_retry' => true,
             'manual_upload_recommended' => false,
