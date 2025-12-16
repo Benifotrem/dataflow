@@ -25,33 +25,50 @@ class MiniAppController extends Controller
 
     /**
      * Dashboard principal con métricas
-     * GET /api/miniapp/dashboard
+     * GET /api/miniapp/dashboard?entity_id={id}
      */
     public function dashboard(Request $request)
     {
         $user = auth()->user();
         $tenant = $user->tenant;
 
+        // Obtener entity_id si se proporciona
+        $entityId = $request->input('entity_id');
+
+        // Validar que la entidad pertenezca al tenant si se especifica
+        if ($entityId) {
+            $entity = Entity::where('id', $entityId)
+                ->where('tenant_id', $tenant->id)
+                ->first();
+
+            if (!$entity) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Entidad no encontrada o no pertenece a su cuenta'
+                ], 404);
+            }
+        }
+
         // Período actual
         $currentMonth = now()->startOfMonth();
         $currentMonthEnd = now()->endOfMonth();
 
         // Métricas del mes actual
-        $currentMonthStats = $this->getMonthStats($tenant->id, $currentMonth, $currentMonthEnd);
+        $currentMonthStats = $this->getMonthStats($tenant->id, $currentMonth, $currentMonthEnd, $entityId);
 
         // Métricas del mes anterior para comparación
         $previousMonth = now()->subMonth()->startOfMonth();
         $previousMonthEnd = now()->subMonth()->endOfMonth();
-        $previousMonthStats = $this->getMonthStats($tenant->id, $previousMonth, $previousMonthEnd);
+        $previousMonthStats = $this->getMonthStats($tenant->id, $previousMonth, $previousMonthEnd, $entityId);
 
         // Evolución diaria (últimos 30 días)
-        $dailyEvolution = $this->getDailyEvolution($tenant->id);
+        $dailyEvolution = $this->getDailyEvolution($tenant->id, $entityId);
 
         // Top proveedores
-        $topSuppliers = $this->getTopSuppliers($tenant->id, $currentMonth, $currentMonthEnd);
+        $topSuppliers = $this->getTopSuppliers($tenant->id, $currentMonth, $currentMonthEnd, 10, $entityId);
 
         // Distribución por tipo de IVA
-        $ivaDistribution = $this->getIvaDistribution($tenant->id, $currentMonth, $currentMonthEnd);
+        $ivaDistribution = $this->getIvaDistribution($tenant->id, $currentMonth, $currentMonthEnd, $entityId);
 
         return response()->json([
             'success' => true,
@@ -517,11 +534,17 @@ class MiniAppController extends Controller
 
     // ========== MÉTODOS PRIVADOS ==========
 
-    private function getMonthStats($tenantId, $from, $to)
+    private function getMonthStats($tenantId, $from, $to, $entityId = null)
     {
-        $documents = Document::where('tenant_id', $tenantId)
-            ->whereBetween('document_date', [$from, $to])
-            ->get();
+        $query = Document::where('tenant_id', $tenantId)
+            ->whereBetween('document_date', [$from, $to]);
+
+        // Filtrar por entidad si se especifica
+        if ($entityId) {
+            $query->where('entity_id', $entityId);
+        }
+
+        $documents = $query->get();
 
         $stats = [
             'total' => $documents->count(),
@@ -551,11 +574,16 @@ class MiniAppController extends Controller
         return $stats;
     }
 
-    private function getDailyEvolution($tenantId)
+    private function getDailyEvolution($tenantId, $entityId = null)
     {
-        $last30Days = Document::where('tenant_id', $tenantId)
-            ->where('document_date', '>=', now()->subDays(30))
-            ->select(
+        $query = Document::where('tenant_id', $tenantId)
+            ->where('document_date', '>=', now()->subDays(30));
+
+        if ($entityId) {
+            $query->where('entity_id', $entityId);
+        }
+
+        $last30Days = $query->select(
                 DB::raw('DATE(document_date) as date'),
                 DB::raw('COUNT(*) as count')
             )
@@ -571,11 +599,16 @@ class MiniAppController extends Controller
         });
     }
 
-    private function getTopSuppliers($tenantId, $from, $to, $limit = 10)
+    private function getTopSuppliers($tenantId, $from, $to, $limit = 10, $entityId = null)
     {
-        $documents = Document::where('tenant_id', $tenantId)
-            ->whereBetween('document_date', [$from, $to])
-            ->get();
+        $query = Document::where('tenant_id', $tenantId)
+            ->whereBetween('document_date', [$from, $to]);
+
+        if ($entityId) {
+            $query->where('entity_id', $entityId);
+        }
+
+        $documents = $query->get();
 
         $suppliers = [];
         foreach ($documents as $doc) {
@@ -602,9 +635,9 @@ class MiniAppController extends Controller
         return array_slice($suppliers, 0, $limit);
     }
 
-    private function getIvaDistribution($tenantId, $from, $to)
+    private function getIvaDistribution($tenantId, $from, $to, $entityId = null)
     {
-        $stats = $this->getMonthStats($tenantId, $from, $to);
+        $stats = $this->getMonthStats($tenantId, $from, $to, $entityId);
 
         $total = $stats['iva_10'] + $stats['iva_5'] + $stats['exentas'];
 
