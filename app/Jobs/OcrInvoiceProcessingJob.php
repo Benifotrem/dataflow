@@ -204,7 +204,9 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             );
 
             if (!$ocrResult['success']) {
-                throw new \Exception('Error en OCR: ' . ($ocrResult['error'] ?? 'Desconocido'));
+                $errorMsg = $ocrResult['error'] ?? 'No se pudo procesar la imagen';
+                // Mensaje más amigable para el usuario
+                throw new \Exception("No pudimos leer la información de tu documento. {$errorMsg}");
             }
 
             $extractedData = $ocrResult['data'];
@@ -351,16 +353,18 @@ class OcrInvoiceProcessingJob implements ShouldQueue
 
                     $needsManualCheck = true;
                     $document->update([
-                        'rejection_reason' => "Error al validar con DNIT: {$e->getMessage()}",
+                        'rejection_reason' => "No pudimos validar la factura con la SET. Verifica que el RUC y Timbrado sean correctos.",
                     ]);
                 }
             } else {
                 // OCR incompleto o con errores
                 $needsManualCheck = true;
-                $ocrErrors = implode(', ', $validation['errors']);
+
+                // Crear mensaje más amigable
+                $missingFields = $this->getMissingFieldsMessage($validation['errors']);
 
                 $document->update([
-                    'rejection_reason' => "Datos de OCR incompletos: {$ocrErrors}",
+                    'rejection_reason' => "La foto no está suficientemente clara. {$missingFields}",
                 ]);
             }
 
@@ -676,26 +680,32 @@ class OcrInvoiceProcessingJob implements ShouldQueue
             $message .= "      • <b>TOTAL: " . (isset($data['monto_total']) ? "₲ " . number_format($data['monto_total'], 0, ',', '.') : '❌ No detectado') . "</b>\n";
         }
 
-        $message .= "\n⚠️ <b>MOTIVOS DE REVISIÓN:</b>\n";
+        $message .= "\n⚠️ <b>QUÉ NECESITA REVISAR:</b>\n";
 
-        // Errores de OCR
+        // Convertir errores en mensajes amigables
+        $friendlyErrors = [];
         if (!empty($validation['errors'])) {
             foreach ($validation['errors'] as $error) {
-                $message .= "   • {$error}\n";
+                $friendlyErrors[] = $this->simplifyErrorMessage($error);
             }
         }
 
-        // Errores de DNIT
         if ($dnitValidation && !empty($dnitValidation['errors'])) {
             foreach ($dnitValidation['errors'] as $error) {
-                $message .= "   • {$error}\n";
+                $friendlyErrors[] = $this->simplifyErrorMessage($error);
             }
         }
 
-        $message .= "\n💡 <b>RECOMENDACIONES:</b>\n";
-        $message .= "   1. Verifica la calidad de la imagen\n";
-        $message .= "   2. Asegúrate de que todos los datos fiscales sean legibles\n";
-        $message .= "   3. Puedes editar manualmente los datos desde la plataforma web\n";
+        // Eliminar duplicados y mostrar
+        $friendlyErrors = array_unique($friendlyErrors);
+        foreach ($friendlyErrors as $error) {
+            $message .= "   • {$error}\n";
+        }
+
+        $message .= "\n💡 <b>CÓMO RESOLVERLO:</b>\n";
+        $message .= "   1. Revisa los datos desde la plataforma web\n";
+        $message .= "   2. Corrige lo que sea necesario\n";
+        $message .= "   3. Si la foto no está clara, puedes subir una nueva\n";
 
         $message .= "\n🌐 Revisar documento: " . config('app.url') . "/documents/{$document->id}";
 
@@ -721,6 +731,85 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         $message .= "Por favor, intenta nuevamente o contacta al soporte si el problema persiste.";
 
         $telegramService->sendMessage($this->chatId, $message);
+    }
+
+    /**
+     * Convertir errores técnicos en mensajes amigables
+     */
+    protected function getMissingFieldsMessage(array $errors): string
+    {
+        if (empty($errors)) {
+            return "Intenta tomar una foto más clara.";
+        }
+
+        // Mapear campos técnicos a nombres amigables
+        $fieldMap = [
+            'RUC del emisor' => 'el RUC',
+            'Razón Social del emisor' => 'el nombre del negocio',
+            'Timbrado' => 'el timbrado',
+            'Número de factura' => 'el número de factura',
+            'Fecha de emisión' => 'la fecha',
+            'Monto total' => 'el monto total',
+            'Subtotal gravado 10%' => 'los montos gravados',
+            'IVA 10%' => 'el IVA',
+            'Subtotal gravado 5%' => 'los montos gravados',
+            'IVA 5%' => 'el IVA',
+        ];
+
+        $missingFields = [];
+        foreach ($errors as $error) {
+            foreach ($fieldMap as $technical => $friendly) {
+                if (stripos($error, $technical) !== false) {
+                    if (!in_array($friendly, $missingFields)) {
+                        $missingFields[] = $friendly;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (empty($missingFields)) {
+            return "No pudimos leer algunos datos importantes.";
+        }
+
+        if (count($missingFields) === 1) {
+            return "No pudimos leer " . $missingFields[0] . ".";
+        }
+
+        $lastField = array_pop($missingFields);
+        return "No pudimos leer " . implode(', ', $missingFields) . " y " . $lastField . ".";
+    }
+
+    /**
+     * Simplificar mensajes de error técnicos a lenguaje amigable
+     */
+    protected function simplifyErrorMessage(string $error): string
+    {
+        // Mapeo de mensajes técnicos a mensajes amigables
+        $patterns = [
+            '/Campo obligatorio faltante: (.+)/i' => 'Falta: $1',
+            '/Formato de (.+) inválido/i' => '$1 no tiene el formato correcto',
+            '/debe tener (\d+) dígitos, tiene (\d+)/i' => 'número de dígitos incorrecto',
+            '/RUC no registrado en DNIT/i' => 'El RUC no está registrado en la SET',
+            '/Timbrado no vigente/i' => 'El timbrado ya no está vigente o no existe',
+            '/Monto total inválido/i' => 'El monto total no coincide con los subtotales',
+            '/Cálculo de IVA incorrecto/i' => 'Los cálculos del IVA no cuadran',
+            '/RUC receptor/i' => 'RUC del cliente',
+            '/RUC emisor/i' => 'RUC del negocio',
+            '/Razón Social/i' => 'Nombre del negocio',
+        ];
+
+        $simplified = $error;
+        foreach ($patterns as $pattern => $replacement) {
+            $simplified = preg_replace($pattern, $replacement, $simplified);
+        }
+
+        // Si el mensaje es muy largo, acortarlo
+        if (strlen($simplified) > 100) {
+            $simplified = substr($simplified, 0, 97) . '...';
+        }
+
+        return $simplified;
     }
 
     /**
