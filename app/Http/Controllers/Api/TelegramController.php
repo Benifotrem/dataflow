@@ -210,14 +210,17 @@ class TelegramController extends Controller
     protected function commandStart(int $chatId)
     {
         $message = "🤖 <b>¡Bienvenido a Dataflow!</b>\n\n" .
-            "Soy tu asistente de contabilidad paraguaya.\n\n" .
-            "<b>📸 CÓMO SUBIR FACTURAS:</b>\n" .
-            "1️⃣ Toma todas las fotos con tu cámara\n" .
-            "2️⃣ Envíamelas todas juntas aquí\n" .
-            "3️⃣ Las optimizo y proceso automáticamente\n\n" .
-            "✨ <b>Optimización automática:</b> Todas tus fotos se comprimen sin perder calidad para procesamiento más rápido.\n\n" .
-            "💬 También puedes preguntarme sobre fiscalidad paraguaya, RG-90, SET, IVA...\n\n" .
-            "Usa /help para ver más opciones.";
+            "Tu asistente de contabilidad paraguaya.\n\n" .
+            "<b>💬 Consultas:</b>\n" .
+            "Pregúntame sobre RG-90, SET, IVA, requisitos fiscales.\n\n" .
+            "<b>📄 Enviar facturas con el uploader:</b>\n" .
+            "• Selecciona imágenes y PDF a subir\n" .
+            "• Se optimizan automáticamente para lectura\n" .
+            "• Proceso con IA y te notifico cuando estén listas\n" .
+            "• <b>✅ Si OK:</b> Fecha, emisor e importe para cotejar\n" .
+            "• <b>❌ Si error:</b> Fecha, emisor, importe y número de subida para identificar\n\n" .
+            "<b>📱 /app</b> - Dashboard, calendario fiscal y uploader\n\n" .
+            "Envía fotos directamente o usa /help";
 
         $this->telegramService->sendMessage($chatId, $message);
     }
@@ -731,22 +734,28 @@ class TelegramController extends Controller
     protected function commandApp(int $chatId)
     {
         $this->telegramService->sendMessage($chatId,
-            "📊 <b>Tu Dashboard IVA</b>\n\n" .
-            "✨ <b>Ver tus datos del mes:</b>\n" .
-            "• Resumen de documentos procesados\n" .
-            "• Totales de IVA 10% y 5%\n" .
-            "• Próximo vencimiento\n" .
-            "• Pendientes de revisión\n\n" .
-            "<b>📸 CÓMO SUBIR FACTURAS:</b>\n" .
-            "1️⃣ Toma fotos con tu cámara\n" .
-            "2️⃣ Envíalas todas juntas aquí\n" .
-            "3️⃣ Optimización y procesamiento automático\n\n" .
-            "💡 Es más rápido enviar las fotos directamente al chat que usar la miniapp.",
+            "📱 <b>Dashboard Dataflow</b>\n\n" .
+            "<b>Presiona el botón para acceder a:</b>\n\n" .
+            "📊 <b>Dashboard por entidad:</b>\n" .
+            "• Selector de entidades (multientidad)\n" .
+            "• IVA del mes en curso\n" .
+            "• Último IVA cerrado\n" .
+            "• Totales y desglose\n\n" .
+            "📅 <b>Calendario Fiscal:</b>\n" .
+            "• Fechas de vencimiento\n" .
+            "• Configuración de cierres\n" .
+            "• Alertas personalizadas\n\n" .
+            "📤 <b>Uploader de documentos:</b>\n" .
+            "• Fotografía desde galería\n" .
+            "• Si tu terminal lo permite, toma fotos directas\n" .
+            "• Optimización automática\n" .
+            "• Procesamiento con IA\n\n" .
+            "💡 <b>Tip:</b> También puedes enviar fotos directamente al chat.",
             [
                 'reply_markup' => json_encode([
                     'inline_keyboard' => [[
                         [
-                            'text' => '📊 Ver Dashboard IVA',
+                            'text' => '📱 Abrir Dashboard',
                             'web_app' => ['url' => 'https://dataflow.guaraniappstore.com/miniapp']
                         ]
                     ]]
