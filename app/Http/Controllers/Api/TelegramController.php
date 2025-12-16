@@ -209,20 +209,15 @@ class TelegramController extends Controller
      */
     protected function commandStart(int $chatId)
     {
-        $message = "🤖 <b>¡Bienvenido al Asistente Fiscal de Dataflow!</b>\n\n" .
-            "Soy tu asistente experto en contabilidad paraguaya y gestión de facturas.\n\n" .
-            "<b>💬 Puedes conversar conmigo:</b>\n" .
-            "• Pregúntame sobre fiscalidad paraguaya (RG-90, SET, IVA)\n" .
-            "• Consulta sobre comprobantes y requisitos fiscales\n" .
-            "• Pide ayuda con normativas contables\n\n" .
-            "<b>📄 Envía tus facturas directamente:</b>\n" .
-            "• Solo envía el PDF o foto de la factura\n" .
-            "• La proceso automáticamente con IA\n" .
-            "• Te notifico cuando esté lista\n\n" .
-            "<b>📱 Usa /app para:</b>\n" .
-            "• Fotografiar documentos con compresión automática\n" .
-            "• Subir múltiples facturas de forma rápida\n\n" .
-            "Escríbeme directamente o usa /help para ver más opciones.";
+        $message = "🤖 <b>¡Bienvenido a Dataflow!</b>\n\n" .
+            "Soy tu asistente de contabilidad paraguaya.\n\n" .
+            "<b>📸 CÓMO SUBIR FACTURAS:</b>\n" .
+            "1️⃣ Toma todas las fotos con tu cámara\n" .
+            "2️⃣ Envíamelas todas juntas aquí\n" .
+            "3️⃣ Las optimizo y proceso automáticamente\n\n" .
+            "✨ <b>Optimización automática:</b> Todas tus fotos se comprimen sin perder calidad para procesamiento más rápido.\n\n" .
+            "💬 También puedes preguntarme sobre fiscalidad paraguaya, RG-90, SET, IVA...\n\n" .
+            "Usa /help para ver más opciones.";
 
         $this->telegramService->sendMessage($chatId, $message);
     }
@@ -232,25 +227,24 @@ class TelegramController extends Controller
      */
     protected function commandHelp(int $chatId)
     {
-        $message = "📚 <b>¿Cómo puedo ayudarte?</b>\n\n" .
-            "<b>💬 Conversación:</b>\n" .
-            "Escríbeme directamente para:\n" .
-            "• Consultas sobre fiscalidad paraguaya\n" .
-            "• Interpretación de normativas SET\n" .
+        $message = "📚 <b>Guía Rápida de Dataflow</b>\n\n" .
+            "<b>📸 SUBIR FACTURAS (Recomendado):</b>\n" .
+            "1. Toma fotos de todas tus facturas\n" .
+            "2. Envíalas todas juntas al bot\n" .
+            "3. Se optimizan y procesan automáticamente\n\n" .
+            "✅ Acepto: JPG, PNG, PDF\n" .
+            "✨ Optimización automática incluida\n\n" .
+            "<b>💬 Consultas Fiscales:</b>\n" .
+            "Pregúntame sobre:\n" .
+            "• RG-90 y normativas SET\n" .
             "• Validación de comprobantes\n" .
-            "• Requisitos de facturación\n\n" .
-            "<b>📄 Procesar Facturas:</b>\n" .
-            "• Envía el PDF o foto directamente\n" .
-            "• Procesamiento automático con IA\n" .
-            "• Notificación cuando esté lista\n\n" .
-            "<b>📱 Comandos:</b>\n" .
-            "/start - Información inicial\n" .
-            "/app - 📊 Ver dashboard y guía de uso\n" .
-            "/link - Vincular tu cuenta\n" .
+            "• Cálculos de IVA\n" .
+            "• Requisitos fiscales Paraguay\n\n" .
+            "<b>📱 Comandos Útiles:</b>\n" .
+            "/app - Dashboard con tus datos del mes\n" .
             "/status - Estado de tu cuenta\n" .
-            "/pagar - Pago de suscripción\n" .
-            "/suscripcion - Ver suscripción\n\n" .
-            "💡 <b>Tip:</b> No necesitas comandos para hablar conmigo o enviar facturas, solo escribe o envía el documento.";
+            "/link - Vincular cuenta\n\n" .
+            "💡 <b>Tip:</b> Solo envía las fotos directamente, sin comandos.";
 
         $this->telegramService->sendMessage($chatId, $message);
     }
@@ -433,13 +427,17 @@ class TelegramController extends Controller
                 return;
             }
 
-            // Enviar confirmación de recepción
+            // Enviar confirmación de recepción con optimización
+            $isImage = str_starts_with($mimeType, 'image/');
+            $optimizationMsg = $isImage ? "✨ Optimizando imagen...\n" : "";
+
             $this->telegramService->sendMessage(
                 $chatId,
                 "✅ <b>Documento recibido</b>\n\n" .
-                "📄 Archivo: {$fileName}\n" .
+                "📄 {$fileName}\n" .
+                $optimizationMsg .
                 "⏳ Procesando con IA...\n\n" .
-                "Te notificaré cuando termine. Mientras tanto, puedes seguir conversando conmigo."
+                "Te notificaré en breve. Puedes seguir enviando más facturas."
             );
 
             // Encolar el trabajo de procesamiento con OpenAI Vision + DNIT
@@ -733,15 +731,17 @@ class TelegramController extends Controller
     protected function commandApp(int $chatId)
     {
         $this->telegramService->sendMessage($chatId,
-            "📊 <b>Dashboard IVA en Tiempo Real</b>\n\n" .
-            "Presiona el botón para ver tus datos del mes:\n\n" .
-            "✨ <b>Qué verás:</b>\n" .
-            "• 📈 Resumen del mes actual\n" .
-            "• 💰 Totales de IVA 10% y 5%\n" .
-            "• 📅 Próximo vencimiento de declaración\n" .
-            "• 📱 Guía paso a paso de cómo subir facturas\n" .
-            "• ⚠️ Documentos pendientes de revisión\n\n" .
-            "💡 <b>Importante:</b> Para subir facturas, envía las fotos directamente al chat (es más rápido y confiable que usar la cámara de la miniapp).",
+            "📊 <b>Tu Dashboard IVA</b>\n\n" .
+            "✨ <b>Ver tus datos del mes:</b>\n" .
+            "• Resumen de documentos procesados\n" .
+            "• Totales de IVA 10% y 5%\n" .
+            "• Próximo vencimiento\n" .
+            "• Pendientes de revisión\n\n" .
+            "<b>📸 CÓMO SUBIR FACTURAS:</b>\n" .
+            "1️⃣ Toma fotos con tu cámara\n" .
+            "2️⃣ Envíalas todas juntas aquí\n" .
+            "3️⃣ Optimización y procesamiento automático\n\n" .
+            "💡 Es más rápido enviar las fotos directamente al chat que usar la miniapp.",
             [
                 'reply_markup' => json_encode([
                     'inline_keyboard' => [[
