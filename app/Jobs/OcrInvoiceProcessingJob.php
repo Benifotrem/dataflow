@@ -979,6 +979,31 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 ]);
                 return $exactMatch;
             }
+
+            // ESTRATEGIA 1B: Buscar en ocr_data para documentos antiguos
+            // (documentos procesados antes del fix tienen issuer/invoice_number = NULL)
+            $allDocuments = (clone $query)->get();
+            foreach ($allDocuments as $potential) {
+                $potentialOcr = $potential->ocr_data ?? [];
+                $potentialIsForeign = isset($potentialOcr['invoice_type']) && $potentialOcr['invoice_type'] === 'foreign';
+
+                $potentialIssuer = $potentialIsForeign
+                    ? ($potentialOcr['vendor_name'] ?? null)
+                    : ($potentialOcr['razon_social_emisor'] ?? null);
+
+                $potentialInvoiceNum = $potentialIsForeign
+                    ? ($potentialOcr['invoice_number'] ?? null)
+                    : ($potentialOcr['numero_factura'] ?? null);
+
+                // Comparar con los datos del OCR (para documentos viejos)
+                if ($potentialIssuer === $issuer && $potentialInvoiceNum === $invoiceNumber) {
+                    Log::info('🎯 Duplicado encontrado: coincidencia en OCR data (documento antiguo)', [
+                        'original_id' => $potential->id,
+                        'new_id' => $document->id,
+                    ]);
+                    return $potential;
+                }
+            }
         }
 
         // ESTRATEGIA 2: Búsqueda por similaridad (para casos de mala lectura)
