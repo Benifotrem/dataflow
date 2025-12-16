@@ -92,7 +92,7 @@ class DocumentDiagnosticService
                 "1. Toma una foto más clara y con buena iluminación",
                 "2. Asegúrate de que todo el documento esté visible",
                 "3. Evita reflejos y sombras",
-                "4. Endereza el documento antes de fotografiar",
+                "4. Endereza el documento antes de capturar la imagen",
                 "5. Si es PDF, verifica que no esté protegido"
             ],
             'can_retry' => true,
@@ -154,7 +154,7 @@ class DocumentDiagnosticService
             'solutions' => [
                 "1. Envía la factura como FOTO (JPG o PNG)",
                 "2. Toma una captura de pantalla del PDF",
-                "3. Usa una app de cámara para fotografiar el documento",
+                "3. Usa la app de cámara de tu teléfono para capturar el documento",
                 "4. Si es PDF protegido, desprotégelo primero"
             ],
             'can_retry' => true,
