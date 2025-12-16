@@ -241,10 +241,13 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 ]);
 
                 // Para facturas extranjeras, actualizar campos con datos internacionales
+                // Normalizar fecha al formato Y-m-d si es necesario
+                $documentDate = $this->normalizeDate($extractedData['invoice_date'] ?? null);
+
                 $document->update([
                     'issuer' => $extractedData['vendor_name'] ?? null,
                     'invoice_number' => $extractedData['invoice_number'] ?? null,
-                    'document_date' => $extractedData['invoice_date'] ?? null,
+                    'document_date' => $documentDate,
                     'currency' => $extractedData['currency'] ?? 'USD',
                 ]);
 
@@ -252,6 +255,7 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 $document->update([
                     'validated' => true,
                     'validated_at' => now(),
+                    'ocr_status' => 'completed', // ← Marcar como completado aquí
                 ]);
 
                 // Saltar validaciones fiscales paraguayas
@@ -876,6 +880,46 @@ class OcrInvoiceProcessingJob implements ShouldQueue
         }
 
         return $simplified;
+    }
+
+    /**
+     * Normalizar fecha al formato Y-m-d
+     * Convierte varios formatos de fecha comunes al formato estándar
+     */
+    protected function normalizeDate(?string $date): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        // Si ya está en formato Y-m-d, devolver tal cual
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date;
+        }
+
+        // Intentar parsear varios formatos comunes
+        $formats = [
+            'Y-m-d',     // 2025-12-16
+            'd/m/Y',     // 16/12/2025
+            'm/d/Y',     // 12/16/2025
+            'd-m-Y',     // 16-12-2025
+            'Y/m/d',     // 2025/12/16
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                $parsed = \Carbon\Carbon::createFromFormat($format, $date);
+                if ($parsed) {
+                    return $parsed->format('Y-m-d');
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        // Si no se pudo parsear, devolver null
+        Log::warning('No se pudo parsear fecha', ['date' => $date]);
+        return null;
     }
 
     /**
