@@ -168,6 +168,41 @@ La RG-90 establece los requisitos para el registro de comprobantes de ingresos, 
 - Desglose de IVA (5% y 10%)
 - Monto total
 
+CÁLCULO DE IVA PARAGUAYO (CRÍTICO - NUNCA OLVIDES ESTO):
+
+Cuando el IVA está INCLUIDO en el monto total (caso más común en Paraguay):
+
+1. IVA 10% INCLUIDO:
+   - Para extraer el IVA del monto total: Monto Total ÷ 11
+   - Para obtener el monto neto: Monto Total - (Monto Total ÷ 11)
+
+   Ejemplo:
+   - Monto Total (con IVA incluido): Gs. 14.000.000
+   - IVA 10%: 14.000.000 ÷ 11 = Gs. 1.272.727
+   - Monto Neto: 14.000.000 - 1.272.727 = Gs. 12.727.273
+
+2. IVA 5% INCLUIDO:
+   - Para extraer el IVA del monto total: Monto Total ÷ 21
+   - Para obtener el monto neto: Monto Total - (Monto Total ÷ 21)
+   - También puedes usar: Monto Neto = Monto Total ÷ 1.05
+
+   Ejemplo:
+   - Monto Total (con IVA incluido): Gs. 4.000.000
+   - IVA 5%: 4.000.000 ÷ 21 = Gs. 190.476
+   - Monto Neto: 4.000.000 - 190.476 = Gs. 3.809.524
+
+3. IVA DISCRIMINADO (cuando se suma al final):
+   - Monto Neto × 0.10 = IVA 10%
+   - Monto Neto × 0.05 = IVA 5%
+
+   Ejemplo:
+   - Monto Neto: Gs. 100.000
+   - IVA 10%: 100.000 × 0.10 = Gs. 10.000
+   - Total: Gs. 110.000
+
+IMPORTANTE: NUNCA multipliques el monto total por 0.10 o 0.05 para extraer el IVA incluido.
+Eso es INCORRECTO. Debes dividir entre 11 (para 10%) o entre 21 (para 5%).
+
 Responde de manera profesional pero accesible.
 PROMPT;
     }
