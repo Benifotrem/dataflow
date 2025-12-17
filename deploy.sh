@@ -44,9 +44,18 @@ php artisan key:generate --force
 echo -e "${GREEN}✓ APP_KEY generada${NC}"
 echo ""
 
-echo -e "${YELLOW}5. Creando enlace de storage...${NC}"
+echo -e "${YELLOW}5. Creando enlaces simbólicos...${NC}"
 php artisan storage:link
 echo -e "${GREEN}✓ Storage link creado${NC}"
+
+# Crear symlink para uploads si no existe
+if [ ! -L "uploads" ] && [ -d "public/uploads" ]; then
+    echo -e "${YELLOW}Creando symlink uploads -> public/uploads...${NC}"
+    ln -sf public/uploads uploads
+    echo -e "${GREEN}✓ Uploads symlink creado${NC}"
+elif [ -L "uploads" ]; then
+    echo -e "${GREEN}✓ Uploads symlink ya existe${NC}"
+fi
 echo ""
 
 echo -e "${YELLOW}6. Ejecutando migraciones...${NC}"

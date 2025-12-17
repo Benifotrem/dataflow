@@ -135,6 +135,9 @@ php artisan key:generate
 # Crear enlace simbólico para storage
 php artisan storage:link
 
+# Crear symlink para uploads (IMPORTANTE para imágenes del blog)
+ln -sf public/uploads uploads
+
 # Ejecutar migraciones
 php artisan migrate --force
 
@@ -144,6 +147,24 @@ php artisan route:cache
 php artisan view:cache
 php artisan optimize
 ```
+
+### ⚠️ IMPORTANTE: Estructura de directorios de uploads
+
+El sistema requiere un symlink `uploads -> public/uploads` en el document root para que las imágenes del blog funcionen correctamente:
+
+```
+public_html/
+├── public/
+│   └── uploads/        # Aquí Laravel guarda los archivos
+│       └── blog/       # Imágenes del blog
+└── uploads -> public/uploads  # Symlink (REQUERIDO)
+```
+
+**¿Por qué es necesario?**
+- Laravel guarda archivos en `public/uploads/`
+- Las URLs públicas apuntan a `/uploads/`
+- El symlink hace que ambas rutas apunten al mismo lugar
+- Sin esto, las imágenes del blog retornan 404
 
 ---
 
