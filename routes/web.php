@@ -52,6 +52,13 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Dashboard\DashboardController::class, 'index'])->name('dashboard.index');
 
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\Dashboard\DashboardController::class, 'allNotifications'])->name('notifications.index');
+    Route::get('/notifications/recent', [\App\Http\Controllers\Dashboard\DashboardController::class, 'recentNotifications']);
+    Route::get('/notifications/unread-count', [\App\Http\Controllers\Dashboard\DashboardController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/mark-read', [\App\Http\Controllers\Dashboard\DashboardController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Dashboard\DashboardController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
     // Documentos
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Dashboard\DocumentController::class, 'index'])->name('index');

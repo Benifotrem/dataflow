@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AiUsage;
 use App\Models\Document;
 use App\Models\Entity;
+use App\Models\Notification;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -68,5 +69,102 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard.index', compact('stats', 'documentStats', 'recentDocuments', 'recentTransactions'));
+    }
+
+    /**
+     * Obtener notificaciones recientes
+     * GET /notifications/recent
+     */
+    public function recentNotifications(Request $request)
+    {
+        $user = $request->user();
+
+        $notifications = Notification::forTenant($user->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function($notification) {
+                return [
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'data' => $notification->data,
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at->format('Y-m-d H:i:s'),
+                    'time_ago' => $notification->created_at->diffForHumans(),
+                ];
+            });
+
+        $unreadCount = Notification::forTenant($user->tenant_id)->unread()->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Obtener contador de no leídas
+     * GET /notifications/unread-count
+     */
+    public function unreadCount(Request $request)
+    {
+        $user = $request->user();
+        $count = Notification::forTenant($user->tenant_id)->unread()->count();
+
+        return response()->json([
+            'count' => $count,
+        ]);
+    }
+
+    /**
+     * Marcar notificación como leída
+     * POST /notifications/{id}/mark-read
+     */
+    public function markAsRead(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $notification = Notification::forTenant($user->tenant_id)->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notificación marcada como leída',
+        ]);
+    }
+
+    /**
+     * Marcar todas como leídas
+     * POST /notifications/mark-all-read
+     */
+    public function markAllAsRead(Request $request)
+    {
+        $user = $request->user();
+
+        $updated = Notification::forTenant($user->tenant_id)
+            ->unread()
+            ->update(['read_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'count' => $updated,
+        ]);
+    }
+
+    /**
+     * Ver todas las notificaciones
+     * GET /notifications
+     */
+    public function allNotifications(Request $request)
+    {
+        $user = $request->user();
+
+        $notifications = Notification::forTenant($user->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('dashboard.notifications.index', compact('notifications'));
     }
 }

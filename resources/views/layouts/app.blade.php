@@ -106,27 +106,77 @@
                     {{-- Page Title --}}
                     <h1 class="text-2xl font-bold text-gray-900">@yield('page-title', 'Dashboard')</h1>
 
-                    {{-- User Menu --}}
-                    <div class="relative">
-                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
-                            <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </div>
-                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
+                    {{-- Right Side: Notifications + User Menu --}}
+                    <div class="flex items-center gap-4">
+                        {{-- Notifications Bell --}}
+                        <div class="relative">
+                            <button onclick="toggleNotifications()" class="relative p-2 hover:bg-gray-100 rounded-lg transition">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">
+                                    0
+                                </span>
+                            </button>
 
-                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border">
-                            <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
-                            <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
-                            <div class="border-t my-2"></div>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    Cerrar Sesión
-                                </button>
-                            </form>
+                            {{-- Notifications Dropdown --}}
+                            <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden flex flex-col">
+                                {{-- Header --}}
+                                <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                                    <h3 class="font-bold text-gray-900">Notificaciones</h3>
+                                    <button onclick="markAllAsRead()" class="text-xs text-purple-600 hover:text-purple-700 font-medium">
+                                        Marcar todas como leídas
+                                    </button>
+                                </div>
+
+                                {{-- Notifications List --}}
+                                <div id="notifications-list" class="overflow-y-auto flex-1 divide-y divide-gray-100">
+                                    {{-- Loading state --}}
+                                    <div id="notifications-loading" class="p-8 text-center">
+                                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                                        <p class="text-sm text-gray-500 mt-2">Cargando notificaciones...</p>
+                                    </div>
+
+                                    {{-- Empty state --}}
+                                    <div id="notifications-empty" class="hidden p-8 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                        <p class="text-sm text-gray-500 mt-2">No tienes notificaciones</p>
+                                    </div>
+                                </div>
+
+                                {{-- Footer --}}
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                                    <a href="{{ route('notifications.index') }}" class="text-sm text-purple-600 hover:text-purple-700 font-medium block text-center">
+                                        Ver todas las notificaciones
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- User Menu --}}
+                        <div class="relative">
+                            <button onclick="toggleUserMenu()" class="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                                <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border">
+                                <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+                                <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+                                <div class="border-t my-2"></div>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        Cerrar Sesión
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -242,13 +292,162 @@
             menu.classList.toggle('hidden');
         }
 
-        // Cerrar menú al hacer clic fuera
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notifications-dropdown');
+            const isHidden = dropdown.classList.contains('hidden');
+
+            dropdown.classList.toggle('hidden');
+
+            if (isHidden) {
+                loadNotifications();
+            }
+        }
+
+        async function loadNotifications() {
+            const list = document.getElementById('notifications-list');
+            const loading = document.getElementById('notifications-loading');
+            const empty = document.getElementById('notifications-empty');
+
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            // Remover notificaciones antiguas
+            const oldNotifications = list.querySelectorAll('.notification-item');
+            oldNotifications.forEach(n => n.remove());
+
+            try {
+                const response = await fetch('/notifications/recent');
+                const data = await response.json();
+
+                loading.classList.add('hidden');
+
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(notification => {
+                        appendNotification(notification);
+                    });
+                } else {
+                    empty.classList.remove('hidden');
+                }
+
+                updateBadge(data.unread_count);
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+            }
+        }
+
+        function appendNotification(notification) {
+            const list = document.getElementById('notifications-list');
+            const div = document.createElement('div');
+            div.className = `notification-item p-4 hover:bg-gray-50 transition cursor-pointer ${!notification.read_at ? 'bg-purple-50' : ''}`;
+            div.onclick = () => markAsRead(notification.id);
+
+            const icon = getNotificationIcon(notification.type);
+
+            div.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 text-2xl">
+                        ${icon}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 ${!notification.read_at ? 'font-bold' : ''}">
+                            ${escapeHtml(notification.title)}
+                        </p>
+                        <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+                            ${escapeHtml(notification.message)}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                            ${notification.time_ago}
+                        </p>
+                    </div>
+                    ${!notification.read_at ? '<div class="w-2 h-2 bg-purple-600 rounded-full flex-shrink-0 mt-2"></div>' : ''}
+                </div>
+            `;
+
+            list.appendChild(div);
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                'duplicate_detected': '⚠️',
+                'limit_exceeded': '🚨',
+                'document_processed': '✅',
+                'document_failed': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || '🔔';
+        }
+
+        async function markAsRead(notificationId) {
+            try {
+                await fetch(`/notifications/${notificationId}/mark-read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                await fetch('/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            }
+        }
+
+        function updateBadge(count) {
+            const badge = document.getElementById('notification-badge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Cargar badge al inicio
+        async function loadBadgeCount() {
+            try {
+                const response = await fetch('/notifications/unread-count');
+                const data = await response.json();
+                updateBadge(data.count);
+            } catch (error) {
+                console.error('Error loading badge count:', error);
+            }
+        }
+
+        // Cargar badge cada 30 segundos
+        loadBadgeCount();
+        setInterval(loadBadgeCount, 30000);
+
+        // Cerrar menús al hacer clic fuera
         document.addEventListener('click', function(event) {
             const userMenu = document.getElementById('user-menu');
             const userButton = event.target.closest('button[onclick="toggleUserMenu()"]');
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            const notificationsButton = event.target.closest('button[onclick="toggleNotifications()"]');
 
             if (!userButton && !userMenu.contains(event.target)) {
                 userMenu.classList.add('hidden');
+            }
+
+            if (!notificationsButton && !notificationsDropdown.contains(event.target)) {
+                notificationsDropdown.classList.add('hidden');
             }
         });
 
@@ -388,6 +587,12 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 
