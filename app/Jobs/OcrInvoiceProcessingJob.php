@@ -268,11 +268,6 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     "🆔 ID del documento original: #{$duplicateDocument->id}\n\n" .
                     "💡 Si necesitas actualizar los datos, puedes editar el documento desde la plataforma web.";
 
-                $document->update([
-                    'ocr_status' => 'failed',
-                    'rejection_reason' => $errorMessage,
-                ]);
-
                 Log::warning('🔁 Factura duplicada detectada', [
                     'document_id' => $document->id,
                     'duplicate_of' => $duplicateDocument->id,
@@ -280,7 +275,28 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     'invoice_number' => $invoiceNum,
                 ]);
 
-                throw new \Exception($errorMessage);
+                // Enviar notificación de duplicado al usuario (solo si viene de Telegram)
+                if ($this->chatId) {
+                    try {
+                        $telegramService = app(TelegramBotService::class);
+                        $telegramService->sendMessage($this->chatId, $errorMessage);
+                    } catch (\Exception $notifError) {
+                        Log::error('No se pudo enviar notificación de duplicado', [
+                            'error' => $notifError->getMessage(),
+                        ]);
+                    }
+                }
+
+                // Eliminar el documento duplicado de la base de datos
+                $document->delete();
+
+                Log::info('🗑️ Documento duplicado eliminado', [
+                    'document_id' => $document->id,
+                    'duplicate_of' => $duplicateDocument->id,
+                ]);
+
+                // Retornar sin procesar más
+                return;
             }
 
             // PASO 4.6: Validación Matemática Fiscal (solo para facturas paraguayas)
