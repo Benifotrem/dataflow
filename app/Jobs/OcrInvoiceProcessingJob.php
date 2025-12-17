@@ -9,6 +9,7 @@ use App\Services\DnitConnector;
 use App\Services\TelegramService;
 use App\Services\FiscalValidationService;
 use App\Services\DocumentDiagnosticService;
+use App\Services\NotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -282,14 +283,35 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                     'invoice_number' => $invoiceNum,
                 ]);
 
-                // Enviar notificación de duplicado al usuario (solo si viene de Telegram)
+                // Obtener monto del documento
+                $amount = $extractedData['monto_total'] ?? $document->amount ?? 0;
+
+                // Enviar notificación de duplicado (en dashboard y Telegram si está configurado)
+                try {
+                    $notificationService = app(NotificationService::class);
+                    $notificationService->notifyDuplicateDetected(
+                        tenantId: $this->user->tenant_id,
+                        userId: $this->user->id,
+                        invoiceNumber: $invoiceNum,
+                        issuer: $issuerName,
+                        amount: $amount,
+                        originalDocumentId: $duplicateDocument->id,
+                        duplicateDocumentId: $document->id
+                    );
+                } catch (\Exception $notifError) {
+                    Log::error('No se pudo enviar notificación de duplicado', [
+                        'error' => $notifError->getMessage(),
+                    ]);
+                }
+
+                // Si viene de Telegram, enviar mensaje adicional con detalles
                 if ($this->chatId) {
                     try {
                         $telegramService = app(TelegramBotService::class);
                         $telegramService->sendMessage($this->chatId, $errorMessage);
-                    } catch (\Exception $notifError) {
-                        Log::error('No se pudo enviar notificación de duplicado', [
-                            'error' => $notifError->getMessage(),
+                    } catch (\Exception $telError) {
+                        Log::error('No se pudo enviar mensaje de Telegram', [
+                            'error' => $telError->getMessage(),
                         ]);
                     }
                 }

@@ -27,6 +27,11 @@ Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function (
     Route::patch('/documents/{id}', [MiniAppController::class, 'updateDocument']);
     Route::post('/upload', [MiniAppController::class, 'uploadDocument'])->name('miniapp.upload');
 
+    // Notifications
+    Route::get('/notifications', [MiniAppController::class, 'getNotifications']);
+    Route::post('/notifications/{id}/mark-read', [MiniAppController::class, 'markNotificationAsRead']);
+    Route::post('/notifications/mark-all-read', [MiniAppController::class, 'markAllNotificationsAsRead']);
+
     // CDC - Consulta de facturas electrónicas
     Route::post('/cdc/consult', [MiniAppController::class, 'consultCDC']);
 

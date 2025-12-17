@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Jobs\OcrInvoiceProcessingJob;
 use App\Models\Document;
 use App\Models\Entity;
+use App\Models\Notification;
 use App\Services\DnitConnector;
 use App\Services\FiscalValidationService;
+use App\Services\NotificationService;
 use App\Exports\VatLiquidationExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -128,6 +130,8 @@ class MiniAppController extends Controller
         $tenant = $user->tenant;
 
         $query = Document::where('tenant_id', $tenant->id)
+            ->where('ocr_status', 'completed') // Solo documentos completados
+            ->whereNull('deleted_at') // Excluir duplicados eliminados
             ->with('entity')
             ->orderBy('document_date', 'desc');
 
@@ -537,7 +541,9 @@ class MiniAppController extends Controller
     private function getMonthStats($tenantId, $from, $to, $entityId = null)
     {
         $query = Document::where('tenant_id', $tenantId)
-            ->whereBetween('document_date', [$from, $to]);
+            ->whereBetween('document_date', [$from, $to])
+            ->where('ocr_status', 'completed') // Solo documentos completados
+            ->whereNull('deleted_at'); // Excluir eliminados (duplicados)
 
         // Filtrar por entidad si se especifica
         if ($entityId) {
@@ -577,7 +583,9 @@ class MiniAppController extends Controller
     private function getDailyEvolution($tenantId, $entityId = null)
     {
         $query = Document::where('tenant_id', $tenantId)
-            ->where('document_date', '>=', now()->subDays(30));
+            ->where('document_date', '>=', now()->subDays(30))
+            ->where('ocr_status', 'completed')
+            ->whereNull('deleted_at');
 
         if ($entityId) {
             $query->where('entity_id', $entityId);
@@ -602,7 +610,9 @@ class MiniAppController extends Controller
     private function getTopSuppliers($tenantId, $from, $to, $limit = 10, $entityId = null)
     {
         $query = Document::where('tenant_id', $tenantId)
-            ->whereBetween('document_date', [$from, $to]);
+            ->whereBetween('document_date', [$from, $to])
+            ->where('ocr_status', 'completed')
+            ->whereNull('deleted_at');
 
         if ($entityId) {
             $query->where('entity_id', $entityId);
@@ -752,6 +762,78 @@ class MiniAppController extends Controller
                 'error' => 'Error al procesar el documento'
             ], 500);
         }
+    }
+
+    /**
+     * Obtener notificaciones del usuario
+     * GET /api/miniapp/notifications
+     */
+    public function getNotifications(Request $request)
+    {
+        $user = auth()->user();
+
+        $query = Notification::forTenant($user->tenant_id)
+            ->orderBy('created_at', 'desc');
+
+        // Filtrar por leídas/no leídas
+        if ($request->filled('unread_only') && $request->boolean('unread_only')) {
+            $query->unread();
+        }
+
+        $notifications = $query->limit($request->input('limit', 20))->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $notifications->map(function($notif) {
+                return [
+                    'id' => $notif->id,
+                    'type' => $notif->type,
+                    'title' => $notif->title,
+                    'message' => $notif->message,
+                    'data' => $notif->data,
+                    'read_at' => $notif->read_at?->format('Y-m-d H:i:s'),
+                    'created_at' => $notif->created_at->format('Y-m-d H:i:s'),
+                    'time_ago' => $notif->created_at->diffForHumans(),
+                ];
+            }),
+            'unread_count' => Notification::forTenant($user->tenant_id)->unread()->count(),
+        ]);
+    }
+
+    /**
+     * Marcar notificación como leída
+     * POST /api/miniapp/notifications/{id}/mark-read
+     */
+    public function markNotificationAsRead($id)
+    {
+        $user = auth()->user();
+
+        $notification = Notification::forTenant($user->tenant_id)->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notificación marcada como leída',
+        ]);
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     * POST /api/miniapp/notifications/mark-all-read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $user = auth()->user();
+
+        $updated = Notification::forTenant($user->tenant_id)
+            ->unread()
+            ->update(['read_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} notificaciones marcadas como leídas",
+            'count' => $updated,
+        ]);
     }
 
 }
