@@ -238,6 +238,11 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 ? ($extractedData['currency'] ?? 'USD')
                 : ($extractedData['moneda'] ?? 'PYG');
 
+            // PASO 4.4: Asignar entidad automáticamente basada en el receptor de la factura
+            $recipientName = $extractedData['razon_social_receptor'] ?? null;
+            $recipientTaxId = $extractedData['ruc_receptor'] ?? null;
+            $assignedEntityId = $this->assignEntityByRecipient($document, $recipientTaxId, $recipientName);
+
             $document->update([
                 'ocr_data' => $extractedData,
                 'amount' => $extractedData['monto_total'] ?? null,
@@ -247,6 +252,8 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 'invoice_number' => $invoiceNumberField,
                 'tax_amount' => $extractedData['total_iva'] ?? null,
                 'tax_base' => $extractedData['subtotal'] ?? null,
+                'recipient' => $recipientName,
+                'entity_id' => $assignedEntityId ?? $document->entity_id, // Mantener el entity_id original si no se encuentra
             ]);
 
             // PASO 4.5: Detectar facturas duplicadas
@@ -1092,6 +1099,137 @@ class OcrInvoiceProcessingJob implements ShouldQueue
 
         // No se encontró duplicado
         return null;
+    }
+
+    /**
+     * Asignar entidad automáticamente basada en el receptor de la factura
+     * Busca la entidad que coincida con el RUC o nombre del receptor
+     *
+     * @param Document $document Documento a procesar
+     * @param string|null $recipientTaxId RUC del receptor
+     * @param string|null $recipientName Nombre del receptor
+     * @return int|null ID de la entidad asignada, o null si no se encuentra
+     */
+    protected function assignEntityByRecipient(Document $document, ?string $recipientTaxId, ?string $recipientName): ?int
+    {
+        // Si no hay datos del receptor, retornar null (se usará el entity_id original)
+        if (empty($recipientTaxId) && empty($recipientName)) {
+            Log::info('📋 No hay datos de receptor en la factura, manteniendo entidad original', [
+                'document_id' => $document->id,
+                'current_entity_id' => $document->entity_id,
+            ]);
+            return null;
+        }
+
+        // Obtener todas las entidades del tenant
+        $tenant = $this->user->tenant;
+        if (!$tenant) {
+            Log::warning('⚠️ Usuario sin tenant asociado', [
+                'user_id' => $this->user->id,
+            ]);
+            return null;
+        }
+
+        $entities = $tenant->entities()->where('status', 'active')->get();
+
+        if ($entities->isEmpty()) {
+            Log::warning('⚠️ Tenant sin entidades activas', [
+                'tenant_id' => $tenant->id,
+            ]);
+            return null;
+        }
+
+        // ESTRATEGIA 1: Buscar por RUC exacto (más confiable)
+        if (!empty($recipientTaxId)) {
+            // Limpiar RUC (quitar guiones, espacios, etc.)
+            $cleanTaxId = preg_replace('/[^0-9]/', '', $recipientTaxId);
+
+            foreach ($entities as $entity) {
+                if ($entity->tax_id) {
+                    $entityCleanTaxId = preg_replace('/[^0-9]/', '', $entity->tax_id);
+                    if ($entityCleanTaxId === $cleanTaxId) {
+                        Log::info('✅ Entidad asignada automáticamente por RUC', [
+                            'document_id' => $document->id,
+                            'entity_id' => $entity->id,
+                            'entity_name' => $entity->name,
+                            'matched_tax_id' => $recipientTaxId,
+                        ]);
+                        return $entity->id;
+                    }
+                }
+            }
+        }
+
+        // ESTRATEGIA 2: Buscar por nombre (con normalización)
+        if (!empty($recipientName)) {
+            // Normalizar nombre del receptor (quitar S.A., S.R.L., puntos, espacios extra)
+            $normalizedRecipient = $this->normalizeEntityName($recipientName);
+
+            foreach ($entities as $entity) {
+                if ($entity->name) {
+                    $normalizedEntityName = $this->normalizeEntityName($entity->name);
+
+                    // Coincidencia exacta después de normalizar
+                    if ($normalizedEntityName === $normalizedRecipient) {
+                        Log::info('✅ Entidad asignada automáticamente por nombre exacto', [
+                            'document_id' => $document->id,
+                            'entity_id' => $entity->id,
+                            'entity_name' => $entity->name,
+                            'matched_recipient' => $recipientName,
+                        ]);
+                        return $entity->id;
+                    }
+
+                    // Coincidencia parcial (el nombre de la entidad contiene el receptor o viceversa)
+                    if (strpos($normalizedEntityName, $normalizedRecipient) !== false ||
+                        strpos($normalizedRecipient, $normalizedEntityName) !== false) {
+                        Log::info('✅ Entidad asignada automáticamente por nombre parcial', [
+                            'document_id' => $document->id,
+                            'entity_id' => $entity->id,
+                            'entity_name' => $entity->name,
+                            'matched_recipient' => $recipientName,
+                            'match_type' => 'partial',
+                        ]);
+                        return $entity->id;
+                    }
+                }
+            }
+        }
+
+        // No se encontró coincidencia
+        Log::info('📋 No se encontró entidad coincidente con el receptor', [
+            'document_id' => $document->id,
+            'recipient_tax_id' => $recipientTaxId,
+            'recipient_name' => $recipientName,
+            'available_entities' => $entities->pluck('name', 'id')->toArray(),
+        ]);
+
+        return null;
+    }
+
+    /**
+     * Normalizar nombre de entidad para comparación
+     * Quita sufijos legales, puntos, comas y espacios extra
+     */
+    protected function normalizeEntityName(string $name): string
+    {
+        // Convertir a mayúsculas
+        $normalized = strtoupper($name);
+
+        // Quitar sufijos legales comunes
+        $suffixes = ['S.A.', 'SA', 'S.R.L.', 'SRL', 'S.A.C.', 'SAC', 'LTDA', 'LTDA.', 'S.A.S.', 'SAS', 'INC', 'INC.', 'LLC', 'LTD', 'LTD.'];
+        foreach ($suffixes as $suffix) {
+            $normalized = str_replace($suffix, '', $normalized);
+        }
+
+        // Quitar puntos, comas, guiones
+        $normalized = str_replace(['.', ',', '-', '_'], '', $normalized);
+
+        // Quitar espacios extra y trimear
+        $normalized = preg_replace('/\s+/', ' ', $normalized);
+        $normalized = trim($normalized);
+
+        return $normalized;
     }
 
     /**
