@@ -307,7 +307,7 @@ class OcrInvoiceProcessingJob implements ShouldQueue
                 // Si viene de Telegram, enviar mensaje adicional con detalles
                 if ($this->chatId) {
                     try {
-                        $telegramService = app(TelegramBotService::class);
+                        $telegramService = app(TelegramService::class);
                         $telegramService->sendMessage($this->chatId, $errorMessage);
                     } catch (\Exception $telError) {
                         Log::error('No se pudo enviar mensaje de Telegram', [
