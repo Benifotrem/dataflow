@@ -115,6 +115,7 @@ Route::middleware(['auth', 'tenant.active'])->group(function () {
     Route::put('/settings', [\App\Http\Controllers\Dashboard\SettingsController::class, 'update'])->name('settings.update');
     Route::post('/settings/telegram/link', [\App\Http\Controllers\Dashboard\SettingsController::class, 'linkTelegram'])->name('settings.telegram.link');
     Route::post('/settings/telegram/unlink', [\App\Http\Controllers\Dashboard\SettingsController::class, 'unlinkTelegram'])->name('settings.telegram.unlink');
+    Route::post('/account/cancel', [\App\Http\Controllers\Dashboard\SettingsController::class, 'requestCancellation'])->name('account.cancel.request');
 
     // Transacciones
     Route::prefix('transactions')->name('transactions.')->group(function () {
