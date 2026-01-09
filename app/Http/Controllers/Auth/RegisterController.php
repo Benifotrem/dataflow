@@ -31,14 +31,29 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // Validar campos sin validar unique en email
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'company_name' => ['required', 'string', 'max:255'],
             'tenant_type' => ['required', 'in:b2c,b2b'],
             'country' => ['required', 'string', 'max:2'],
         ]);
+
+        // Verificar si el email ya existe
+        $existingUser = User::where('email', $validated['email'])->first();
+
+        if ($existingUser) {
+            // Email ya existe - no revelar esta información
+            // Solo registrar en log y mostrar mensaje genérico
+            Log::info('Intento de registro con email existente', [
+                'email' => $validated['email'],
+                'ip' => $request->ip()
+            ]);
+
+            return redirect()->route('login')->with('info', 'Si el email está registrado recibirá un correo en los próximos minutos.');
+        }
 
         try {
             DB::beginTransaction();
@@ -90,7 +105,11 @@ class RegisterController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Ocurrió un error al crear tu cuenta. Por favor intenta nuevamente.'])->withInput();
+            Log::error('Error en registro de usuario', [
+                'email' => $validated['email'],
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Ocurrió un error al procesar tu solicitud. Por favor intenta nuevamente.'])->withInput();
         }
     }
 }
