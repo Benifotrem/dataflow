@@ -33,16 +33,22 @@ Route::get('/miniapp', function () {
 // Rutas de Autenticación
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'store']);
+    Route::post('/login', [LoginController::class, 'store'])
+        ->middleware('throttle:5,1'); // 5 intentos por minuto
 
     Route::get('/register', [RegisterController::class, 'show'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
+    Route::post('/register', [RegisterController::class, 'store'])
+        ->middleware('throttle:3,10'); // 3 intentos por 10 minutos
 
     // Password Reset
     Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'show'])->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'store'])->name('password.email');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'store'])
+        ->name('password.email')
+        ->middleware('throttle:3,10'); // 3 intentos por 10 minutos
     Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'show'])->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'store'])->name('password.update');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'store'])
+        ->name('password.update')
+        ->middleware('throttle:5,1'); // 5 intentos por minuto
 });
 
 Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');

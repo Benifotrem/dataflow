@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Telegram Webhook - REACTIVADO con protecciones anti-bucle
-Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('telegram.webhook');
+Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])
+    ->middleware('throttle:60,1') // 60 requests por minuto (1 por segundo promedio)
+    ->name('telegram.webhook');
 
 // Endpoint de prueba para verificar accesibilidad
 Route::get('/telegram/test', function() {
@@ -30,9 +32,13 @@ Route::get('/telegram/test', function() {
 });
 
 // PagoPar Webhook
-Route::post('/pagopar/webhook', [PagoParController::class, 'webhook'])->name('pagopar.webhook');
+Route::post('/pagopar/webhook', [PagoParController::class, 'webhook'])
+    ->middleware('throttle:30,1') // 30 requests por minuto
+    ->name('pagopar.webhook');
 
 // Chatbot Web (requiere autenticación web)
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::post('/chatbot/message', [ChatbotController::class, 'sendMessage'])->name('chatbot.message');
+    Route::post('/chatbot/message', [ChatbotController::class, 'sendMessage'])
+        ->middleware('throttle:20,1') // 20 mensajes por minuto por usuario
+        ->name('chatbot.message');
 });

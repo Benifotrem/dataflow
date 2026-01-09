@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function () {
+Route::middleware(['telegram.miniapp', 'throttle:120,1'])->prefix('api/miniapp')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [MiniAppController::class, 'dashboard']);
@@ -25,7 +25,9 @@ Route::middleware(['telegram.miniapp'])->prefix('api/miniapp')->group(function (
     Route::get('/documents', [MiniAppController::class, 'listDocuments']);
     Route::get('/documents/{id}', [MiniAppController::class, 'getDocument']);
     Route::patch('/documents/{id}', [MiniAppController::class, 'updateDocument']);
-    Route::post('/upload', [MiniAppController::class, 'uploadDocument'])->name('miniapp.upload');
+    Route::post('/upload', [MiniAppController::class, 'uploadDocument'])
+        ->middleware('throttle:10,1') // 10 uploads por minuto máximo
+        ->name('miniapp.upload');
 
     // Notifications
     Route::get('/notifications', [MiniAppController::class, 'getNotifications']);
