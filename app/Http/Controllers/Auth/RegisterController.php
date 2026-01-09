@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeEmail;
 use App\Models\Setting;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Services\BrevoService;
 use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -72,18 +73,17 @@ class RegisterController extends Controller
             // Autenticar al usuario
             Auth::login($user);
 
-            // Enviar email de bienvenida si está habilitado
+            // Enviar email de bienvenida
             try {
-                $emailWelcomeEnabled = Setting::get('email_welcome_enabled', true);
-                if ($emailWelcomeEnabled) {
-                    $brevoService = new BrevoService();
-                    if ($brevoService->isConfigured()) {
-                        $brevoService->sendWelcomeEmail($user->email, $user->name);
-                    }
-                }
+                Mail::to($user->email)->send(new WelcomeEmail($user));
+                Log::info('Email de bienvenida enviado', ['user_id' => $user->id, 'email' => $user->email]);
             } catch (\Exception $e) {
                 // No fallar el registro si el email falla
-                Log::warning('No se pudo enviar email de bienvenida: ' . $e->getMessage());
+                Log::warning('No se pudo enviar email de bienvenida', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage()
+                ]);
             }
 
             return redirect('/dashboard')->with('success', '¡Bienvenido a Dataflow! Tu cuenta ha sido creada exitosamente.');
